@@ -1,0 +1,42 @@
+body {
+    margin: 0;
+    font-family: "Istok Web";
+    background-color: #f3f3f3;
+    color: #323232;
+}
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.main {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.header {
+    height: 50px;
+    background-color: #cccccc;
+    margin-bottom: 30px;
+}
+.header_title {
+    font-size: 20px;
+    margin: 0;
+    display: inline-block;
+    line-height: 50px;
+}
+
+.button {
+    background-color: #cccccc;
+    font-size: 14px;
+    padding-left: 10px;
+    padding-right: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 32px;
+    height: 30px;
+    user-select: none;
+    text-align: center;
+}

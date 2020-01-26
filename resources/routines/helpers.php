@@ -1,6 +1,9 @@
 <?php
 include_once("config.php");
 
+$ERROR_ITEM_HTML = "<div class=\"message_item\"><span>Error Getting Data</span></div>";
+$EMPTY_ITEM_HTML = "<div class=\"message_item\"><span>Nothing Here</span></div>";
+
 // Uses code from https://github.com/henryshunt/c-aws-server/blob/master/routines/database.php
 function database_connection($config)
 {

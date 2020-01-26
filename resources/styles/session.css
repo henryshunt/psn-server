@@ -1,0 +1,49 @@
+.session_info {
+    border: 1px solid #cccccc;
+    background: white;
+    padding: 20px;
+    display: flex;
+}
+
+.session_info_left {
+    flex-grow: 1;
+    margin-right: 20px;
+    text-align: justify;
+}
+.session_info_left > :first-child {
+    font-weight: bold;
+}
+
+.session_info_right {
+    flex: 0 0 170px;
+}
+.session_info_right > div {
+    margin-bottom: 10px;
+}
+.session_info_right > :last-child {
+    margin-bottom: 0;
+}
+
+.group_item > div {
+    padding: 20px;
+    cursor: pointer;
+    height: calc(100% - 40px);
+}
+.group_item > div > :first-child {
+    font-weight: bold;
+}
+
+.group_item_data {
+    position: absolute;
+    bottom: 14px;
+    right: 20px;
+}
+.group_item_data > div {
+    display: inline-block;
+    margin-left: 10px;
+    text-align: center;
+}
+.group_item_data > div > :first-child {
+    font-weight: bold;
+    font-size: 12px;
+}

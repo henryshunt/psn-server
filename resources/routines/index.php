@@ -1,4 +1,5 @@
 <?php
+date_default_timezone_set("UTC");
 include_once("helpers.php");
 include_once("config.php");
 
@@ -11,28 +12,21 @@ main();
 
 function main()
 {
-    global $active_sessions_html, $completed_sessions_html, $active_alarms_html;
+    global $ERROR_ITEM_HTML, $EMPTY_ITEM_HTML, $active_sessions_html, $completed_sessions_html,
+        $active_alarms_html;
 
-    $error_item_html = "<div class=\"message_item\"><span>Error Getting Data</span></div>";
-    $empty_item_html = "<div class=\"message_item\"><span>Nothing Here</span></div>";
-
-    // Load the user-supplied configuration file
+    // Perform various setup checks before continuing
+    $setup_error = false;
     $config = new Config();
-    if (!$config->load_config("config.ini"))
-    {
-        $active_sessions_html = $error_item_html;
-        $completed_sessions_html = $error_item_html;
-        $active_alarms_html = $error_item_html;
-        return;
-    }
-
-    // Connect to the database
+    if (!$config->load_config("config.ini")) $setup_error = true;
     $db_connection = database_connection($config);
-    if (!$db_connection)
+    if (!$db_connection) $setup_error = true;
+
+    if ($setup_error)
     {
-        $active_sessions_html = $error_item_html;
-        $completed_sessions_html = $error_item_html;
-        $active_alarms_html = $error_item_html;
+        $active_sessions_html = $ERROR_ITEM_HTML;
+        $completed_sessions_html = $ERROR_ITEM_HTML;
+        $active_alarms_html = $ERROR_ITEM_HTML;
         return;
     }
 
@@ -41,112 +35,117 @@ function main()
     $active_sessions = get_active_sessions_html($db_connection);
     
     if ($active_sessions === false)
-        $active_sessions_html = $error_item_html;
+        $active_sessions_html = $ERROR_ITEM_HTML;
     else if ($active_sessions === NULL)
-        $active_sessions_html = $empty_item_html;
+        $active_sessions_html = $EMPTY_ITEM_HTML;
     else $active_sessions_html = $active_sessions;
 
     // Get completed sessions
     $completed_sessions = get_completed_sessions_html($db_connection);
     
     if ($completed_sessions === false)
-        $completed_sessions_html = $error_item_html;
+        $completed_sessions_html = $ERROR_ITEM_HTML;
     else if ($completed_sessions === NULL)
-        $completed_sessions_html = $empty_item_html;
+        $completed_sessions_html = $EMPTY_ITEM_HTML;
     else $completed_sessions_html = $completed_sessions;
 
     // Get active alarms
     $active_alarms = get_active_alarms_html($db_connection);
     
     if ($active_alarms === false)
-        $active_alarms_html = $error_item_html;
+        $active_alarms_html = $ERROR_ITEM_HTML;
     else if ($active_alarms === NULL)
-        $active_alarms_html = $empty_item_html;
+        $active_alarms_html = $EMPTY_ITEM_HTML;
     else $active_alarms_html = $active_alarms;
 }
 
 
 function get_active_sessions_html($db_connection)
 {
-    $QUERY = "SELECT session_id, title, " .
+    $QUERY = "SELECT session_id, name, " .
         "(SELECT COUNT(*) FROM session_nodes WHERE session_id = sessions.session_id) AS node_count, " .
         "(SELECT start_time FROM session_nodes WHERE session_id = sessions.session_id ORDER BY start_time ASC LIMIT 1) AS start_time, " .
         "(SELECT end_time FROM session_nodes WHERE session_id = sessions.session_id ORDER BY end_time DESC LIMIT 1) AS end_time " .
-        "FROM sessions HAVING start_time IS NOT NULL AND (end_time IS NULL OR NOW() BETWEEN start_time AND end_time) ORDER BY title";
+        "FROM sessions HAVING start_time IS NOT NULL " .
+        "AND (start_time > NOW() OR end_time IS NULL OR NOW() BETWEEN start_time AND end_time) ORDER BY name";
 
     $result = query_database($db_connection, $QUERY, NULL);
     if ($result === false || $result === NULL) return $result;
 
-    $active_sessions_html = "";
-
-    // Create HTML for the returned session records
+    $html = "";
     foreach ($result as $session)
     {
-        $active_sessions_html .= "<div class=\"session_item\">";
-        $active_sessions_html .= "<a href=\"session.php?id=" . $session["session_id"] . "\">";
-        $active_sessions_html .= "<span>" . $session["title"] . "</span>";
-        $active_sessions_html .= "<br>";
-        
-        $active_sessions_html .= "<span>From ";
+        $html .= "<div class=\"group_item\">";
+        $html .= "<a href=\"session.php?id=" . $session["session_id"] . "\">";
+        $html .= "<span>" . $session["name"] . "</span>";
+        $html .= "<br>";
+
+        // Session start and end time
+        $html .= "<span>From ";
         $start_time = DateTime::createFromFormat("Y-m-d H:i:s", $session["start_time"]);
-        $active_sessions_html .= $start_time->format("d/m/Y");
+        $html .= $start_time->format("d/m/Y");
 
         if ($session["end_time"] !== NULL)
         {
             $end_time = DateTime::createFromFormat("Y-m-d H:i:s", $session["end_time"]);
-            $active_sessions_html .= " to " . $end_time->format("d/m/Y");
+            $html .= " to " . $end_time->format("d/m/Y");
         }
-        
-        $active_sessions_html .= "</span>";
-        $active_sessions_html .= "<span>" . $session["node_count"] . " Nodes</span>";
-        $active_sessions_html .= "</a>";
-        $active_sessions_html .= "</div>";
+        else $html .= ", indefinitely";
+        $html .= "</span>";
+
+        // Sensor node count
+        if ($session["node_count"] === 1)
+            $html .= "<span>1 Sensor Node</span>";
+        else $html .= "<span>" . $session["node_count"] . " Sensor Nodes</span>";
+
+        $html .= "</a>";
+        $html .= "</div>";
     }
 
-    return $active_sessions_html;
+    return $html;
 }
 
 function get_completed_sessions_html($db_connection)
 {
-    $QUERY = "SELECT session_id, title, " .
+    $QUERY = "SELECT session_id, name, " .
         "(SELECT COUNT(*) FROM session_nodes WHERE session_id = sessions.session_id) AS node_count, " .
-        "(SELECT start_time FROM session_nodes " .
-        "WHERE session_id = sessions.session_id ORDER BY start_time ASC LIMIT 1) AS start_time, " .
-        "(SELECT end_time FROM session_nodes " .
-        "WHERE session_id = sessions.session_id ORDER BY end_time DESC LIMIT 1) AS end_time " .
-        "FROM sessions HAVING start_time IS NOT NULL " .
-        "AND (end_time IS NOT NULL AND NOW() NOT BETWEEN start_time AND end_time) ORDER BY title";
+        "(SELECT start_time FROM session_nodes WHERE session_id = sessions.session_id ORDER BY start_time ASC LIMIT 1) AS start_time, " .
+        "(SELECT end_time FROM session_nodes WHERE session_id = sessions.session_id ORDER BY end_time DESC LIMIT 1) AS end_time " .
+        "FROM sessions HAVING NOT (start_time IS NOT NULL " .
+        "AND (start_time > NOW() OR end_time IS NULL OR NOW() BETWEEN start_time AND end_time)) ORDER BY name";
 
     $result = query_database($db_connection, $QUERY, NULL);
     if ($result === false || $result === NULL) return $result;
     
-    $completed_sessions_html = "";
-
-    // Create HTML for the returned session records
+    $html = "";
     foreach ($result as $session)
     {
-        $completed_sessions_html .= "<div class=\"session_item\">";
-        $completed_sessions_html .= "<a href=\"session.php?id=" . $session["session_id"] . "\">";
-        $completed_sessions_html .= "<span>" . $session["title"] . "</span>";
-        $completed_sessions_html .= "<br>";
-        
-        $completed_sessions_html .= "<span>From ";
-        $start_time = DateTime::createFromFormat("Y-m-d H:i:s", $session["start_time"]);
-        $completed_sessions_html .= $start_time->format("d/m/Y");
+        $html .= "<div class=\"group_item\">";
+        $html .= "<a href=\"session.php?id=" . $session["session_id"] . "\">";
+        $html .= "<span>" . $session["name"] . "</span>";
+        $html .= "<br>";
 
-        if ($session["end_time"] !== NULL)
+        // Session start and end time
+        if ($session["start_time"] !== NULL)
         {
+            $html .= "<span>From ";
+            $start_time = DateTime::createFromFormat("Y-m-d H:i:s", $session["start_time"]);
+            $html .= $start_time->format("d/m/Y");
             $end_time = DateTime::createFromFormat("Y-m-d H:i:s", $session["end_time"]);
-            $completed_sessions_html .= " to " . $end_time->format("d/m/Y");
+            $html .= " to " . $end_time->format("d/m/Y");
+            $html .= "</span>";
         }
         
-        $completed_sessions_html .= "</span>";
-        $completed_sessions_html .= "<span>" . $session["node_count"] . " Nodes</span>";
-        $completed_sessions_html .= "</a>";
-        $completed_sessions_html .= "</div>";
+        // Sensor node count
+        if ($session["node_count"] === 1)
+            $html .= "<span>1 Sensor Node</span>";
+        else $html .= "<span>" . $session["node_count"] . " Sensor Nodes</span>";
+        
+        $html .= "</a>";
+        $html .= "</div>";
     }
 
-    return $completed_sessions_html;
+    return $html;
 }
 
 function get_active_alarms_html($db_connection)
