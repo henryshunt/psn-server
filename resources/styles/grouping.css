@@ -15,7 +15,7 @@
     float: right;
 }
 .group_separator {
-    border: 1px solid #cccccc;
+    border: 1px solid rgb(200, 200, 200);;
     width: calc(100% - 2px);
     position: absolute;
     bottom: 0;
@@ -32,18 +32,34 @@
 
 .group_item {
     height: 140px;
-    border: 1px solid #cccccc;
+    border: 1px solid rgb(200, 200, 200);;
     width: calc(50% - 22px);
     background: white;
     position: relative;
     font-size: 15px;
     margin: 10px;
 }
+.group_item > a {
+    display: inline-block;
+    width: calc(100% - 40px);
+    height: calc(100% - 40px);
+    margin: 0;
+    padding: 20px;
+}
+.group_item > a:hover > :first-child {
+    text-decoration: underline;
+}
+.group_item > a:focus {
+    outline: none;
+}
+.group_item > a > :first-child {
+    font-weight: bold;
+}
 
 .message_item {
     width: 100%;
     height: 40px;
-    border: 1px solid #cccccc;
+    border: 1px solid rgb(200, 200, 200);;
     background: white;
     text-align: center;
 }

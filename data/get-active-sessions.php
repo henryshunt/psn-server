@@ -13,7 +13,7 @@ if (!$db_connection)
 if ($setup_error) { echo "false"; exit(1); }
 
 
-// Gets the currently active sessions
+// Get the future or currently active sessions
 $QUERY = "SELECT session_id, name, " .
     "(SELECT start_time FROM session_nodes WHERE session_id = sessions.session_id ORDER BY start_time ASC LIMIT 1) AS start_time, " .
     "(SELECT end_time FROM session_nodes WHERE session_id = sessions.session_id ORDER BY end_time DESC LIMIT 1) AS end_time, " .

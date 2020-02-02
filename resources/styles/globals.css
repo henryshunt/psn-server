@@ -1,8 +1,8 @@
 body {
     margin: 0;
     font-family: "Istok Web";
-    background-color: #f3f3f3;
-    color: #323232;
+    background-color: rgb(240, 240, 240);
+    color: rgb(50, 50, 50);
 }
 a {
     text-decoration: none;
@@ -18,7 +18,7 @@ a {
 
 .header {
     height: 50px;
-    background-color: #cccccc;
+    background-color: rgb(200, 200, 200);
     margin-bottom: 30px;
 }
 .header_title {
@@ -29,7 +29,7 @@ a {
 }
 
 .button {
-    background-color: #cccccc;
+    background-color: rgb(200, 200, 200);
     font-size: 14px;
     padding-left: 10px;
     padding-right: 10px;
@@ -39,4 +39,7 @@ a {
     height: 30px;
     user-select: none;
     text-align: center;
+}
+.button:hover {
+    background-color: rgb(220, 220, 220);
 }

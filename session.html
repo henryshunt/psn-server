@@ -1,0 +1,51 @@
+<meta charset="UTF-8">
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Phenotyping Sensor Network</title>
+        <meta name="viewport" content="width=400px">
+
+        <link href="resources/styles/globals.css" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Istok+Web:400,400i,700&display=swap" rel="stylesheet">
+        <script src="resources/scripts/helpers.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.27/moment-timezone-with-data-10-year-range.min.js"></script>
+
+        <link href="resources/styles/grouping.css" rel="stylesheet" type="text/css">
+        <link href="resources/styles/session.css" rel="stylesheet" type="text/css">
+        <script src="resources/scripts/session.js"></script>
+    </head>
+
+    <body>
+        <div class="header">
+            <div class="main">
+                <h1 class="header_title">Phenotyping Sensor Network</h1>
+            </div>
+        </div>
+
+        <div id="main" class="main">
+            <!-- <?php echo $session_info_html; ?> -->
+            
+            <div id="active_nodes_group" style="display: none">
+                <div class="group_header">
+                    <h2 class="group_title">Active Sensor Nodes</h2>
+                    <div class="button group_button">Add New</div>
+                    <div class="group_separator"></div>
+                </div>
+
+                <div id="active_nodes" class="group_content"></div>
+            </div>
+        
+            <div id="completed_nodes_group" style="display: none">
+                <div class="group_header">
+                    <h2 class="group_title">Completed Sensor Nodes</h2>
+                    <div class="group_separator"></div>
+                </div>
+
+                <div id="completed_nodes" class="group_content">
+            </div>
+        </div>
+    </body>
+</html>

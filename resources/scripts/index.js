@@ -6,11 +6,11 @@ window.onload = function()
     // Load currently active sessions
     $.ajax({
         dataType: "json", url: "data/get-active-sessions.php",
-        success: function (data)
+        success: function(data)
         {
             if (data !== false)
             {
-                var format = `<div class='group_item'><a href='session.php?id={0}'>
+                var format = `<div class='group_item'><a href='session.html?id={0}'>
                     <span>{1}</span><br><span>{2}</span><span>{3}</span></a></div>`;
 
                 if (data !== null)
@@ -27,10 +27,10 @@ window.onload = function()
                             var end_time = moment.utc(data[i]["end_time"], "YYYY-MM-DD HH:mm:ss");
                             session_dates += " to ";
                             session_dates += end_time.tz("Europe/London").format("DD/MM/YYYY");
-                        } else session_dates += ", indefinitely";
+                        } else session_dates += ", Indefinitely";
 
                         if (data[i]["node_count"] != 1)
-                            var node_count = data[i]["session_id"] + " Sensor Nodes";
+                            var node_count = data[i]["node_count"] + " Sensor Nodes";
                         else var node_count = "1 Sensor Node";
 
                         html += format.format(data[i]["session_id"],data[i]["name"],
@@ -53,11 +53,11 @@ window.onload = function()
     // Load completed sessions
     $.ajax({
         dataType: "json", url: "data/get-completed-sessions.php",
-        success: function (data)
+        success: function(data)
         {
             if (data !== false)
             {
-                var format = `<div class='group_item'><a href='session.php?id={0}'>
+                var format = `<div class='group_item'><a href='session.html?id={0}'>
                     <span>{1}</span><br><span>{2}</span><span>{3}</span></a></div>`;
 
                 if (data !== null)
@@ -78,7 +78,7 @@ window.onload = function()
                         }
 
                         if (data[i]["node_count"] != 1)
-                            var node_count = data[i]["session_id"] + " Sensor Nodes";
+                            var node_count = data[i]["node_count"] + " Sensor Nodes";
                         else var node_count = "1 Sensor Node";
 
                         html += format.format(data[i]["session_id"], data[i]["name"],
