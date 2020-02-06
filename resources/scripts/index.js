@@ -5,7 +5,9 @@ window.onload = function()
 {
     // Load currently active sessions
     $.ajax({
-        dataType: "json", url: "data/get-active-sessions.php",
+        url: "data/get-active-sessions.php",
+        dataType: "json",
+
         success: function(data)
         {
             if (data !== false)
@@ -18,23 +20,21 @@ window.onload = function()
                     var html = "";
                     for (var i = 0; i < data.length; i++)
                     {
-                        var session_dates = "From ";
-                        var start_time = moment.utc(data[i]["start_time"], "YYYY-MM-DD HH:mm:ss");
-                        session_dates += start_time.tz("Europe/London").format("DD/MM/YYYY");
+                        var date_range = "From " + 
+                            dbTimeToLocal(data[i]["start_time"]).format("DD/MM/YYYY");
 
                         if (data[i]["end_time"] !== null)
                         {
-                            var end_time = moment.utc(data[i]["end_time"], "YYYY-MM-DD HH:mm:ss");
-                            session_dates += " to ";
-                            session_dates += end_time.tz("Europe/London").format("DD/MM/YYYY");
-                        } else session_dates += ", Indefinitely";
+                            date_range += " to " +
+                                dbTimeToLocal(data[i]["end_time"]).format("DD/MM/YYYY");
+                        } else date_range += ", Indefinitely";
 
                         if (data[i]["node_count"] != 1)
                             var node_count = data[i]["node_count"] + " Sensor Nodes";
                         else var node_count = "1 Sensor Node";
 
-                        html += format.format(data[i]["session_id"],data[i]["name"],
-                            session_dates, node_count);
+                        html += format.format(data[i]["session_id"], data[i]["name"],
+                            date_range, node_count);
                     }
 
                     $("#active_sessions").append(html);
@@ -44,7 +44,7 @@ window.onload = function()
             $("#active_sessions_group").css("display", "block");
         },
 
-        error: requestError = () => {
+        error: () => {
             $("#active_sessions").append(ERROR_HTML);
             $("#active_sessions_group").css("display", "block");
         }
@@ -52,7 +52,9 @@ window.onload = function()
 
     // Load completed sessions
     $.ajax({
-        dataType: "json", url: "data/get-completed-sessions.php",
+        url: "data/get-completed-sessions.php",
+        dataType: "json",
+        
         success: function(data)
         {
             if (data !== false)
@@ -65,16 +67,13 @@ window.onload = function()
                     var html = "";
                     for (var i = 0; i < data.length; i++)
                     {
-                        var session_dates = "";
+                        var date_range = "";
                         if (data[i]["start_time"] !== null)
                         {
-                            session_dates += "From ";
-                            var start_time = moment.utc(data[i]["start_time"], "YYYY-MM-DD HH:mm:ss");
-                            session_dates += start_time.tz("Europe/London").format("DD/MM/YYYY");
-
-                            var end_time = moment.utc(data[i]["end_time"], "YYYY-MM-DD HH:mm:ss");
-                            session_dates += " to ";
-                            session_dates += end_time.tz("Europe/London").format("DD/MM/YYYY");
+                            date_range += "From " +
+                                dbTimeToLocal(data[i]["start_time"]).format("DD/MM/YYYY");
+                            date_range += " to " +
+                                dbTimeToLocal(data[i]["end_time"]).format("DD/MM/YYYY");
                         }
 
                         if (data[i]["node_count"] != 1)
@@ -82,7 +81,7 @@ window.onload = function()
                         else var node_count = "1 Sensor Node";
 
                         html += format.format(data[i]["session_id"], data[i]["name"],
-                            session_dates, node_count);
+                        date_range, node_count);
                     }
 
                     $("#completed_sessions").append(html);
@@ -92,9 +91,58 @@ window.onload = function()
             $("#completed_sessions_group").css("display", "block");
         },
 
-        error: requestError = () => {
+        error: () => {
             $("#completed_sessions").append(ERROR_HTML);
             $("#completed_sessions_group").css("display", "block");
         }
     });
 };
+
+
+function new_session_overlay_open()
+{
+    $("#overlay_shade").css("display", "block");
+    $("#new_session_overlay").css("display", "block");
+}
+
+function new_session_overlay_close()
+{
+    $("#overlay_shade").css("display", "none");
+    $("#new_session_overlay").css("display", "none");
+}
+
+function new_session_overlay_save()
+{
+    var json = `{
+            "name": "Session name",
+            "description": "Session description",
+
+            "nodes":
+            [
+                { "node": 2, "location": "Node location", "startTime": "2020-02-04 14:58:00", "endTime": "2020-03-04 14:58:00", "interval": 2, "batchSize": 10 }
+            ]
+        }`;
+
+    $.post({
+        url: "data/add-session.php",
+        ContentType: "application/json",
+        data: { "data": json },
+
+        success: function(data)
+        {
+            console.log(data);
+        },
+
+        error: (e) => {
+            console.log("error");
+            console.log(e.responseText);
+        }
+    });
+
+    new_session_overlay_close();
+}
+
+function new_session_overlay_cancel()
+{
+    new_session_overlay_close();
+}

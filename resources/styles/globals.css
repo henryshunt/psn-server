@@ -43,3 +43,17 @@ a {
 .button:hover {
     background-color: rgb(220, 220, 220);
 }
+
+input {
+    border: 0;
+    background: rgb(200, 200, 200);
+    font-size: 16px;
+    padding: 5px;
+    width: 100%;
+}
+select {
+    border: 0;
+    background: rgb(200, 200, 200);
+    font-size: 16px;
+    padding: 5px;
+}

@@ -8,6 +8,7 @@
 
         <link href="resources/styles/globals.css" rel="stylesheet" type="text/css">
         <link href="https://fonts.googleapis.com/css?family=Istok+Web:400,400i,700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
         <script src="resources/scripts/helpers.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
@@ -29,7 +30,7 @@
             <div id="active_sessions_group" style="display: none">
                 <div class="group_header">
                     <h2 class="group_title">Active Sessions</h2>
-                    <div class="button group_button">Add New</div>
+                    <div class="button group_button" onclick="new_session_overlay_open()">Add New</div>
                     <div class="group_separator"></div>
                 </div>
 
@@ -43,6 +44,67 @@
                 </div>
 
                 <div id="completed_sessions" class="group_content"></div>
+            </div>
+        </div>
+
+        <div id="overlay_shade" class="overlay_shade" style="display: none;"></div>
+        <div id="new_session_overlay" class="overlay" style="display: none;">
+            <div class="overlay_header">
+                <span>Create a New Session</span>
+                <div class="button" onclick="new_session_overlay_close()">
+                    <i class="material-icons">close</i>
+                </div>
+            </div>
+
+            <div class="overlay_content">
+                <input type="text"/>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <td>MAC Address</td>
+                            <td>Location</td>
+                            <td>Start Time</td>
+                            <td>End Time</td>
+                            <td>Interval</td>
+                            <td>Batch Size</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>XX:XX:XX:XX:XX:XX</td>
+                            <td>
+                                <input type="text"/>
+                            </td>
+                            <td></td>
+                            <td></td>
+                            <td>
+                                <select>
+                                    <option>1 Minute</option>
+                                    <option>2 Minutes</option>
+                                    <option>5 Minutes</option>
+                                    <option>10 Minutes</option>
+                                    <option>15 Minutes</option>
+                                    <option>20 Minutes</option>
+                                    <option>30 Minutes</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="number" min="1" max="127"/>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class='message_item'><span>Nothing Here</span></div>
+
+                <div class="button">Save</div>
+                <div class="button">Cancel</div>
+            </div>
+
+            <div class="overlay_footer">
+                <div class="button" onclick="new_session_overlay_save()">Save</div>
+                <div class="button" onclick="new_session_overlay_cancel()">Cancel</div>
             </div>
         </div>
     </body>

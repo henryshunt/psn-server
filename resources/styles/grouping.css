@@ -32,7 +32,7 @@
 
 .group_item {
     height: 140px;
-    border: 1px solid rgb(200, 200, 200);;
+    border: 1px solid rgb(200, 200, 200);
     width: calc(50% - 22px);
     background: white;
     position: relative;
@@ -59,7 +59,7 @@
 .message_item {
     width: 100%;
     height: 40px;
-    border: 1px solid rgb(200, 200, 200);;
+    border: 1px solid rgb(200, 200, 200);
     background: white;
     text-align: center;
 }

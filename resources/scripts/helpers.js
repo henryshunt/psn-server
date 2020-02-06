@@ -27,3 +27,8 @@ function round(value, precision)
     var multiplier = Math.pow(10, precision || 0);
     return Math.round(value * multiplier) / multiplier;
 }
+
+function dbTimeToLocal(time)
+{
+    return moment.utc(time, "YYYY-MM-DD HH:mm:ss").tz("Europe/London");
+}
