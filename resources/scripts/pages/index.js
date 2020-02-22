@@ -1,18 +1,16 @@
-var ERROR_HTML = "<div class='message_item'><span>Error Getting Data</span></div>";
-var NO_DATA_HTML = "<div class='message_item'><span>Nothing Here</span></div>";
-
-window.onload = function()
+$(window).on("load", () =>
 {
     // Load currently active sessions
-    $.ajax({
+    $.ajax(
+    {
         url: "data/get-active-sessions.php",
         dataType: "json",
 
-        success: function(data)
+        success: (data) =>
         {
             if (data !== false)
             {
-                var format = `<div class='group_item'><a href='session.html?id={0}'>
+                const TEMPLATE = `<div class="item"><a href="session.html?id={0}">
                     <span>{1}</span><br><span>{2}</span><span>{3}</span></a></div>`;
 
                 if (data !== null)
@@ -33,33 +31,35 @@ window.onload = function()
                             var node_count = data[i]["node_count"] + " Sensor Nodes";
                         else var node_count = "1 Sensor Node";
 
-                        html += format.format(data[i]["session_id"], data[i]["name"],
+                        html += TEMPLATE.format(data[i]["session_id"], data[i]["name"],
                             date_range, node_count);
                     }
 
-                    $("#active_sessions").append(html);
-                } else $("#active_sessions").append(NO_DATA_HTML);
-            } else $("#active_sessions").append(ERROR_HTML);
+                    $("#active-sessions").append(html);
+                } else $("#active-sessions").append(NO_DATA_HTML);
+            } else $("#active-sessions").append(ERROR_HTML);
 
-            $("#active_sessions_group").css("display", "block");
+            $("#active-sessions-group").css("display", "block");
         },
 
-        error: () => {
-            $("#active_sessions").append(ERROR_HTML);
-            $("#active_sessions_group").css("display", "block");
+        error: () =>
+        {
+            $("#active-sessions").append(ERROR_HTML);
+            $("#active-sessions-group").css("display", "block");
         }
     });
 
     // Load completed sessions
-    $.ajax({
+    $.ajax(
+    {
         url: "data/get-completed-sessions.php",
         dataType: "json",
         
-        success: function(data)
+        success: (data) =>
         {
             if (data !== false)
             {
-                var format = `<div class='group_item'><a href='session.html?id={0}'>
+                const TEMPLATE = `<div class="item item-thin"><a href="session.html?id={0}">
                     <span>{1}</span><br><span>{2}</span><span>{3}</span></a></div>`;
 
                 if (data !== null)
@@ -80,38 +80,74 @@ window.onload = function()
                             var node_count = data[i]["node_count"] + " Sensor Nodes";
                         else var node_count = "1 Sensor Node";
 
-                        html += format.format(data[i]["session_id"], data[i]["name"],
+                        html += TEMPLATE.format(data[i]["session_id"], data[i]["name"],
                         date_range, node_count);
                     }
 
-                    $("#completed_sessions").append(html);
-                } else $("#completed_sessions").append(NO_DATA_HTML);
-            } else $("#completed_sessions").append(ERROR_HTML);
+                    $("#completed-sessions").append(html);
+                } else $("#completed-sessions").append(NO_DATA_HTML);
+            } else $("#completed-sessions").append(ERROR_HTML);
 
-            $("#completed_sessions_group").css("display", "block");
+            $("#completed-sessions-group").css("display", "block");
         },
 
-        error: () => {
-            $("#completed_sessions").append(ERROR_HTML);
-            $("#completed_sessions_group").css("display", "block");
+        error: () =>
+        {
+            $("#completed-sessions").append(ERROR_HTML);
+            $("#completed-sessions-group").css("display", "block");
         }
     });
-};
+});
 
 
-function new_session_overlay_open()
+function newSessionModalOpen()
 {
-    $("#overlay_shade").css("display", "block");
-    $("#new_session_overlay").css("display", "block");
+    $("#modal_shade").css("display", "block");
+    // $("body").css("overflow", "hidden");
+    $("#new_session_modal").css("display", "block");
+
+
 }
 
-function new_session_overlay_close()
+function newSessionModalClose()
 {
-    $("#overlay_shade").css("display", "none");
-    $("#new_session_overlay").css("display", "none");
+    $("#modal_shade").css("display", "none");
+    // $("body").css("overflow", "auto");
+    $("#new_session_modal").css("display", "none");
 }
 
-function new_session_overlay_save()
+function newSessionModalAddNode()
+{
+    var TEMPLATE = `
+        <div class="session-node-row" style="display: flex">
+        <button><i class="material-icons">delete</i></button>
+
+        <select class="form-control">
+            <option>Sensor Node</option>
+            <option>XX:XX:XX:XX:XX:XX</option>
+        </select>
+
+        <input type="text" class="form-control" placeholder="Sensor Node Location"/>
+        <input type="text" class="form-control" placeholder="Start Time"/>
+        <input type="text" class="form-control" placeholder="End Time"/>
+
+        <span>Interval & Batch Size:</span>
+        <select class="form-control">
+            <option>1 Min</option>
+            <option>2 Mins</option>
+            <option>5 Mins</option>
+            <option>10 Mins</option>
+            <option>15 Mins</option>
+            <option>20 Mins</option>
+            <option>30 Mins</option>
+        </select>
+        <input type="number" min="1" max="127" value="1" class="form-control"/>
+    </div>`;
+
+    $("#session-node-rows").append(TEMPLATE);
+}
+
+function newSessionModalSave()
 {
     var json = `{
             "name": "Session name",
@@ -139,10 +175,10 @@ function new_session_overlay_save()
         }
     });
 
-    new_session_overlay_close();
+    newSessionModalClose();
 }
 
-function new_session_overlay_cancel()
+function newSessionModalCancel()
 {
-    new_session_overlay_close();
+    newSessionModalClose();
 }

@@ -23,5 +23,6 @@ $QUERY = "SELECT session_id, name, " .
 
 $result = query_database($db_connection, $QUERY, NULL);
 if ($result === false) { echo "false"; exit(1); }
+if ($result === NULL) { echo "null"; exit(1); }
 
 echo json_encode($result);

@@ -22,6 +22,7 @@ $QUERY = "SELECT node_id, location, " .
 
 $result = query_database($db_connection, $QUERY, [$_GET["session"]]);
 if ($result === false) { echo "false"; exit(1); }
+if ($result === NULL) { echo "null"; exit(1); }
 
 // Get the latest report data for each node
 $QUERY = "SELECT time, airt, relh, batv FROM reports WHERE report_id = ?";

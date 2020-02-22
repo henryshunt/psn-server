@@ -1,11 +1,4 @@
-.group_item > a > :last-child {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-    line-height: 10px;
-}
-
-.overlay_shade {
+.modal_shade {
     position: absolute;
     left: 0;
     top: 0;
@@ -13,50 +6,53 @@
     height: 100%;
     background: rgba(240, 240, 240, 0.5);
 }
-.overlay {
+.modal {
     position: absolute;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    width: calc(100% - 24px);
-    max-width: 900px;
+    width: calc(100% - 64px);
+    max-width: 936px;
     background: white;
     border: 2px solid rgb(200, 200, 200);
+    /* height: calc(100% - 64px); */
 }
 
-.overlay_header {
+.modal_header {
     height: 40px;
 }
-.overlay_header > span {
+.modal_header > span {
     font-weight: bold;
     margin-left: 20px;
     line-height: 42px;
 }
-.overlay_header > div {
-    width: 20px;
+.modal_header > button {
+    width: 40px;
     float: right;
     height: 100%;
 }
-.overlay_header > div > i {
-    margin-top: 8px;
+.modal_header > button > i {
     margin-left: -1px;
 }
 
-.overlay_content {
+.modal_content {
     padding: 20px;
     border-bottom: 2px solid rgb(200, 200, 200);
     border-top: 2px solid rgb(200, 200, 200);
+    /* overflow-y: auto; */
+    /* max-height: calc(100% - 135px); */
 }
 
-.overlay_footer {
+.modal_footer {
     float: right;
     margin: 10px;
+    margin-right: 20px;
 }
-.overlay_footer > :first-child {
+.modal_footer > :first-child {
     float: left;
     margin-right: 10px;
     width: 100px;
 }
-.overlay_footer > :last-child {
+.modal_footer > :last-child {
     float: right;
 }

@@ -1,7 +1,4 @@
-var ERROR_HTML = "<div class='message_item'><span>Error Getting Data</span></div>";
-var NO_DATA_HTML = "<div class='message_item'><span>Nothing Here</span></div>";
-
-window.onload = function()
+$(window).on("load", () =>
 {
     if (getQueryStringValue("id") === null)
     {
@@ -9,19 +6,45 @@ window.onload = function()
         return;
     }
 
-    // Load currently active nodes
-    $.ajax({
-        url: "data/get-active-nodes.php?session=" + this.getQueryStringValue("id"),
+    const TEMPLATE = `<div class="item"><a href="node.html?id={0}&session={1}">
+        <span>{2}</span><br><span>{3}</span><div class="node-data">{4}</div></a></div>`;
+    const REPORT_TEMPLATE = "<div><span>{0}</span><br><span>{1}</span></div>";
+
+    // Load session info
+    $.ajax(
+    {
+        url: "data/get-session-info.php?session=" + this.getQueryStringValue("id"),
         dataType: "json",
 
-        success: function(data)
+        success: (data) =>
         {
             if (data !== false)
             {
-                var format = `<div class='group_item'><a href='node.html?id={0}&session={1}'>
-                    <span>{2}</span><br><span>{3}</span><div class='node_data'>{4}</div></a></div>`;
-                var report_format = `<div><span>{0}</span><br><span>{1}</span></div>`;
+                if (data !== null)
+                {
+                    $("#session-name").html(data["name"]);
+                    $("#session-description").html(data["description"]);
+                    $("#session-info-group").css("display", "block");
+                } else $("#main").prepend(NO_DATA_HTML);
+            } else $("#main").prepend(ERROR_HTML);
+        },
 
+        error: () =>
+        {
+            $("#main").prepend(ERROR_HTML);
+        }
+    });
+
+    // Load currently active nodes
+    $.ajax(
+    {
+        url: "data/get-active-nodes.php?session=" + this.getQueryStringValue("id"),
+        dataType: "json",
+
+        success: (data) =>
+        {
+            if (data !== false)
+            {
                 if (data !== null)
                 {
                     var html = "";
@@ -38,53 +61,51 @@ window.onload = function()
 
                             if (data[i]["latest_report_id"]["airt"] !== null)
                             {
-                                report_data += report_format.format("Temp.",
+                                report_data += REPORT_TEMPLATE.format("Temp.",
                                     round(data[i]["latest_report_id"]["airt"], 1) + "°C");
-                            } else report_data += report_format.format("Temp.", "None");
+                            } else report_data += REPORT_TEMPLATE.format("Temp.", "None");
 
                             if (data[i]["latest_report_id"]["relh"] !== null)
                             {
-                                report_data += report_format.format("Humid.",
+                                report_data += REPORT_TEMPLATE.format("Humid.",
                                     round(data[i]["latest_report_id"]["relh"], 1) + "%");
-                            } else report_data += report_format.format("Humid.", "None");
+                            } else report_data += REPORT_TEMPLATE.format("Humid.", "None");
 
                             if (data[i]["latest_report_id"]["batv"] !== null)
                             {
-                                report_data += report_format.format("Battery",
+                                report_data += REPORT_TEMPLATE.format("Battery",
                                     round(data[i]["latest_report_id"]["batv"], 2) + "V");
-                            } else report_data += report_format.format("Battery", "None");
+                            } else report_data += REPORT_TEMPLATE.format("Battery", "None");
                         } else report_time = "No Latest Report";
                         
-                        html += format.format(data[i]["node_id"], getQueryStringValue("id"),
+                        html += TEMPLATE.format(data[i]["node_id"], getQueryStringValue("id"),
                             data[i]["location"], report_time, report_data);
                     }
 
-                    $("#active_nodes").append(html);
-                } else $("#active_nodes").append(NO_DATA_HTML);
-            } else $("#active_nodes").append(ERROR_HTML);
+                    $("#active-nodes").append(html);
+                } else $("#active-nodes").append(NO_DATA_HTML);
+            } else $("#active-nodes").append(ERROR_HTML);
 
-            $("#active_nodes_group").css("display", "block");
+            $("#active-nodes-group").css("display", "block");
         },
 
-        error: requestError = () => {
-            $("#active_nodes").append(ERROR_HTML);
-            $("#active_nodes_group").css("display", "block");
+        error: () =>
+        {
+            $("#active-nodes").append(ERROR_HTML);
+            $("#active-nodes-group").css("display", "block");
         }
     });
 
     // Load completed nodes
-    $.ajax({
+    $.ajax(
+    {
         url: "data/get-completed-nodes.php?session=" + this.getQueryStringValue("id"),
         dataType: "json",
         
-        success: function(data)
+        success: (data) =>
         {
             if (data !== false)
             {
-                var format = `<div class='group_item'><a href='node.html?id={0}&session={1}'>
-                    <span>{2}</span><br><span>{3}</span><div class='node_data'>{4}</div></a></div>`;
-                var report_format = `<div><span>{0}</span><br><span>{1}</span></div>`;
-
                 if (data !== null)
                 {
                     var html = "";
@@ -101,37 +122,38 @@ window.onload = function()
 
                             if (data[i]["latest_report_id"]["airt"] !== null)
                             {
-                                report_data += report_format.format("Temp.",
+                                report_data += REPORT_TEMPLATE.format("Temp.",
                                     round(data[i]["latest_report_id"]["airt"], 1) + "°C");
-                            } else report_data += report_format.format("Temp.", "None");
+                            } else report_data += REPORT_TEMPLATE.format("Temp.", "None");
 
                             if (data[i]["latest_report_id"]["relh"] !== null)
                             {
-                                report_data += report_format.format("Humid.",
+                                report_data += REPORT_TEMPLATE.format("Humid.",
                                     round(data[i]["latest_report_id"]["relh"], 1) + "%");
-                            } else report_data += report_format.format("Humid.", "None");
+                            } else report_data += REPORT_TEMPLATE.format("Humid.", "None");
 
                             if (data[i]["latest_report_id"]["batv"] !== null)
                             {
-                                report_data += report_format.format("Battery",
+                                report_data += REPORT_TEMPLATE.format("Battery",
                                     round(data[i]["latest_report_id"]["batv"], 2) + "V");
-                            } else report_data += report_format.format("Battery", "None");
+                            } else report_data += REPORT_TEMPLATE.format("Battery", "None");
                         } else report_time = "No Latest Report";
                         
-                        html += format.format(data[i]["node_id"], getQueryStringValue("id"),
+                        html += TEMPLATE.format(data[i]["node_id"], getQueryStringValue("id"),
                             data[i]["location"], report_time, report_data);
                     }
 
-                    $("#completed_nodes").append(html);
-                } else $("#completed_nodes").append(NO_DATA_HTML);
-            } else $("#completed_nodes").append(ERROR_HTML);
+                    $("#completed-nodes").append(html);
+                } else $("#completed-nodes").append(NO_DATA_HTML);
+            } else $("#completed-nodes").append(ERROR_HTML);
 
-            $("#completed_nodes_group").css("display", "block");
+            $("#completed-nodes-group").css("display", "block");
         },
 
-        error: requestError = () => {
-            $("#completed_sessions").append(ERROR_HTML);
-            $("#completed_sessions_group").css("display", "block");
+        error: () =>
+        {
+            $("#completed-nodes").append(ERROR_HTML);
+            $("#completed-nodes-group").css("display", "block");
         }
     });
-};
+});

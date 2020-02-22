@@ -1,0 +1,51 @@
+.time-machine {
+    border: 1px solid rgb(200, 200, 200);
+    background: white;
+    width: calc(100% - 2px);
+    position: relative;
+    height: 40px;
+}
+.time-machine > :first-child {
+    position: absolute;
+    padding-left: 8px;
+}
+.time-machine > div {
+    width: calc(100% - 80px);
+    left: 40px;
+    position: absolute;
+    text-align: center;
+    padding-top: 9px;
+}
+.time-machine > div > span {
+    text-decoration: underline;
+}
+.time-machine > :last-child {
+    position: absolute;
+    right: 0;
+    top: 0;
+    padding-left: 8px;
+}
+.time-machine > button {
+    height: 40px;
+    width: 40px;
+}
+
+.ct-series .ct-line {
+    stroke-width: 1px;
+}
+.ct-series-a .ct-line {
+    stroke: rgb(195, 39, 40);
+}
+.ct-series-b .ct-line {
+    stroke: rgb(50, 136, 195);
+}
+.ct-series-c .ct-line {
+    stroke: rgb(55, 145, 109);
+}
+
+#temperature_graph_group {
+    margin-bottom: 15px;
+}
+#humidity_graph_group {
+    margin-bottom: 15px;
+}

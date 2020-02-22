@@ -3,57 +3,90 @@ body {
     font-family: "Istok Web";
     background-color: rgb(240, 240, 240);
     color: rgb(50, 50, 50);
-}
-a {
-    text-decoration: none;
-    color: inherit;
+    min-width: 350px;
 }
 
-.main {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding-left: 10px;
-    padding-right: 10px;
-}
-
-.header {
+header {
     height: 50px;
     background-color: rgb(200, 200, 200);
-    margin-bottom: 30px;
 }
-.header_title {
+h1 {
     font-size: 20px;
     margin: 0;
     display: inline-block;
     line-height: 50px;
 }
 
-.button {
+main {
+    padding-top: 30px;
+    padding-bottom: 30px;
+}
+.main {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding-left: 30px;
+    padding-right: 30px;
+}
+main > div {
+    margin-bottom: 30px;
+}
+main > :last-child {
+    margin-bottom: 0;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+button {
     background-color: rgb(200, 200, 200);
     font-size: 14px;
     padding-left: 10px;
     padding-right: 10px;
     font-weight: bold;
-    cursor: pointer;
     line-height: 32px;
     height: 30px;
-    user-select: none;
-    text-align: center;
+    border: 0;
+    cursor: pointer;
+    font-family: inherit;
+    border-radius: 0;
 }
-.button:hover {
+button:hover {
     background-color: rgb(220, 220, 220);
 }
+button:disabled {
+    color: rgb(120, 120, 120);
+    cursor: unset;
+}
 
+form {
+    margin: 0;
+}
+.form-control {
+    border-radius: 0 !important;
+    background: rgb(200, 200, 200) !important;
+    border: 0 !important;
+    color: inherit !important;
+    height: 30px;
+    font-size: 14px !important;
+}
 input {
-    border: 0;
-    background: rgb(200, 200, 200);
-    font-size: 16px;
-    padding: 5px;
     width: 100%;
+    padding: 8px !important;
+}
+textarea {
+    width: 100%;
+    padding: 8px !important;
+    height: 60px !important;
 }
 select {
-    border: 0;
-    background: rgb(200, 200, 200);
-    font-size: 16px;
-    padding: 5px;
+    padding: 5px !important;
+}
+/* input[type=text] {
+    padding-top: 10px;
+} */
+
+.last-item {
+    margin-bottom: 0 !important;
 }

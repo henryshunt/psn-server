@@ -6,105 +6,72 @@
         <title>Phenotyping Sensor Network</title>
         <meta name="viewport" content="width=400px">
 
-        <link href="resources/styles/globals.css" rel="stylesheet" type="text/css">
         <link href="https://fonts.googleapis.com/css?family=Istok+Web:400,400i,700&display=swap" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-        <script src="resources/scripts/helpers.js"></script>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.27/moment-timezone-with-data-10-year-range.min.js"></script>
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons&display=block" rel="stylesheet">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js" type="text/javascript"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js" type="text/javascript"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.27/moment-timezone-with-data-10-year-range.min.js" type="text/javascript"></script>
+        <link href="resources/styles/globals.css" rel="stylesheet" type="text/css">
+        <script src="resources/scripts/config.js.php" type="text/javascript"></script>
+        <script src="resources/scripts/helpers.js" type="text/javascript"></script>
 
+        <link href="resources/styles/external/bootstrap.css.css" rel="stylesheet" type="text/css">
         <link href="resources/styles/grouping.css" rel="stylesheet" type="text/css">
-        <link href="resources/styles/index.css" rel="stylesheet" type="text/css">
-        <script src="resources/scripts/index.js"></script>
+        <link href="resources/styles/modal.css" rel="stylesheet" type="text/css">
+        <link href="resources/styles/pages/index.css" rel="stylesheet" type="text/css">
+        <script src="resources/scripts/pages/index.js"  type="text/javascript"></script>
     </head>
 
     <body>
-        <div class="header">
+        <header>
             <div class="main">
-                <h1 class="header_title">Phenotyping Sensor Network</h1>
+                <h1>Phenotyping Sensor Network</h1>
             </div>
-        </div>
+        </header>
 
-        <div class="main">
-            <div id="active_sessions_group" style="display: none">
-                <div class="group_header">
-                    <h2 class="group_title">Active Sessions</h2>
-                    <div class="button group_button" onclick="new_session_overlay_open()">Add New</div>
-                    <div class="group_separator"></div>
+        <main class="main">
+            <div id="active-sessions-group" style="display: none">
+                <div class="titled-group-header">
+                    <h2>Active Sessions</h2>
+                    <button onclick="newSessionModalOpen()">Add New</button>
+                    <div class="titled-group-separator"></div>
                 </div>
 
-                <div id="active_sessions" class="group_content"></div>
+                <div id="active-sessions" class="items-block"></div>
             </div>
         
-            <div id="completed_sessions_group" style="display: none">
-                <div class="group_header">
-                    <h2 class="group_title">Completed Sessions</h2>
-                    <div class="group_separator"></div>
+            <div id="completed-sessions-group" style="display: none">
+                <div class="titled-group-header">
+                    <h2>Completed Sessions</h2>
+                    <div class="titled-group-separator"></div>
                 </div>
 
-                <div id="completed_sessions" class="group_content"></div>
+                <div id="completed-sessions" class="items-block"></div>
             </div>
-        </div>
+        </main>
 
-        <div id="overlay_shade" class="overlay_shade" style="display: none;"></div>
-        <div id="new_session_overlay" class="overlay" style="display: none;">
-            <div class="overlay_header">
+        <div id="modal_shade" class="modal_shade" style="display: none"></div>
+        <div id="new_session_modal" class="modal" style="display: none">
+            <div class="modal_header">
                 <span>Create a New Session</span>
-                <div class="button" onclick="new_session_overlay_close()">
+                <button onclick="newSessionModalClose()">
                     <i class="material-icons">close</i>
-                </div>
+                </button>
             </div>
 
-            <div class="overlay_content">
-                <input type="text"/>
+            <div class="modal_content">
+                <form>
+                    <input id="new_session_name" type="text" class="form-control" placeholder="Session Name"/>
+                    <textarea id="new_session_description" class="form-control" placeholder="Session Description"></textarea>
 
-                <table>
-                    <thead>
-                        <tr>
-                            <td>MAC Address</td>
-                            <td>Location</td>
-                            <td>Start Time</td>
-                            <td>End Time</td>
-                            <td>Interval</td>
-                            <td>Batch Size</td>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>XX:XX:XX:XX:XX:XX</td>
-                            <td>
-                                <input type="text"/>
-                            </td>
-                            <td></td>
-                            <td></td>
-                            <td>
-                                <select>
-                                    <option>1 Minute</option>
-                                    <option>2 Minutes</option>
-                                    <option>5 Minutes</option>
-                                    <option>10 Minutes</option>
-                                    <option>15 Minutes</option>
-                                    <option>20 Minutes</option>
-                                    <option>30 Minutes</option>
-                                </select>
-                            </td>
-                            <td>
-                                <input type="number" min="1" max="127"/>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <div class='message_item'><span>Nothing Here</span></div>
-
-                <div class="button">Save</div>
-                <div class="button">Cancel</div>
+                    <div id="session-node-rows"></div>
+                    <button style="width: 100%" type="button" onclick="newSessionModalAddNode()">Add Sensor Node</button>
+                </form>
             </div>
 
-            <div class="overlay_footer">
-                <div class="button" onclick="new_session_overlay_save()">Save</div>
-                <div class="button" onclick="new_session_overlay_cancel()">Cancel</div>
+            <div class="modal_footer">
+                <button onclick="newSessionModalSave()">Save</button>
+                <button onclick="newSessionModalCancel()">Cancel</button>
             </div>
         </div>
     </body>

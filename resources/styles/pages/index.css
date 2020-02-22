@@ -1,0 +1,71 @@
+.item > a > :last-child {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    line-height: 10px;
+}
+
+
+.modal_content > form > :first-child {
+    margin-bottom: 5px;
+}
+.modal_content > form > :nth-child(2) {
+    margin-bottom: 15px;
+}
+
+.session-node-row {
+    display: flex;
+    margin-bottom: 5px;
+}
+.session-node-row > * {
+    margin-right: 5px;
+}
+.session-node-row > :nth-child(1) {
+    padding-left: 3px;
+    padding-right: 3px;
+}
+.session-node-row > :nth-child(4),
+.session-node-row > :nth-child(5) {
+    width: 130px;
+    text-align: center;
+}
+.session-node-row > :nth-child(6) {
+    display: none;
+}
+.session-node-row > :nth-child(7) {
+    width: 80px;
+}
+.session-node-row > :nth-child(8) {
+    width: 65px;
+    margin-right: 0;
+}
+
+@media screen and (max-width: 900px) {
+    .session-node-row {
+        display: block !important;
+    }
+    .session-node-row > * {
+        width: 100% !important;
+        margin-bottom: 5px !important;
+    }
+
+    .session-node-row > :nth-child(1) {
+        width: 30px !important;
+        float: left;
+    }
+    .session-node-row > :nth-child(2) {
+        width: calc(100% - 35px) !important;
+        margin-right: 0 !important;
+    }
+    .session-node-row > :nth-child(6) {
+        display: inline;
+        font-size: 14px;
+    }
+    .session-node-row > :nth-child(7) {
+        margin-right: 5px;
+        width: 80px !important;
+    }
+    .session-node-row > :nth-child(8) {
+        width: 65px !important;
+    }
+}
