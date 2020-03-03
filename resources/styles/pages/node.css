@@ -18,6 +18,7 @@
 }
 .time-machine > div > span {
     text-decoration: underline;
+    cursor: pointer;
 }
 .time-machine > :last-child {
     position: absolute;
@@ -41,11 +42,4 @@
 }
 .ct-series-c .ct-line {
     stroke: rgb(55, 145, 109);
-}
-
-#temperature_graph_group {
-    margin-bottom: 15px;
-}
-#humidity_graph_group {
-    margin-bottom: 15px;
 }

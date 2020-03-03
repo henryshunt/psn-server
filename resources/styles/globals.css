@@ -3,7 +3,7 @@ body {
     font-family: "Istok Web";
     background-color: rgb(240, 240, 240);
     color: rgb(50, 50, 50);
-    min-width: 350px;
+    min-width: 380px;
 }
 
 header {
@@ -52,7 +52,7 @@ button {
     font-family: inherit;
     border-radius: 0;
 }
-button:hover {
+button:hover:enabled {
     background-color: rgb(220, 220, 220);
 }
 button:disabled {

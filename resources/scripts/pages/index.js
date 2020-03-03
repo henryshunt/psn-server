@@ -1,103 +1,111 @@
 $(window).on("load", () =>
 {
-    // Load currently active sessions
-    $.ajax(
-    {
-        url: "data/get-active-sessions.php",
-        dataType: "json",
-
-        success: (data) =>
-        {
-            if (data !== false)
-            {
-                const TEMPLATE = `<div class="item"><a href="session.html?id={0}">
-                    <span>{1}</span><br><span>{2}</span><span>{3}</span></a></div>`;
-
-                if (data !== null)
-                {
-                    var html = "";
-                    for (var i = 0; i < data.length; i++)
-                    {
-                        var date_range = "From " + 
-                            dbTimeToLocal(data[i]["start_time"]).format("DD/MM/YYYY");
-
-                        if (data[i]["end_time"] !== null)
-                        {
-                            date_range += " to " +
-                                dbTimeToLocal(data[i]["end_time"]).format("DD/MM/YYYY");
-                        } else date_range += ", Indefinitely";
-
-                        if (data[i]["node_count"] != 1)
-                            var node_count = data[i]["node_count"] + " Sensor Nodes";
-                        else var node_count = "1 Sensor Node";
-
-                        html += TEMPLATE.format(data[i]["session_id"], data[i]["name"],
-                            date_range, node_count);
-                    }
-
-                    $("#active-sessions").append(html);
-                } else $("#active-sessions").append(NO_DATA_HTML);
-            } else $("#active-sessions").append(ERROR_HTML);
-
-            $("#active-sessions-group").css("display", "block");
-        },
-
-        error: () =>
-        {
-            $("#active-sessions").append(ERROR_HTML);
-            $("#active-sessions-group").css("display", "block");
-        }
-    });
-
-    // Load completed sessions
-    $.ajax(
-    {
-        url: "data/get-completed-sessions.php",
-        dataType: "json",
-        
-        success: (data) =>
-        {
-            if (data !== false)
-            {
-                const TEMPLATE = `<div class="item item-thin"><a href="session.html?id={0}">
-                    <span>{1}</span><br><span>{2}</span><span>{3}</span></a></div>`;
-
-                if (data !== null)
-                {
-                    var html = "";
-                    for (var i = 0; i < data.length; i++)
-                    {
-                        var date_range = "";
-                        if (data[i]["start_time"] !== null)
-                        {
-                            date_range += "From " +
-                                dbTimeToLocal(data[i]["start_time"]).format("DD/MM/YYYY");
-                            date_range += " to " +
-                                dbTimeToLocal(data[i]["end_time"]).format("DD/MM/YYYY");
-                        }
-
-                        if (data[i]["node_count"] != 1)
-                            var node_count = data[i]["node_count"] + " Sensor Nodes";
-                        else var node_count = "1 Sensor Node";
-
-                        html += TEMPLATE.format(data[i]["session_id"], data[i]["name"],
-                        date_range, node_count);
-                    }
-
-                    $("#completed-sessions").append(html);
-                } else $("#completed-sessions").append(NO_DATA_HTML);
-            } else $("#completed-sessions").append(ERROR_HTML);
-
-            $("#completed-sessions-group").css("display", "block");
-        },
-
-        error: () =>
-        {
-            $("#completed-sessions").append(ERROR_HTML);
-            $("#completed-sessions-group").css("display", "block");
-        }
-    });
+    loadActiveSessions();
+    loadCompletedSessions();
 });
+
+
+function loadActiveSessions()
+{
+    $.getJSON("data/get-active-sessions.php", (data) =>
+    {
+        if (data !== false)
+        {
+            if (data !== null)
+            {
+                const TEMPLATE = `
+                    <div class="item">
+                        <a href="session.html?id={0}">
+                            <span>{1}</span>
+                            <br>
+                            <span>{2}</span>
+                            <span>{3}</span>
+                        </a>
+                    </div>`;
+
+                var html = "";
+                for (var i = 0; i < data.length; i++)
+                {
+                    var date_range = "From " + 
+                        dbTimeToLocal(data[i]["start_time"]).format("DD/MM/YYYY");
+
+                    if (data[i]["end_time"] !== null)
+                    {
+                        date_range += " to " +
+                            dbTimeToLocal(data[i]["end_time"]).format("DD/MM/YYYY");
+                    } else date_range += ", Indefinitely";
+
+                    if (data[i]["node_count"] != 1)
+                        var node_count = data[i]["node_count"] + " Sensor Nodes";
+                    else var node_count = "1 Sensor Node";
+
+                    html += TEMPLATE.format(data[i]["session_id"], data[i]["name"],
+                        date_range, node_count);
+                }
+
+                $("#active-sessions").append(html);
+            } else $("#active-sessions").append(NO_DATA_HTML);
+        } else $("#active-sessions").append(ERROR_HTML);
+
+        $("#active-sessions-group").css("display", "block");
+
+    }).fail(() =>
+    {
+        $("#active-sessions").append(ERROR_HTML);
+        $("#active-sessions-group").css("display", "block");
+    });
+}
+
+function loadCompletedSessions()
+{
+    $.getJSON("data/get-completed-sessions.php", (data) =>
+    {
+        if (data !== false)
+        {
+            if (data !== null)
+            {
+                const TEMPLATE = `
+                    <div class="item item-thin">
+                        <a href="session.html?id={0}">
+                            <span>{1}</span>
+                            <br>
+                            <span>{2}</span>
+                            <span>{3}</span>
+                        </a>
+                    </div>`;
+
+                var html = "";
+                for (var i = 0; i < data.length; i++)
+                {
+                    var date_range = "";
+                    if (data[i]["start_time"] !== null)
+                    {
+                        date_range += "From " +
+                            dbTimeToLocal(data[i]["start_time"]).format("DD/MM/YYYY");
+                        date_range += " to " +
+                            dbTimeToLocal(data[i]["end_time"]).format("DD/MM/YYYY");
+                    }
+
+                    if (data[i]["node_count"] != 1)
+                        var node_count = data[i]["node_count"] + " Sensor Nodes";
+                    else var node_count = "1 Sensor Node";
+
+                    html += TEMPLATE.format(data[i]["session_id"], data[i]["name"],
+                        date_range, node_count);
+                }
+
+                $("#completed-sessions").append(html);
+            } else $("#completed-sessions").append(NO_DATA_HTML);
+        } else $("#completed-sessions").append(ERROR_HTML);
+
+        $("#completed-sessions-group").css("display", "block");
+
+    }).fail(() =>
+    {
+        $("#completed-sessions").append(ERROR_HTML);
+        $("#completed-sessions-group").css("display", "block");
+    });
+}
 
 
 function newSessionModalOpen()
@@ -105,8 +113,6 @@ function newSessionModalOpen()
     $("#modal_shade").css("display", "block");
     // $("body").css("overflow", "hidden");
     $("#new_session_modal").css("display", "block");
-
-
 }
 
 function newSessionModalClose()
@@ -120,29 +126,29 @@ function newSessionModalAddNode()
 {
     var TEMPLATE = `
         <div class="session-node-row" style="display: flex">
-        <button><i class="material-icons">delete</i></button>
+            <button><i class="material-icons">delete</i></button>
 
-        <select class="form-control">
-            <option>Sensor Node</option>
-            <option>XX:XX:XX:XX:XX:XX</option>
-        </select>
+            <select class="form-control">
+                <option>Sensor Node</option>
+                <option>XX:XX:XX:XX:XX:XX</option>
+            </select>
 
-        <input type="text" class="form-control" placeholder="Sensor Node Location"/>
-        <input type="text" class="form-control" placeholder="Start Time"/>
-        <input type="text" class="form-control" placeholder="End Time"/>
+            <input type="text" class="form-control" placeholder="Sensor Node Location"/>
+            <input type="text" class="form-control" placeholder="Start Time"/>
+            <input type="text" class="form-control" placeholder="End Time"/>
 
-        <span>Interval & Batch Size:</span>
-        <select class="form-control">
-            <option>1 Min</option>
-            <option>2 Mins</option>
-            <option>5 Mins</option>
-            <option>10 Mins</option>
-            <option>15 Mins</option>
-            <option>20 Mins</option>
-            <option>30 Mins</option>
-        </select>
-        <input type="number" min="1" max="127" value="1" class="form-control"/>
-    </div>`;
+            <span>Interval & Batch Size:</span>
+            <select class="form-control">
+                <option>1 Min</option>
+                <option>2 Mins</option>
+                <option>5 Mins</option>
+                <option>10 Mins</option>
+                <option>15 Mins</option>
+                <option>20 Mins</option>
+                <option>30 Mins</option>
+            </select>
+            <input type="number" min="1" max="127" value="1" class="form-control"/>
+        </div>`;
 
     $("#session-node-rows").append(TEMPLATE);
 }

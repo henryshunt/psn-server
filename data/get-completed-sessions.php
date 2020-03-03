@@ -12,7 +12,6 @@ if (!$db_connection)
     $setup_error = true;
 if ($setup_error) { echo "false"; exit(1); }
 
-
 // Get the completed sessions (exact opposite of the active sessions)
 $QUERY = "SELECT session_id, name, " .
     "(SELECT start_time FROM session_nodes WHERE session_id = sessions.session_id ORDER BY start_time ASC LIMIT 1) AS start_time, " .
@@ -22,7 +21,4 @@ $QUERY = "SELECT session_id, name, " .
     "AND (start_time > NOW() OR end_time IS NULL OR NOW() BETWEEN start_time AND end_time)) ORDER BY name";
 
 $result = query_database($db_connection, $QUERY, NULL);
-if ($result === false) { echo "false"; exit(1); }
-if ($result === NULL) { echo "null"; exit(1); }
-
 echo json_encode($result);

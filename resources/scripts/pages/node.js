@@ -2,45 +2,7 @@ var graphs = [];
 
 $(window).on("load", () =>
 {
-    // Load node info
-    $.ajax(
-    {
-        url: "data/get-node-info.php?nodeId=" + getQueryStringValue("id") + "&sessionId=" + getQueryStringValue("session"),
-        dataType: "json",
-
-        success: (data) =>
-        {
-            if (data !== false)
-            {
-                if (data !== null)
-                {
-                    const TEMPLATE = `
-                        <div class="solid-group-main">
-                            <div class="solid-group-left">
-                                <span>{0}</span><br><span>Reports every {1} minutes | Uploads in Batches of {2}</span>
-                            </div>
-                        
-                            <div class="solid-group-right">
-                                <button>Download All Data</button>
-                                <button>Stop Node Reporting Now</button>
-                                <button class="last-item" disabled>Delete Node from Session</button>
-                            </div>
-                        </div>`;
-
-                    $("#node-location").html(data["location"]);
-                    // $("#session-description").html(data["description"]);
-                    $("#node-info-group").css("display", "block");
-
-                    // $("#main").prepend(TEMPLATE.format(data["location"], data["interval"], data["batch_size"]));
-                } else $("#main").prepend(NO_DATA_HTML);
-            } else $("#main").prepend(ERROR_HTML);
-        },
-
-        error: () =>
-        {
-            $("#main").prepend(ERROR_HTML);
-        }
-    });
+    loadNodeInfo();
 
     loadGraph("temperature_graph", "airt");
     $("#temperature_graph_group").css("display", "block");
@@ -49,11 +11,31 @@ $(window).on("load", () =>
 });
 
 
+function loadNodeInfo()
+{
+    var url = "data/get-node-info.php?nodeId=" +
+        getQueryStringValue("id") + "&sessionId=" + getQueryStringValue("session");
+
+    $.getJSON(url, (data) =>
+    {
+        if (data !== false)
+        {
+            if (data !== null)
+            {
+                $("#node-location").html(data["location"]);
+                $("#node-info-group").css("display", "block");
+            } else $("#main").prepend(NO_DATA_HTML);
+        } else $("#main").prepend(ERROR_HTML);
+    }).fail(() => $("#main").prepend(ERROR_HTML));
+}
+
+
 function loadGraph(graphElementId, fields)
 {
     var options =
     {
-        showPoint: false, lineSmooth: false, height: 400, chartPadding: { right: 1, top: 1, left: 0, bottom: 0},
+        showPoint: false, lineSmooth: false, height: 400,
+        chartPadding: { right: 1, top: 1, left: 0, bottom: 0 },
 
         axisY: {
             offset: 23, onlyInteger: true,
@@ -69,8 +51,8 @@ function loadGraph(graphElementId, fields)
 
     var responsiveOptions =
     [
-        [ "screen and (max-width: 900px)", { height: 300 } ],
-        [ "screen and (max-width: 650px)", { height: 200 } ]
+        ["screen and (max-width: 900px)", { height: 300 }],
+        ["screen and (max-width: 650px)", { height: 200 }]
     ];
 
     var graph = new Chartist.Line("#" + graphElementId, null, options, responsiveOptions);
@@ -83,8 +65,10 @@ function loadGraphData(graphObject, fields)
     var endTime = moment.utc().tz(configTimeZone);
     var startTime = moment(endTime).subtract({ hours: 24 });
 
-    var url = "data/get-graph.php?node=" + getQueryStringValue("id") + "&session=" + getQueryStringValue("session") +
-        "&start=" + startTime.format("YYYY-MM-DD[T]HH:mm:ss[Z]") + "&end=" + endTime.format("YYYY-MM-DD[T]HH:mm:ss[Z]") + "&fields=" + fields;
+    var url = "data/get-graph.php?nodeId=" + getQueryStringValue("id") +
+        "&sessionId=" + getQueryStringValue("session") +
+        "&start=" + startTime.format("YYYY-MM-DD[T]HH:mm:ss[Z]") +
+        "&end=" + endTime.format("YYYY-MM-DD[T]HH:mm:ss[Z]") + "&fields=" + fields;
 
     // Draw new graph
     var options = graphObject.options;

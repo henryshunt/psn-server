@@ -30,15 +30,18 @@
             <div id="session-info-group" style="display: none">
                 <div class="info-group">
                     <div class="info-group-left">
-                        <span id="session-name"></span>
+                        <span>
+                            <span>Session View</span><span> | </span>
+                            <span id="session-name"></span>
+                        </span>
                         <br>
                         <span id="session-description"></span>
                     </div>
                 
                     <div class="info-group-right">
                         <button>Download All Data</button>
-                        <button>Stop Session Now</button>
-                        <button class="last-item">Delete Session</button>
+                        <button id="button-stop">Stop Session Now</button>
+                        <button class="last-item" id="button-delete">Delete Session</button>
                     </div>
                 </div>
             </div>
@@ -46,7 +49,6 @@
             <div id="active-nodes-group" style="display: none">
                 <div class="titled-group-header">
                     <h2>Active Sensor Nodes</h2>
-                    <button>Add New</button>
                     <div class="titled-group-separator"></div>
                 </div>
 
