@@ -28,18 +28,26 @@ function query_database($pdo, $query, $values)
 {
     try
     {
-        $db_query = $pdo->prepare($query);
-        if (!$db_query) return false;
-
-        $db_query->execute($values);
-        if (!$db_query) return false;
-
-        // Fetch the data if we just ran a select query
-        if (starts_with($query, "SELECT") || starts_with($query, "select"))
+        if (starts_with($query, "LOCK") || starts_with($query, "lock") ||
+            starts_with($query, "UNLOCK") || starts_with($query, "unlock"))
         {
-            $result = $db_query->fetchAll();
-            return empty($result) ? NULL : $result;
-        } else return true;
+            $pdo->exec($query);
+            return true;
+        }
+        else
+        {
+            $db_query = $pdo->prepare($query);
+            if (!$db_query) return false;
+            $db_query->execute($values);
+            if (!$db_query) return false;
+
+            // Fetch the data if we just ran a select query
+            if (starts_with($query, "SELECT") || starts_with($query, "select"))
+            {
+                $result = $db_query->fetchAll();
+                return empty($result) ? NULL : $result;
+            } else return true;
+        }
     }
     catch (Exception $e) { return false; }
 }

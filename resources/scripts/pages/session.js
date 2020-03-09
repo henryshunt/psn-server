@@ -95,19 +95,35 @@ function loadSessionInfo(activeNodeCount)
                 // Disable some buttons depending on how many active nodes there are
                 if (activeNodeCount === 0)
                     $("#button-stop").attr("disabled", true);
-                else $("#button-delete").attr("disabled", true);
+                // else $("#button-delete").attr("disabled", true);
 
                 $("#session-info-group").css("display", "block");
-            } else $("#main").prepend(ERROR_HTML);
-        } else $("#main").prepend(ERROR_HTML);
-    }).fail(() => $("#main").prepend(ERROR_HTML));
+            }
+            else
+            {
+                $("#main").prepend(ERROR_HTML);
+                return false;
+            }
+        }
+        else
+        {
+            $("#main").prepend(ERROR_HTML);
+            return false;
+        }
+
+    }).fail(() => 
+    {
+        $("#main").prepend(ERROR_HTML);
+        return false;
+    });
+
+    return true;
 }
 
 function loadCompletedNodes()
 {
     var url = "data/get-completed-nodes.php?sessionId=" + this.getQueryStringValue("id");
-    $.getJSON(url, (data) =>
-    {
+    $.getJSON(url, (data) => {
         if (data !== false)
         {
             if (data !== null)
@@ -137,4 +153,17 @@ function loadCompletedNodes()
         $("#completed-nodes").append(ERROR_HTML);
         $("#completed-nodes-group").css("display", "block")
     });
+}
+
+function deleteSessionClick()
+{
+    if (confirm("This will delete the session and all reports produced by the nodes. Are you sure?"))
+    {
+        $.ajax({
+            url: "data/del-session.php?sessionId=" + this.getQueryStringValue("id"),
+
+        }).done(() => {
+            window.location.href = "index.html";
+        });
+    }
 }
