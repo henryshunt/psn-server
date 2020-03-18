@@ -29,6 +29,7 @@
 .info-group-left {
     flex-grow: 1;
     margin-right: 20px;
+    text-align: justify;
 }
 .info-group-left > :first-child {
     font-weight: bold;
@@ -80,13 +81,6 @@
 }
 .item > a > :first-child {
     font-weight: bold;
-    width: 100%;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    display: inline-block;
-}
-.item > a > :nth-child(3) {
     width: 100%;
     overflow: hidden;
     white-space: nowrap;

@@ -19,6 +19,10 @@ if (!$db_connection)
 if ($setup_error) die("false");
 
 
-$QUERY = "SELECT location, `interval`, batch_size FROM session_nodes WHERE session_id = ? AND node_id = ?";
+$QUERY = "SELECT session_nodes.location, session_nodes.`interval`, session_nodes.batch_size, " .
+    "session_nodes.start_time, session_nodes.end_time, sessions.name AS session_name, " .
+    "NOW() >= session_nodes.start_time AND (session_nodes.end_time = NULL OR NOW() < session_nodes.end_time) AS is_active " .
+    "FROM session_nodes INNER JOIN sessions ON session_nodes.session_id = sessions.session_id " .
+    "WHERE session_nodes.session_id = ? AND session_nodes.node_id = ?";
 $result = query_database($db_connection, $QUERY, [$_GET["sessionId"], $_GET["nodeId"]]);
 echo json_encode($result === FALSE || $result === NULL ? $result : $result[0]);

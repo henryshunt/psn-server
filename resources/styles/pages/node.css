@@ -1,3 +1,11 @@
+.info-group-left > :nth-child(3) {
+    font-style: italic;
+}
+.info-group-left > p {
+    margin-top: 10px;
+    margin-bottom: 0;
+}
+
 .time-machine {
     border: 1px solid rgb(200, 200, 200);
     background: white;
@@ -29,6 +37,25 @@
 .time-machine > button {
     height: 40px;
     width: 40px;
+}
+
+table {
+    background: white;
+    width: 100%;
+    border: 1px solid rgb(200, 200, 200);
+    text-align: center;
+    padding: 10px;
+}
+table > thead > tr > td {
+    font-weight: bold;
+    border-bottom: 2px solid rgb(200, 200, 200);
+    width: 25%;
+}
+table > tbody > tr > :first-child {
+    font-weight: bold;
+}
+table td {
+    height: 35px;
 }
 
 .ct-series .ct-line {

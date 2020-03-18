@@ -167,3 +167,16 @@ function deleteSessionClick()
         });
     }
 }
+
+function stopSessionNow()
+{
+    if (confirm("This will delete the session and all reports produced by the nodes. Are you sure?"))
+    {
+        $.ajax({
+            url: "data/set-session-stop.php?sessionId=" + this.getQueryStringValue("id"),
+
+        }).done(() => {
+            window.location.reload();
+        });
+    }
+}

@@ -36,3 +36,8 @@ function dbTimeToLocal(time)
 {
     return moment.utc(time, "YYYY-MM-DD HH:mm:ss").tz(configTimeZone);
 }
+
+function dbTimeToUtc(time)
+{
+    return moment.utc(time, "YYYY-MM-DD HH:mm:ss");
+}

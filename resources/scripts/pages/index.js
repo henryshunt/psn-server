@@ -134,7 +134,6 @@ function newSessionModalAddNode()
             </select>
 
             <input type="text" class="form-control" placeholder="Sensor Node Location"/>
-            <input type="text" class="form-control" placeholder="Start Time"/>
             <input type="text" class="form-control" placeholder="End Time"/>
 
             <span>Interval & Batch Size:</span>

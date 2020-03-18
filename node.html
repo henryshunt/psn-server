@@ -37,55 +37,58 @@
                             <span>Node View</span><span> | </span>
                             <span id="node-location"></span>
                         </span>
+
                         <br>
-                        <span>Part of the 'Session name here' session.</span>
+                        <span id="node-session"></span>
+                        <br>
+                        <p id="node-options"></p>
                     </div>
                 
                     <div class="info-group-right">
-                        <button>Download All Data</button>
-                        <button>Stop Node Reporting Now</button>
-                        <button class="last-item">Delete Node from Session</button>
+                        <button onclick="downloadDataClick()">Download All Data</button>
+                        <button id="button-stop" onclick="stopSessionNodeClick()">Stop Node Reporting Now</button>
+                        <button class="last-item" onclick="deleteSessionNodeClick()">Delete Node from Session</button>
                     </div>
                 </div>
             </div>
 
-            <div class="time-machine">
-                <button>
+            <div class="time-machine" id="time-machine" style="display: none">
+                <button onclick="timeMachineLeft()">
                     <i class="material-icons">chevron_left</i>
                 </button>
 
-                <div><span>Data for 14/02/2020 at 11:20</span></div>
+                <div><span id="time-machine-time">Data for 14/02/2020 at 11:20</span></div>
 
-                <button>
+                <button onclick="timeMachineRight()">
                     <i class="material-icons">chevron_right</i>
                 </button>
             </div>
 
-            <div id="reports-group">
+            <div id="reports-group" style="display: none">
                 <div class="titled-group-header">
-                    <h2>Latest Report</h2>
+                    <h2>Reports (Last 8)</h2>
                     <div class="titled-group-separator"></div>
                 </div>
 
-                <div class="reports"></div>
+                <div class="reports" id="reports"></div>
             </div>
 
-            <div id="temperature_graph_group" style="display: none">
+            <div id="temperature-graph-group" style="display: none">
                 <div class="titled-group-header">
                     <h2>Temperature (24 Hours)</h2>
                     <div class="titled-group-separator"></div>
                 </div>
 
-                <div id="temperature_graph" class="item item-graph"></div>
+                <div id="temperature-graph" class="item item-graph"></div>
             </div>
         
-            <div id="humidity_graph_group" class="last-item" style="display: none">
+            <div id="humidity-graph-group" class="last-item" style="display: none">
                 <div class="titled-group-header">
                     <h2>Humidity (24 Hours)</h2>
                     <div class="titled-group-separator"></div>
                 </div>
 
-                <div id="humidity_graph" class="item item-graph">
+                <div id="humidity-graph" class="item item-graph">
             </div>
         </main>
     </body>

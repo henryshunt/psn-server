@@ -24,18 +24,17 @@
     padding-left: 3px;
     padding-right: 3px;
 }
-.session-node-row > :nth-child(4),
-.session-node-row > :nth-child(5) {
+.session-node-row > :nth-child(4) {
     width: 130px;
     text-align: center;
 }
-.session-node-row > :nth-child(6) {
+.session-node-row > :nth-child(5) {
     display: none;
 }
-.session-node-row > :nth-child(7) {
+.session-node-row > :nth-child(6) {
     width: 80px;
 }
-.session-node-row > :nth-child(8) {
+.session-node-row > :nth-child(7) {
     width: 65px;
     margin-right: 0;
 }
@@ -57,15 +56,15 @@
         width: calc(100% - 35px) !important;
         margin-right: 0 !important;
     }
-    .session-node-row > :nth-child(6) {
+    .session-node-row > :nth-child(5) {
         display: inline;
         font-size: 14px;
     }
-    .session-node-row > :nth-child(7) {
+    .session-node-row > :nth-child(6) {
         margin-right: 5px;
         width: 80px !important;
     }
-    .session-node-row > :nth-child(8) {
+    .session-node-row > :nth-child(7) {
         width: 65px !important;
     }
 }
