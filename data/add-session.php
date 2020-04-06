@@ -11,7 +11,7 @@ if (!$config->load_config("../config.ini"))
 $db_connection = database_connection($config);
 if (!$db_connection)
     $setup_error = true;
-if ($setup_error) { echo "false"; exit(1); }
+if ($setup_error) { echo "false0"; exit(1); }
 
 
 $data = json_decode($_POST["data"]);
@@ -32,26 +32,28 @@ foreach ($data->{"nodes"} as $node)
 {
     $result = query_database($db_connection, $QUERY, [$node->{"node"},
         date("Y-m-d H:i:s", $current_time), date("Y-m-d H:i:s", $current_time)]);
-    if ($result === false || $result !== NULL) { echo "false"; exit(1); }
+    if ($result === false || $result !== NULL) { echo "false1"; exit(1); }
 }
 
 // Pre-insert checks completed and raised no problems, so do the insert
 $QUERY = "INSERT INTO sessions (name, description) VALUES (?, ?)";
-
-$result = query_database($db_connection, $QUERY, [$data->{"name"}, $data->{"description"}]);
-if ($result === false) { echo "false"; exit(1); }
+// echo($data->);
+// echo "INSERT INTO sessions (name, description) VALUES (" . $data->{"name"} . ", " . $data->{"description"} . ")";
+$result = query_database($db_connection, $QUERY, ["a", "b"]);
+if ($result === false) { echo "false2"; exit(1); }
 
 $new_session_id = $db_connection->lastInsertId();
 echo $new_session_id;
 $QUERY = "INSERT INTO session_nodes (session_id, node_id, location, start_time, end_time, " .
-    "`interval`, batch_size) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    "`interval`, batch_size) VALUES (?, ?, ?, NOW(), ?, ?, ?)";
 
 foreach ($data->{"nodes"} as $node)
 {
+    echo $node->{"node"};
     $result = query_database($db_connection, $QUERY, [$new_session_id, $node->{"node"},
-        $node->{"location"}, $node->{"startTime"}, $node->{"endTime"}, $node->{"interval"},
+        $node->{"location"}, $node->{"endTime"}, $node->{"interval"},
         $node->{"batchSize"}]);
-    if ($result === false) { echo "false"; exit(1); }
+    if ($result === false) { echo "false3"; exit(1); }
 }
 
 echo "true";

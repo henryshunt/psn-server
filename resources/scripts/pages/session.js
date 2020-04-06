@@ -11,7 +11,7 @@ $(window).on("load", () =>
 function loadActiveNodes()
 {
     // Load currently active nodes
-    var url = "data/get-active-nodes.php?sessionId=" + this.getQueryStringValue("id");
+    var url = "data/get-nodes-active.php?sessionId=" + this.getQueryStringValue("id");
     $.getJSON(url, (data) =>
     {
         if (data !== false)
@@ -122,7 +122,7 @@ function loadSessionInfo(activeNodeCount)
 
 function loadCompletedNodes()
 {
-    var url = "data/get-completed-nodes.php?sessionId=" + this.getQueryStringValue("id");
+    var url = "data/get-nodes-completed.php?sessionId=" + this.getQueryStringValue("id");
     $.getJSON(url, (data) => {
         if (data !== false)
         {

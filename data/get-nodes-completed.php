@@ -1,6 +1,6 @@
 <?php
 /**
- * Gets the nodes that are not currently active in a session (the exact opposite of the active nodes).
+ * Gets the nodes inside a session that are not currently active (exact opposite of the active nodes).
  */
 
 date_default_timezone_set("UTC");
@@ -13,8 +13,7 @@ $config = new Config();
 if (!$config->load_config("../config.ini"))
     $setup_error = true;
 $db_connection = database_connection($config);
-if (!$db_connection)
-    $setup_error = true;
+if (!$db_connection) $setup_error = true;
 if ($setup_error) die("false");
 
 
