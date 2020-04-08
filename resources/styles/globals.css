@@ -16,6 +16,24 @@ h1 {
     display: inline-block;
     line-height: 50px;
 }
+.account
+{
+    float: right;
+    position: relative;
+    top: 13px;
+}
+.account > i
+{
+    float: left;
+    margin-right: 5px;
+    cursor: pointer;
+}
+.account > span
+{
+    float: right;
+    position: relative;
+    top: 1px;
+}
 
 main {
     padding-top: 30px;

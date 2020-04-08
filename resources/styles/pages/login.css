@@ -1,0 +1,8 @@
+main {
+    width: 250px;
+    margin: 0 auto;
+}
+main > button {
+    width: 100%;
+    margin-bottom: 10px;
+}

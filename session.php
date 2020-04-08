@@ -1,3 +1,23 @@
+<?php
+date_default_timezone_set("UTC");
+require_once("resources/routines/helpers.php");
+require_once("resources/routines/config.php");
+
+$config = new Config();
+if (!$config->load_config("config.ini"))
+    die ("Configuration error");
+$db_connection = database_connection($config);
+if (!$db_connection) die ("Database error");
+
+$session = try_loading_session($db_connection);
+if ($session === FALSE) die("Session error");
+if ($session === NULL)
+{
+    header("Location: login.php");
+    exit();
+}
+?>
+
 <meta charset="UTF-8">
 <!DOCTYPE html>
 
@@ -23,6 +43,19 @@
         <header>
             <div class="main">
                 <h1><a href=".">Phenotyping Sensor Network</a></h1>
+
+                <div class="account">
+                    <i class="material-icons">settings</i>
+
+                    <span>
+                        <?php
+                        // If the user ID contains an @, only display the part before the @
+                        if (strpos($session["user_id"], "@") !== FALSE)
+                            echo substr($session["user_id"], 0, strpos($session["user_id"], "@"));
+                        else echo $session["user_id"];
+                        ?>
+                    </span>
+                </div>
             </div>
         </header>
 
