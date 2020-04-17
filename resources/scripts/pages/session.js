@@ -90,7 +90,10 @@ function loadSessionInfo(activeNodeCount)
             if (sessionData !== null)
             {
                 $("#session-name").html(sessionData["name"]);
-                $("#session-description").html(sessionData["description"]);
+
+                if (sessionData["description"] !== "" && sessionData["description"] !== null)
+                    $("#session-description").html(sessionData["description"]);
+                else $("#session-description").html("No Description Available");
 
                 // Disable some buttons depending on how many active nodes there are
                 if (activeNodeCount === 0)
@@ -158,9 +161,14 @@ function deleteSessionClick()
 {
     if (confirm("This will delete the session and all reports produced by the nodes. Are you sure?"))
     {
-        $.ajax({
-            url: "data/del-session.php?sessionId=" + this.getQueryStringValue("id"),
-        }).done(() => { window.location.href = "index.php"; });
+        let url = "data/del-session.php?sessionId=" + this.getQueryStringValue("id");
+
+        $.getJSON(url, (data) =>
+        {
+            if (data === true)
+                window.location.href = "index.php";
+            else alert("An error occured while completing the operation.");
+        }).fail(() => alert("An error occured while completing the operation."));
     }
 }
 
@@ -168,8 +176,13 @@ function stopSessionNow()
 {
     if (confirm("This will delete the session and all reports produced by the nodes. Are you sure?"))
     {
-        $.ajax({
-            url: "data/set-session-stop.php?sessionId=" + this.getQueryStringValue("id"),
-        }).done(() => window.location.reload());
+        let url = "data/set-session-stop.php?sessionId=" + this.getQueryStringValue("id");
+
+        $.getJSON(url, (data) =>
+        {
+            if (data === true)
+                window.location.reload();
+            else alert("An error occured while completing the operation.");
+        }).fail(() => alert("An error occured while completing the operation."));
     }
 }

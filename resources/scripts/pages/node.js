@@ -61,6 +61,7 @@ function loadNodeInfo(onSuccess)
             $("#main").prepend(ERROR_HTML);
             loadingCount--;
         }
+        
     }).fail(() =>
     {
         $("#main").prepend(ERROR_HTML);
@@ -96,8 +97,7 @@ function loadGraph(targetElementId)
         ["screen and (max-width: 650px)", { height: 200 }]
     ];
 
-    return new Chartist.Line(
-        "#" + targetElementId, null, options, responsiveOptions);
+    return new Chartist.Line("#" + targetElementId, null, options, responsiveOptions);
 }
 
 
@@ -198,14 +198,14 @@ function loadGraphData(graphObject, dataField)
 function timeMachineLeft()
 {
     if (loadingCount > 0) return;
-    dataTime.subtract({ hours: 1 });
+    dataTime.subtract({ hours: 6 });
     loadData();
 }
 
 function timeMachineRight()
 {
     if (loadingCount > 0) return;
-    dataTime.add({ hours: 1 });
+    dataTime.add({ hours: 6 });
     loadData();
 }
 
@@ -225,7 +225,7 @@ function stopSessionNodeClick()
         $.getJSON(url, (data) =>
         {
             if (data === true)
-                window.location.reload;
+                window.location.reload();
             else alert("An error occured while completing the operation.");
         }).fail(() => alert("An error occured while completing the operation."));
     }
