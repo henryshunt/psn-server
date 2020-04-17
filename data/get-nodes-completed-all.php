@@ -12,6 +12,10 @@ if (!$config->load_config("../config.ini"))
 $db_connection = database_connection($config);
 if (!$db_connection) die("false");
 
+$session = try_loading_session($db_connection);
+if ($session === FALSE || $session === NULL)
+    die("false");
+
 
 $QUERY = "SELECT node_id, mac_address FROM nodes WHERE node_id NOT IN " .
     "(SELECT node_id FROM session_nodes WHERE (start_time > NOW() OR end_time IS NULL OR NOW() BETWEEN start_time AND end_time))";

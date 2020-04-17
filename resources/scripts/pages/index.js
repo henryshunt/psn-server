@@ -190,11 +190,7 @@ function newSessionModalAddNode()
 
     // Add date picker for end time
     flatpickr($(elements).children().eq(3)[0],
-    {
-        enableTime: true, time_24hr: true, dateFormat: "d/m/Y H:i"
-        // enableTime: true, time_24hr: true, defaultDate: initTime,
-        // disableMobile: true,
-    });
+    { enableTime: true, time_24hr: true, dateFormat: "d/m/Y H:i" });
                 
     $("#session-node-rows").append(elements);
 }

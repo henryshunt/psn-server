@@ -14,12 +14,8 @@ $db_connection = database_connection($config);
 if (!$db_connection) die("false");
 
 $session = try_loading_session($db_connection);
-if ($session === FALSE) die("false");
-if ($session === NULL)
-{
-    header("Location: login.php");
-    exit();
-}
+if ($session === FALSE || $session === NULL)
+    die("false");
 
 
 $data = json_decode($_POST["data"], TRUE);

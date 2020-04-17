@@ -98,7 +98,7 @@ if ($session === NULL)
 
             <div id="reports-group" style="display: none">
                 <div class="titled-group-header">
-                    <h2>Reports (Last 8)</h2>
+                    <h2>Reports (Last 6)</h2>
                     <div class="titled-group-separator"></div>
                 </div>
 

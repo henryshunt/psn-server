@@ -117,7 +117,7 @@ function loadReports()
     loadingCount++;
     let url = "data/get-reports.php?nodeId={0}&sessionId={1}&time={2}&amount={3}".format(
         getQueryStringValue("id"), getQueryStringValue("session"),
-        dataTime.format("YYYY-MM-DD[T]HH:mm:ss[Z]"), 8);
+        dataTime.format("YYYY-MM-DD[T]HH:mm:ss[Z]"), 6);
 
     $.getJSON(url, (data) =>
     {
@@ -171,7 +171,7 @@ function loadGraphData(graphObject, dataField)
     let endTime = moment(dataTime);
     let startTime = moment(endTime).subtract({ hours: 24 });
 
-    let url = "data/get-graph.php?nodeId={0}&sessionId={1}&start={2}&end={3}&field={4}"
+    let url = "data/get-node-graph.php?nodeId={0}&sessionId={1}&start={2}&end={3}&field={4}"
         .format(getQueryStringValue("id"), getQueryStringValue("session"),
         startTime.format("YYYY-MM-DD[T]HH:mm:ss[Z]"),
         endTime.format("YYYY-MM-DD[T]HH:mm:ss[Z]"), dataField);
@@ -219,7 +219,7 @@ function stopSessionNodeClick()
 {
     if (confirm("This action will stop this sensor node from making any further reports to the session. Are you sure?"))
     {
-        let url = "data/set-session-node-stop.php?sessionId=" +
+        let url = "data/set-node-stop.php?sessionId=" +
             getQueryStringValue("session") + "&nodeId=" + getQueryStringValue("id");
 
         $.getJSON(url, (data) =>

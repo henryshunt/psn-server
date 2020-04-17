@@ -95,7 +95,6 @@ function loadSessionInfo(activeNodeCount)
                 // Disable some buttons depending on how many active nodes there are
                 if (activeNodeCount === 0)
                     $("#button-stop").attr("disabled", true);
-                // else $("#button-delete").attr("disabled", true);
 
                 $("#session-info-group").css("display", "block");
             }
@@ -161,10 +160,7 @@ function deleteSessionClick()
     {
         $.ajax({
             url: "data/del-session.php?sessionId=" + this.getQueryStringValue("id"),
-
-        }).done(() => {
-            window.location.href = "index.php";
-        });
+        }).done(() => { window.location.href = "index.php"; });
     }
 }
 
@@ -174,9 +170,6 @@ function stopSessionNow()
     {
         $.ajax({
             url: "data/set-session-stop.php?sessionId=" + this.getQueryStringValue("id"),
-
-        }).done(() => {
-            window.location.reload();
-        });
+        }).done(() => window.location.reload());
     }
 }
