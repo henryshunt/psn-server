@@ -1,5 +1,5 @@
-var nodes = [];
-var newSessionNodeCount = 0;
+let availableNodes = [];
+// var datePicker = null;
 
 $(window).on("load", () =>
 {
@@ -18,7 +18,7 @@ function loadActiveSessions()
             {
                 const TEMPLATE = `
                     <div class="item">
-                        <a href="session.html?id={0}">
+                        <a href="session.php?id={0}">
                             <span>{1}</span>
                             <br>
                             <span>{2}</span>
@@ -26,24 +26,25 @@ function loadActiveSessions()
                         </a>
                     </div>`;
 
-                var html = "";
-                for (var i = 0; i < data.length; i++)
+                let html = "";
+                for (let i = 0; i < data.length; i++)
                 {
-                    var date_range = "From " + 
+                    let dateRange = "From " + 
                         dbTimeToLocal(data[i]["start_time"]).format("DD/MM/YYYY");
 
                     if (data[i]["end_time"] !== null)
                     {
-                        date_range += " to " +
+                        dateRange += " to " +
                             dbTimeToLocal(data[i]["end_time"]).format("DD/MM/YYYY");
-                    } else date_range += ", Indefinitely";
+                    } else dateRange += ", Indefinitely";
 
+                    let nodeCount = "";
                     if (data[i]["node_count"] != 1)
-                        var node_count = data[i]["node_count"] + " Sensor Nodes";
-                    else var node_count = "1 Sensor Node";
+                        nodeCount = data[i]["node_count"] + " Sensor Nodes";
+                    else nodeCount = "1 Sensor Node";
 
                     html += TEMPLATE.format(data[i]["session_id"], data[i]["name"],
-                        date_range, node_count);
+                        dateRange, nodeCount);
                 }
 
                 $("#active-sessions").append(html);
@@ -69,7 +70,7 @@ function loadCompletedSessions()
             {
                 const TEMPLATE = `
                     <div class="item item-thin">
-                        <a href="session.html?id={0}">
+                        <a href="session.php?id={0}">
                             <span>{1}</span>
                             <br>
                             <span>{2}</span>
@@ -77,24 +78,25 @@ function loadCompletedSessions()
                         </a>
                     </div>`;
 
-                var html = "";
-                for (var i = 0; i < data.length; i++)
+                let html = "";
+                for (let i = 0; i < data.length; i++)
                 {
-                    var date_range = "";
+                    let dateRange = "";
                     if (data[i]["start_time"] !== null)
                     {
-                        date_range += "From " +
+                        dateRange += "From " +
                             dbTimeToLocal(data[i]["start_time"]).format("DD/MM/YYYY");
-                        date_range += " to " +
+                        dateRange += " to " +
                             dbTimeToLocal(data[i]["end_time"]).format("DD/MM/YYYY");
                     }
 
+                    let nodeCount = "";
                     if (data[i]["node_count"] != 1)
-                        var node_count = data[i]["node_count"] + " Sensor Nodes";
-                    else var node_count = "1 Sensor Node";
+                        nodeCount = data[i]["node_count"] + " Sensor Nodes";
+                    else nodeCount = "1 Sensor Node";
 
                     html += TEMPLATE.format(data[i]["session_id"], data[i]["name"],
-                        date_range, node_count);
+                        dateRange, nodeCount);
                 }
 
                 $("#completed-sessions").append(html);
@@ -113,37 +115,48 @@ function loadCompletedSessions()
 
 function newSessionModalOpen()
 {
-    $("#modal_shade").css("display", "block");
-    // $("body").css("overflow", "hidden");
-    $("#new_session_modal").css("display", "block");
+    $("#modal-shade").css("display", "block");
+    $("#new-session-modal").css("display", "block");
 
+    // Get all available nodes for display in sensor node dropdown
     $.getJSON("data/get-nodes-completed-all.php", (data) =>
     {
         if (data !== false)
         {
             if (data !== null)
-            {
-                nodes = data;
-            }
-        }
+                availableNodes = data;
 
-        $("#completed-sessions-group").css("display", "block");
+            $("#session-node-add-button").attr("disabled", false);
+        }
+        else
+        {
+            alert("Error while getting the available sensor nodes.");
+            newSessionModalClose();
+        }
 
     }).fail(() =>
     {
+        alert("Error while getting the available sensor nodes.");
+        newSessionModalClose();
     });
 }
 
 function newSessionModalClose()
 {
-    $("#modal_shade").css("display", "none");
-    // $("body").css("overflow", "auto");
-    $("#new_session_modal").css("display", "none");
+    $("#modal-shade").css("display", "none");
+    $("#new-session-modal").css("display", "none");
+
+    // Reset form
+    $("#new-session-name").val("");
+    $("#new-session-description").val("");
+    $("#session-node-rows").children().empty();
+    $("#session-node-add-button").attr("disabled", true);
 }
+
 
 function newSessionModalAddNode()
 {
-    var TEMPLATE = `
+    let TEMPLATE = `
         <div class="session-node-row" style="display: flex">
             <button type="button" onclick="newSessionModalRemoveNode(this)"><i class="material-icons">delete</i></button>
 
@@ -167,14 +180,23 @@ function newSessionModalAddNode()
             </select>
             <input type="number" min="1" max="127" value="1" class="form-control" title="Transmit reports in batches of"/>
         </div>`;
+    let TEMPLATE2 = `<option value="{0}">{1}</option>`;
 
-    let n = "";
-    for (let i = 0; i < nodes.length; i++)
+    let options = "";
+    for (let i = 0; i < availableNodes.length; i++)
+        options += TEMPLATE2.format(availableNodes[i]["node_id"], availableNodes[i]["mac_address"]);
+
+    let elements = $(TEMPLATE.format(options));
+
+    // Add date picker for end time
+    flatpickr($(elements).children().eq(3)[0],
     {
-        n += "<option value=\"" + nodes[i]["node_id"] + "\">" + nodes[i]["mac_address"] + "</option>";
-    }
-
-    $("#session-node-rows").append(TEMPLATE.format(n));
+        enableTime: true, time_24hr: true, dateFormat: "d/m/Y H:i"
+        // enableTime: true, time_24hr: true, defaultDate: initTime,
+        // disableMobile: true,
+    });
+                
+    $("#session-node-rows").append(elements);
 }
 
 function newSessionModalRemoveNode(element)
@@ -182,63 +204,46 @@ function newSessionModalRemoveNode(element)
     $(element).parent().remove();
 }
 
+
 function newSessionModalSave()
 {
-    // var json = `{
-    //         "name": "Session name",
-    //         "description": "Session description",
+    let emptyFields = false;
+    if ($("#new-session-name").val() === "" || $("#new-session-description").val() === "")
+        emptyFields = true;
 
-    //         "nodes":
-    //         [
-    //             { "node": 2, "location": "Node location", "startTime": "2020-02-04 14:58:00", "endTime": "2020-03-04 14:58:00", "interval": 2, "batchSize": 10 }
-    //         ]
-    //     }`;
+    let TEMPLATE = `{"name":"{0}","description":"{1}","nodes":[{2}]}`;
+    let TEMPLATE2 = `{"nodeId":{0},"location":"{1}","endTime":"{2}","interval":{3},"batchSize":{4}}`;
 
-    var json = `{
-        "name": "{0}",
-        "description": "{1}",
-
-        "nodes":
-        [
-            {2}
-        ]
-    }`;
-
-    var x = "";
+    let sessionNodes = "";
     for (let i = 0; i < document.getElementById("session-node-rows").children.length; i++)
     {
         let node = document.getElementById("session-node-rows").children[i].children[1].value;
         let location = document.getElementById("session-node-rows").children[i].children[2].value;
-        let end = document.getElementById("session-node-rows").children[i].children[3].value;
+        let end = moment(document.getElementById("session-node-rows").children[i].children[3].value,
+            "DD/MM/YYYY HH:mm").utc();
         let interval = document.getElementById("session-node-rows").children[i].children[5].value;
         let batch = document.getElementById("session-node-rows").children[i].children[6].value;
+        sessionNodes += TEMPLATE2.format(node, location, end.format("YYYY-MM-DD HH:mm:ss"), interval, batch);
 
-        x += "{ \"node\": {0}, \"location\": \"{1}\", \"endTime\": \"{2}\", \"interval\": {3}, \"batchSize\": {4} }".format(
-            node, location, end, interval, batch);
+        if (node === "Sensor Node" || location === "" || end === "") emptyFields = true;
     }
 
-    console.log(json.format($("#new_session_name").val(), $("#new_session_description").val(), x));
+    if (sessionNodes === "") emptyFields = true;
+    if (emptyFields === true)
+    {
+        alert("Cannot submit, one or more fields are empty or you have not added any sensor nodes.");
+        return;
+    }
+
+    let session = TEMPLATE.format(
+        $("#new-session-name").val(), $("#new-session-description").val(), sessionNodes);
 
     $.post({
         url: "data/add-session.php",
-        // ContentType: "application/json",
-        data: { "data": json },
+        data: { "data": session },
+        ContentType: "application/json",
 
-        success: function(data)
-        {
-            console.log(data);
-        },
-
-        error: (e) => {
-            console.log("error");
-            console.log(e.responseText);
-        }
+        success: () => window.location.reload(),
+        error: () => alert("Error while creating the session")
     });
-
-    newSessionModalClose();
-}
-
-function newSessionModalCancel()
-{
-    newSessionModalClose();
 }

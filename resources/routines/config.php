@@ -19,6 +19,8 @@ class Config
     private $oauth_scopes = NULL;
     private $session_timeout = NULL;
 
+    private $local_time_zone = NULL;
+
 
     function load_config($config_file)
     {
@@ -49,6 +51,9 @@ class Config
         $this->oauth_scopes =
             $config["oauth_scopes"] === "" ? NULL : $config["oauth_scopes"];
         $this->session_timeout = $config["session_timeout"];
+
+        $this->local_time_zone =
+            $config["local_time_zone"] === "" ? NULL : $config["local_time_zone"];
 
         return $this->validate();
     }
@@ -139,5 +144,10 @@ class Config
     function get_session_timeout()
     {
         return $this->session_timeout;
+    }
+
+    function get_local_time_zone()
+    {
+        return $this->local_time_zone;
     }
 }

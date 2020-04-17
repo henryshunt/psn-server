@@ -104,7 +104,7 @@ function loadGraph(targetElementId)
 function loadData()
 {
     $("#time-machine-time").html(
-        dataTime.tz(configTimeZone).format("[Data on] DD/MM/YYYY [at] HH:mm"));
+        dataTime.clone().tz(configTimeZone).format("[Data on] DD/MM/YYYY [at] HH:mm"));
     $("#time-machine").css("display", "block");
 
     loadReports();

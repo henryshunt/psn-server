@@ -15,44 +15,41 @@
     max-width: 936px;
     background: white;
     border: 2px solid rgb(200, 200, 200);
-    /* height: calc(100% - 64px); */
 }
 
-.modal_header {
+.modal-header {
     height: 40px;
 }
-.modal_header > span {
+.modal-header > span {
     font-weight: bold;
     margin-left: 20px;
     line-height: 42px;
 }
-.modal_header > button {
+.modal-header > button {
     width: 40px;
     float: right;
     height: 100%;
 }
-.modal_header > button > i {
+.modal-header > button > i {
     margin-left: -1px;
 }
 
-.modal_content {
+.modal-content {
     padding: 20px;
     border-bottom: 2px solid rgb(200, 200, 200);
     border-top: 2px solid rgb(200, 200, 200);
-    /* overflow-y: auto; */
-    /* max-height: calc(100% - 135px); */
 }
 
-.modal_footer {
+.modal-footer {
     float: right;
     margin: 10px;
     margin-right: 20px;
 }
-.modal_footer > :first-child {
+.modal-footer > :first-child {
     float: left;
     margin-right: 10px;
     width: 130px;
 }
-.modal_footer > :last-child {
+.modal-footer > :last-child {
     float: right;
 }

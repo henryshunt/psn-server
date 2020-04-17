@@ -6,10 +6,10 @@
 }
 
 
-.modal_content > form > :first-child {
+.modal-content > form > :first-child {
     margin-bottom: 5px;
 }
-.modal_content > form > :nth-child(2) {
+.modal-content > form > :nth-child(2) {
     margin-bottom: 15px;
 }
 
@@ -19,6 +19,7 @@
 }
 .session-node-row > * {
     margin-right: 5px;
+    height: 30px;
 }
 .session-node-row > :nth-child(1) {
     padding-left: 3px;

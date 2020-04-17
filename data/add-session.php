@@ -1,63 +1,60 @@
 <?php
-date_default_timezone_set("UTC");
-include_once("../resources/routines/helpers.php");
-include_once("../resources/routines/config.php");
+/**
+ * Creates a new session
+ */
 
-$setup_error = false;
-if (!isset($_POST["data"])) $setup_error = true;
+require_once("../resources/routines/helpers.php");
+require_once("../resources/routines/config.php");
+
+if (!isset($_POST["data"])) die("false");
 $config = new Config();
 if (!$config->load_config("../config.ini"))
-    $setup_error = true;
+    die("false");
 $db_connection = database_connection($config);
-if (!$db_connection)
-    $setup_error = true;
-if ($setup_error) { echo "false0"; exit(1); }
+if (!$db_connection) die("false");
 
-
-$data = json_decode($_POST["data"]);
-
-// Lock the table so it can't be modified during pre-insert checks
-// $QUERY = "LOCK TABLE session_nodes";
-// $result = query_database($db_connection, $QUERY, NULL);
-// if ($result === false) { echo "false"; exit(1); }
-
-$query_error = false;
-
-$QUERY = "SELECT 1 FROM session_nodes WHERE node_id = ? " .
-    "AND start_time > ? OR end_time IS NULL OR ? BETWEEN start_time AND end_time";
-$current_time = time();
-
-// Check if any of the specified nodes are already active
-foreach ($data->{"nodes"} as $node)
+$session = try_loading_session($db_connection);
+if ($session === FALSE) die("false");
+if ($session === NULL)
 {
-    $result = query_database($db_connection, $QUERY, [$node->{"node"},
-        date("Y-m-d H:i:s", $current_time), date("Y-m-d H:i:s", $current_time)]);
-    if ($result === false || $result !== NULL) { echo "false1"; exit(1); }
+    header("Location: login.php");
+    exit();
 }
 
-// Pre-insert checks completed and raised no problems, so do the insert
-$QUERY = "INSERT INTO sessions (name, description) VALUES (?, ?)";
-// echo($data->);
-// echo "INSERT INTO sessions (name, description) VALUES (" . $data->{"name"} . ", " . $data->{"description"} . ")";
-$result = query_database($db_connection, $QUERY, ["a", "b"]);
-if ($result === false) { echo "false2"; exit(1); }
+
+$data = json_decode($_POST["data"], TRUE);
+
+// Lock tables so they can't be modified during pre-insert checks
+$QUERY = "LOCK TABLE sessions WRITE, session_nodes WRITE";
+$result = query_database($db_connection, $QUERY, NULL);
+if ($result === FALSE) die("false");
+
+$QUERY = "SELECT 0 FROM session_nodes WHERE node_id = ? " .
+    "AND (start_time > NOW() OR end_time IS NULL OR NOW() BETWEEN start_time AND end_time)";
+
+// Check if any of the specified nodes are already active
+foreach ($data["nodes"] as $node)
+{
+    $result = query_database($db_connection, $QUERY, [$node["nodeId"]]);
+    if ($result === FALSE || $result !== NULL) die("false");
+}
+
+// Pre-insert checks raised no issues so insert the session
+$QUERY = "INSERT INTO sessions (user_id, name, description) VALUES (?, ?, ?)";
+$result = query_database($db_connection, $QUERY, [$session["user_id"], $data["name"],
+    $data["description"]]);
+if ($result === FALSE) die("false");
 
 $new_session_id = $db_connection->lastInsertId();
-echo $new_session_id;
 $QUERY = "INSERT INTO session_nodes (session_id, node_id, location, start_time, end_time, " .
     "`interval`, batch_size) VALUES (?, ?, ?, NOW(), ?, ?, ?)";
 
-foreach ($data->{"nodes"} as $node)
+// Add the nodes to the newly inserted session
+foreach ($data["nodes"] as $node)
 {
-    echo $node->{"node"};
-    $result = query_database($db_connection, $QUERY, [$new_session_id, $node->{"node"},
-        $node->{"location"}, $node->{"endTime"}, $node->{"interval"},
-        $node->{"batchSize"}]);
-    if ($result === false) { echo "false3"; exit(1); }
+    $result = query_database($db_connection, $QUERY, [$new_session_id, $node["nodeId"],
+        $node["location"], $node["endTime"], $node["interval"], $node["batchSize"]]);
+    if ($result === FALSE) die("false");
 }
 
 echo "true";
-
-// $QUERY = "UNLOCK TABLES";
-// $result = query_database($db_connection, $QUERY, NULL);
-// if ($result === false) { echo "false"; exit(1); }

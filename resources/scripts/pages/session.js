@@ -21,7 +21,7 @@ function loadActiveNodes()
                 const REPORT_TEMPLATE = "<div><span>{0}</span><br><span>{1}</span></div>";
                 const TEMPLATE = `
                     <div class="item">
-                        <a href="node.html?id={0}&session={1}">
+                        <a href="node.php?id={0}&session={1}">
                         <span>{2}</span>
                         <br>
                         <span>{3}</span>
@@ -133,7 +133,7 @@ function loadCompletedNodes()
                 {
                     const TEMPLATE = `
                         <div class="item item-thin">
-                            <a href="node.html?id={0}&session={1}">
+                            <a href="node.php?id={0}&session={1}">
                                 <span>{2}</span>
                             </a>
                         </div>`;
@@ -163,7 +163,7 @@ function deleteSessionClick()
             url: "data/del-session.php?sessionId=" + this.getQueryStringValue("id"),
 
         }).done(() => {
-            window.location.href = "index.html";
+            window.location.href = "index.php";
         });
     }
 }

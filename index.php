@@ -1,13 +1,12 @@
 <?php
-date_default_timezone_set("UTC");
 require_once("resources/routines/helpers.php");
 require_once("resources/routines/config.php");
 
 $config = new Config();
 if (!$config->load_config("config.ini"))
-    die ("Configuration error");
+    die("Configuration error");
 $db_connection = database_connection($config);
-if (!$db_connection) die ("Database error");
+if (!$db_connection) die("Database error");
 
 $session = try_loading_session($db_connection);
 if ($session === FALSE) die("Session error");
@@ -24,7 +23,7 @@ if ($session === NULL)
 <html>
     <head>
         <title>Phenotyping Sensor Network</title>
-        <meta name="viewport" content="width=400px">
+        <meta name="viewport" content="width=450px">
 
         <link href="https://fonts.googleapis.com/css?family=Istok+Web:400,400i,700&display=swap" rel="stylesheet">
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons&display=block" rel="stylesheet">
@@ -35,7 +34,9 @@ if ($session === NULL)
         <script src="resources/scripts/config.js.php" type="text/javascript"></script>
         <script src="resources/scripts/helpers.js" type="text/javascript"></script>
 
-        <link href="resources/styles/external/bootstrap.css.css" rel="stylesheet" type="text/css">
+        <link href="resources/styles/external/bootstrap.css" rel="stylesheet" type="text/css">
+        <link href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.3/dist/flatpickr.min.css" rel="stylesheet" type="text/css">
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.3/dist/flatpickr.min.js" type="text/javascript"></script>
         <link href="resources/styles/grouping.css" rel="stylesheet" type="text/css">
         <link href="resources/styles/modal.css" rel="stylesheet" type="text/css">
         <link href="resources/styles/pages/index.css" rel="stylesheet" type="text/css">
@@ -83,28 +84,28 @@ if ($session === NULL)
             </div>
         </main>
 
-        <div id="modal_shade" class="modal_shade" style="display: none"></div>
-        <div id="new_session_modal" class="modal" style="display: none">
-            <div class="modal_header">
+        <div id="modal-shade" class="modal-shade" style="display: none"></div>
+        <div id="new-session-modal" class="modal" style="display: none">
+            <div class="modal-header">
                 <span>Start a New Session</span>
                 <button onclick="newSessionModalClose()">
                     <i class="material-icons">close</i>
                 </button>
             </div>
 
-            <div class="modal_content">
+            <div class="modal-content">
                 <form>
-                    <input id="new_session_name" type="text" class="form-control" placeholder="Session Name"/>
-                    <textarea id="new_session_description" class="form-control" placeholder="Session Description"></textarea>
+                    <input id="new-session-name" type="text" class="form-control" placeholder="Session Name"/>
+                    <textarea id="new-session-description" class="form-control" placeholder="Session Description"></textarea>
 
                     <div id="session-node-rows"></div>
-                    <button style="width: 100%" type="button" onclick="newSessionModalAddNode()">Add Sensor Node</button>
+                    <button id="session-node-add-button" style="width: 100%" type="button" onclick="newSessionModalAddNode()" disabled>Add Sensor Node</button>
                 </form>
             </div>
 
-            <div class="modal_footer">
+            <div class="modal-footer">
                 <button onclick="newSessionModalSave()">Save & Start</button>
-                <button onclick="newSessionModalCancel()">Cancel</button>
+                <button onclick="newSessionModalClose()">Cancel</button>
             </div>
         </div>
     </body>

@@ -1,13 +1,12 @@
 <?php
-date_default_timezone_set("UTC");
 require_once("resources/routines/helpers.php");
 require_once("resources/routines/config.php");
 
 $config = new Config();
 if (!$config->load_config("config.ini"))
-    die ("Configuration error");
+    die("Configuration error");
 $db_connection = database_connection($config);
-if (!$db_connection) die ("Database error");
+if (!$db_connection) die("Database error");
 
 $session = try_loading_session($db_connection);
 if ($session === FALSE) die("Session error");
@@ -24,9 +23,10 @@ if ($session === NULL)
 <html>
     <head>
         <title>Phenotyping Sensor Network</title>
-        <meta name="viewport" content="width=400px">
+        <meta name="viewport" content="width=450px">
 
         <link href="https://fonts.googleapis.com/css?family=Istok+Web:400,400i,700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons&display=block" rel="stylesheet">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js" type="text/javascript"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js" type="text/javascript"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.27/moment-timezone-with-data-10-year-range.min.js" type="text/javascript"></script>

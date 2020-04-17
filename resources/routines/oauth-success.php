@@ -1,5 +1,4 @@
 <?php
-date_default_timezone_set("UTC");
 require_once("../../vendor/autoload.php");
 require_once("helpers.php");
 require_once("config.php");
@@ -12,9 +11,9 @@ use Microsoft\Graph\Model\User;
 if (!isset($_GET["code"])) die("URL error");
 $config = new Config();
 if (!$config->load_config("../../config.ini"))
-    die ("Configuration error");
+    die("Configuration error");
 $db_connection = database_connection($config);
-if (!$db_connection) die ("Database error");
+if (!$db_connection) die("Database error");
 
 $session = try_loading_session($db_connection);
 if ($session === FALSE) die("Session error");
