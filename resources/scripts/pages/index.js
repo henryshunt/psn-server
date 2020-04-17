@@ -208,8 +208,7 @@ function newSessionModalRemoveNode(element)
 function newSessionModalSave()
 {
     let emptyFields = false;
-    if ($("#new-session-name").val() === "" || $("#new-session-description").val() === "")
-        emptyFields = true;
+    if ($("#new-session-name").val() === "") emptyFields = true;
 
     let TEMPLATE = `{"name":"{0}","description":"{1}","nodes":[{2}]}`;
     let TEMPLATE2 = `{"nodeId":{0},"location":"{1}","endTime":"{2}","interval":{3},"batchSize":{4}}`;
