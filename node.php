@@ -37,6 +37,8 @@ if ($session === NULL)
         <script src="resources/scripts/helpers.js" type="text/javascript"></script>
 
         <link href="resources/styles/grouping.css" rel="stylesheet" type="text/css">
+        <link href="resources/styles/modal.css" rel="stylesheet" type="text/css">
+        <link href="resources/styles/external/bootstrap.css" rel="stylesheet" type="text/css">
         <link href="resources/styles/pages/node.css" rel="stylesheet" type="text/css">
         <script src="resources/scripts/pages/node.js" type="text/javascript"></script>
     </head>
@@ -114,14 +116,55 @@ if ($session === NULL)
                 <div id="temperature-graph" class="item item-graph"></div>
             </div>
         
-            <div id="humidity-graph-group" class="last-item" style="display: none">
+            <div id="humidity-graph-group" style="display: none">
                 <div class="titled-group-header">
                     <h2>Humidity (24 Hours)</h2>
                     <div class="titled-group-separator"></div>
                 </div>
 
-                <div id="humidity-graph" class="item item-graph">
+                <div id="humidity-graph" class="item item-graph"></div>
+            </div>
+
+            <div id="alarms-group" class="last-item" style="display: none">
+                <div class="titled-group-header">
+                    <h2>Alarms</h2>
+                    <button onclick="newAlarmModalOpen()">Add New</button>
+                    <div class="titled-group-separator"></div>
+                </div>
+
+                <div id="alarms" class="items-block"></div>
             </div>
         </main>
+
+        <div id="modal-shade" class="modal-shade" style="display: none"></div>
+        <div id="new-alarm-modal" class="modal" style="display: none">
+            <div class="modal-header">
+                <span>Create a New Alarm</span>
+                <button onclick="newAlarmModalClose()">
+                    <i class="material-icons">close</i>
+                </button>
+            </div>
+
+            <div class="modal-content">
+                <p>You will be sent an email when this sensor node reports a value for the specified parameter that is outside of the specified safe range.</p>
+
+                <form>
+                    <select id="new-alarm-parameter" class="form-control">
+                        <option value="0">Parameter</option>
+                        <option value="1">Temperature</option>
+                        <option value="2">Humidity</option>
+                        <option value="3">Battery Voltage</option>
+                    </select>
+
+                    <input id="new-alarm-minimum" type="text" class="form-control" placeholder="Safe Range Minimum"/>
+                    <input id="new-alarm-maximum" type="text" class="form-control" placeholder="Safe Range Maximum"/>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button onclick="newAlarmModalSave()">Save</button>
+                <button onclick="newAlarmModalClose()">Cancel</button>
+            </div>
+        </div>
     </body>
 </html>

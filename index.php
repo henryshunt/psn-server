@@ -34,11 +34,11 @@ if ($session === NULL)
         <script src="resources/scripts/config.js.php" type="text/javascript"></script>
         <script src="resources/scripts/helpers.js" type="text/javascript"></script>
 
-        <link href="resources/styles/external/bootstrap.css" rel="stylesheet" type="text/css">
         <link href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.3/dist/flatpickr.min.css" rel="stylesheet" type="text/css">
         <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.3/dist/flatpickr.min.js" type="text/javascript"></script>
         <link href="resources/styles/grouping.css" rel="stylesheet" type="text/css">
         <link href="resources/styles/modal.css" rel="stylesheet" type="text/css">
+        <link href="resources/styles/external/bootstrap.css" rel="stylesheet" type="text/css">
         <link href="resources/styles/pages/index.css" rel="stylesheet" type="text/css">
         <script src="resources/scripts/pages/index.js"  type="text/javascript"></script>
     </head>
@@ -98,8 +98,8 @@ if ($session === NULL)
                     <input id="new-session-name" type="text" class="form-control" placeholder="Session Name"/>
                     <textarea id="new-session-description" class="form-control" placeholder="Session Description"></textarea>
 
-                    <div id="session-node-rows"></div>
-                    <button id="session-node-add-button" style="width: 100%" type="button" onclick="newSessionModalAddNode()" disabled>Add Sensor Node</button>
+                    <div id="session-node-rows" class="session-node-rows"></div>
+                    <button id="session-node-add-button" type="button" onclick="newSessionModalAddNode()" disabled>Add Sensor Node</button>
                 </form>
             </div>
 

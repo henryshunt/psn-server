@@ -86,12 +86,12 @@ form {
     background: rgb(200, 200, 200) !important;
     border: 0 !important;
     color: inherit !important;
-    height: 30px;
     font-size: 14px !important;
 }
 input {
     width: 100%;
     padding: 8px !important;
+    height: 30px !important;
 }
 textarea {
     width: 100%;
@@ -100,10 +100,8 @@ textarea {
 }
 select {
     padding: 5px !important;
+    height: 30px !important;
 }
-/* input[type=text] {
-    padding-top: 10px;
-} */
 
 .last-item {
     margin-bottom: 0 !important;

@@ -118,6 +118,12 @@ function newSessionModalOpen()
     $("#modal-shade").css("display", "block");
     $("#new-session-modal").css("display", "block");
 
+    // Reset form
+    $("#new-session-name").val("");
+    $("#new-session-description").val("");
+    $("#session-node-rows").children().empty();
+    $("#session-node-add-button").attr("disabled", true);
+
     // Get all available nodes for display in sensor node dropdown
     $.getJSON("data/get-nodes-completed-all.php", (data) =>
     {
@@ -145,40 +151,49 @@ function newSessionModalClose()
 {
     $("#modal-shade").css("display", "none");
     $("#new-session-modal").css("display", "none");
-
-    // Reset form
-    $("#new-session-name").val("");
-    $("#new-session-description").val("");
-    $("#session-node-rows").children().empty();
-    $("#session-node-add-button").attr("disabled", true);
 }
 
 
 function newSessionModalAddNode()
 {
     let TEMPLATE = `
-        <div class="session-node-row" style="display: flex">
-            <button type="button" onclick="newSessionModalRemoveNode(this)"><i class="material-icons">delete</i></button>
+        <div class="session-node-row">
+            <button type="button" onclick="newSessionModalRemoveNode(this)">
+                <i class="material-icons">delete</i>
+            </button>
 
-            <select class="form-control">
-                <option>Sensor Node</option>
-                {0}
-            </select>
+            <div>
+                <span>SENSOR NODE</span>
+                <select class="form-control">{0}</select>
+            </div>
 
-            <input type="text" id="session-title" class="form-control" placeholder="Sensor Node Location"/>
-            <input type="text" id="session-description" class="form-control" placeholder="End Time"/>
+            <div>
+                <span>LOCATION DESCRIPTION</span>
+                <input type="text" id="session-title" class="form-control">
+            </div>
 
-            <span>Interval & Batch Size:</span>
-            <select class="form-control" id="node-interval" title="Interval between reports">
-                <option value="1">1 Min</option>
-                <option value="2">2 Mins</option>
-                <option value="5">5 Mins</option>
-                <option value="10">10 Mins</option>
-                <option value="15">15 Mins</option>
-                <option value="20">20 Mins</option>
-                <option value="30">30 Mins</option>
-            </select>
-            <input type="number" min="1" max="127" value="1" class="form-control" title="Transmit reports in batches of"/>
+            <div>
+                <span>END TIME</span>
+                <input type="text" id="session-description" class="form-control">
+            </div>
+
+            <div>
+                <span>REPORTING INTERVAL</span>
+                <select class="form-control" id="node-interval">
+                    <option value="1">1 Minute</option>
+                    <option value="2">2 Minutes</option>
+                    <option value="5">5 Minutes</option>
+                    <option value="10">10 Minutes</option>
+                    <option value="15">15 Minutes</option>
+                    <option value="20">20 Minutes</option>
+                    <option value="30">30 Minutes</option>
+                </select>
+            </div>
+
+            <div>
+                <span title="Transmit reports in batches of X to save battery power">BATCH TRANSMIT</span>
+                <input type="number" min="1" max="127" value="1" class="form-control">
+            </div>
         </div>`;
     let TEMPLATE2 = `<option value="{0}">{1}</option>`;
 
@@ -189,7 +204,7 @@ function newSessionModalAddNode()
     let elements = $(TEMPLATE.format(options));
 
     // Add date picker for end time
-    flatpickr($(elements).children().eq(3)[0],
+    flatpickr($(elements).children().eq(3).children().eq(1)[0],
     { enableTime: true, time_24hr: true, dateFormat: "d/m/Y H:i" });
                 
     $("#session-node-rows").append(elements);
@@ -200,7 +215,6 @@ function newSessionModalRemoveNode(element)
     $(element).parent().remove();
 }
 
-
 function newSessionModalSave()
 {
     let emptyFields = false;
@@ -210,21 +224,20 @@ function newSessionModalSave()
     let TEMPLATE2 = `{"nodeId":{0},"location":"{1}","endTime":"{2}","interval":{3},"batchSize":{4}}`;
 
     let sessionNodes = "";
-    for (let i = 0; i < document.getElementById("session-node-rows").children.length; i++)
+    for (let i = 1; i <= document.getElementById("session-node-rows").children.length; i++)
     {
-        let node = document.getElementById("session-node-rows").children[i].children[1].value;
-        let location = document.getElementById("session-node-rows").children[i].children[2].value;
-        let end = moment(document.getElementById("session-node-rows").children[i].children[3].value,
-            "DD/MM/YYYY HH:mm").utc();
-        let interval = document.getElementById("session-node-rows").children[i].children[5].value;
-        let batch = document.getElementById("session-node-rows").children[i].children[6].value;
+        let selector = "#session-node-rows > :nth-child(" + i + ") ";
+        let node = $(selector + "> :nth-child(2) > :last-child").val();
+        let location = $(selector + "> :nth-child(3) > :last-child").val();;
+        let end = moment($(selector + "> :nth-child(4) > :last-child").val(), "DD/MM/YYYY HH:mm").utc();
+        let interval = $(selector + "> :nth-child(5) > :last-child").val();;
+        let batch = $(selector + "> :nth-child(6) > :last-child").val();;
         sessionNodes += TEMPLATE2.format(node, location, end.format("YYYY-MM-DD HH:mm:ss"), interval, batch);
 
-        if (node === "Sensor Node" || location === "" || end === "") emptyFields = true;
+        if (location === "" || end === "") emptyFields = true;
     }
 
-    if (sessionNodes === "") emptyFields = true;
-    if (emptyFields === true)
+    if (emptyFields === true || sessionNodes === "")
     {
         alert("Cannot submit, one or more fields are empty or you have not added any sensor nodes.");
         return;

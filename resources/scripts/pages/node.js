@@ -9,6 +9,7 @@ $(window).on("load", () =>
 {
     loadNodeInfo(() =>
     {
+        loadNodeAlarms();
         temperatureGraph = loadGraph("temperature-graph");
         $("#temperature-graph-group").css("display", "block");
         humidityGraph = loadGraph("humidity-graph");
@@ -66,6 +67,54 @@ function loadNodeInfo(onSuccess)
     {
         $("#main").prepend(ERROR_HTML);
         loadingCount--;
+    });
+}
+
+function loadNodeAlarms()
+{
+    let url = "data/get-node-alarms.php?nodeId={0}&sessionId={1}".format(
+        getQueryStringValue("id"), getQueryStringValue("session"));
+
+    $.getJSON(url, (data) =>
+    {
+        if (data !== false)
+        {
+            if (data !== null)
+            {
+                const TEMPLATE = `
+                    <div class="item item-thin">
+                        <a>
+                            <span>{0}</span>
+                            <br>
+                            <span>Safe Value Range: {1} - {2}</span>
+                        </a>
+                    </div>`;
+
+                let html = "";
+                for (let i = 0; i < data.length; i++)
+                {
+                    let parameter = "";
+                    switch (data[i]["parameter"])
+                    {
+                        case "airt": parameter = "Temperature"; break;
+                        case "relh": parameter = "Humidity"; break;
+                        case "batv": parameter = "Battery Voltage"; break;
+                    }
+
+                    html += TEMPLATE.format(
+                        parameter, data[i]["minimum"], data[i]["maximum"]);
+                }
+
+                $("#alarms").append(html);
+            } else $("#alarms").append(NO_DATA_HTML);
+        } else $("#alarms").append(ERROR_HTML);
+
+        $("#alarms-group").css("display", "block");
+
+    }).fail(() =>
+    {
+        $("#alarms").append(ERROR_HTML);
+        $("#alarms-group").css("display", "block");
     });
 }
 
@@ -245,4 +294,89 @@ function deleteSessionNodeClick()
             else alert("An error occured while completing the operation.");
         }).fail(() => alert("An error occured while completing the operation."));
     }
+}
+
+
+function newAlarmModalOpen()
+{
+    $("#modal-shade").css("display", "block");
+    $("#new-alarm-modal").css("display", "block");
+
+    // Reset form
+    $("#new-alarm-parameter").val("0");
+    $("#new-alarm-minimum").val("");
+    $("#new-alarm-maximum").val("");
+}
+
+function newAlarmModalClose()
+{
+    $("#modal-shade").css("display", "none");
+    $("#new-alarm-modal").css("display", "none");
+}
+
+function newAlarmModalSave()
+{
+    let TEMPLATE = `{"sessionId":{0},"nodeId":{1},"parameter":"{2}","minimum":{3},"maximum":{4}}`;
+
+    let emptyFields = false;
+    let parameter = "";
+    switch ($("#new-alarm-parameter").val())
+    {
+        case "0": emptyFields = true; break;
+        case "1": // Temperature
+        {
+            parameter = "airt";
+            let minimum = parseFloat($("#new-alarm-minimum").val());
+            let maximum = parseFloat($("#new-alarm-maximum").val());
+
+            if (isNaN(minimum) || isNaN(maximum) || maximum <= minimum)
+                emptyFields = true;
+            break;
+        }
+        case "2": // Humidity
+        {
+            parameter = "relh";
+            let minimum = parseFloat($("#new-alarm-minimum").val());
+            let maximum = parseFloat($("#new-alarm-maximum").val());
+
+            if (!isNaN(minimum) && !isNaN(maximum))
+            {
+                if (minimum < 0 || maximum > 100 || maximum <= minimum)
+                    emptyFields = true;
+            } else emptyFields = true;
+            break;
+        }
+        case "3": // Battery voltage
+        {
+            parameter = "batv";
+            let minimum = parseFloat($("#new-alarm-minimum").val());
+            let maximum = parseFloat($("#new-alarm-maximum").val());
+
+            if (!isNaN(minimum) && !isNaN(maximum))
+            {
+                if (minimum < 0 || maximum > 5 || maximum <= minimum)
+                    emptyFields = true;
+            } else emptyFields = true;
+            break;
+        }
+        default: emptyFields = true; break;
+    }
+
+    if (emptyFields === true)
+    {
+        alert("Cannot submit, one or more fields contain invalid values.");
+        return;
+    }
+
+    let alarm = TEMPLATE.format(getQueryStringValue("session"), getQueryStringValue("id"),
+        parameter, $("#new-alarm-minimum").val(), $("#new-alarm-maximum").val());
+
+    $.post({
+        url: "data/add-session-alarm.php",
+        data: { "data": alarm },
+        ContentType: "application/json",
+
+        success: () => window.location.reload(),
+        error: () => alert("Error while creating the alarm")
+    });
 }

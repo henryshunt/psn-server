@@ -70,3 +70,11 @@ table td {
 .ct-series-c .ct-line {
     stroke: rgb(55, 145, 109);
 }
+
+p {
+    margin-top: 0;
+    text-align: justify;
+}
+.modal-content > form > :not(:last-child) {
+    margin-bottom: 5px;
+}

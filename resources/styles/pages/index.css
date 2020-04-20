@@ -9,47 +9,76 @@
 .modal-content > form > :first-child {
     margin-bottom: 5px;
 }
-.modal-content > form > :nth-child(2) {
+.session-node-rows {
+    margin-top: 15px;
     margin-bottom: 15px;
+}
+
+.modal-content > form > :last-child {
+    width: 100%;
 }
 
 .session-node-row {
     display: flex;
-    margin-bottom: 5px;
+    margin-top: 5px;
+    height: 48px;
 }
-.session-node-row > * {
-    margin-right: 5px;
-    height: 30px;
-}
-.session-node-row > :nth-child(1) {
+.session-node-row > button {
     padding-left: 3px;
     padding-right: 3px;
+    height: 100%;
 }
-.session-node-row > :nth-child(4) {
-    width: 130px;
-    text-align: center;
+.session-node-row > div {
+    position: relative;
+    height: 100%;
 }
-.session-node-row > :nth-child(5) {
-    display: none;
+.session-node-row > :not(:last-child) {
+    margin-right: 5px;
 }
-.session-node-row > :nth-child(6) {
-    width: 80px;
+.session-node-row > div > :first-child {
+    font-weight: bold;
+    font-size: 10px;
+    margin-right: 5px;
 }
-.session-node-row > :nth-child(7) {
-    width: 65px;
-    margin-right: 0;
+.session-node-row > div > :last-child {
+    position: absolute;
+    bottom: 0;
 }
 
-@media screen and (max-width: 900px) {
+.session-node-row > :nth-child(2) {
+    width: 151px;
+}
+.session-node-row > :nth-child(3) {
+    flex-grow: 1;
+}
+.session-node-row > :nth-child(4) {
+    width: 128px;
+}
+
+@media screen and (max-width: 800px) {
     .session-node-row {
         display: block !important;
+        height: unset !important;
+        margin-top: 15px !important;
     }
     .session-node-row > * {
         width: 100% !important;
         margin-bottom: 5px !important;
+        height: 48px !important;
     }
 
-    .session-node-row > :nth-child(1) {
+    .session-node-row > :first-child {
+        float: left;
+        width: 30px !important;
+    }
+    .session-node-row > :nth-child(2) {
+        width: calc(100% - 35px) !important;
+        margin-left: 35px;
+    }
+    .session-node-row > :nth-child(2) > :first-child {
+        margin-left: 0 !important;
+    }
+    /* .session-node-row > :nth-child(1) {
         width: 30px !important;
         float: left;
     }
@@ -67,5 +96,5 @@
     }
     .session-node-row > :nth-child(7) {
         width: 65px !important;
-    }
+    } */
 }
