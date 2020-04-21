@@ -60,11 +60,11 @@ if ($session === NULL)
                         else echo $session["user_id"];
                         ?>
                     </span>
-                </div>
 
-                <div id="account-menu" class="account-menu">
-                    <button onclick="logOut()">Log Out</button>
-                    <p>Created by Henry Hunt at the University of Nottingham.</p>
+                    <div id="account-menu" class="account-menu">
+                        <button onclick="logOut()">Log Out</button>
+                        <p>Created by Henry Hunt at the University of Nottingham.</p>
+                    </div>
                 </div>
             </div>
         </header>
@@ -73,7 +73,10 @@ if ($session === NULL)
             <div id="active-sessions-group" style="display: none">
                 <div class="titled-group-header">
                     <h2>Active Sessions</h2>
-                    <button onclick="newSessionModalOpen()">Start New</button>
+                    <?php
+                    if ($session["user_id"] !== "guest")
+                        echo "<button onclick=\"newSessionModalOpen()\">Start New</button>";
+                    ?>
                     <div class="titled-group-separator"></div>
                 </div>
 

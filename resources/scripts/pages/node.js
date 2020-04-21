@@ -51,7 +51,10 @@ function loadNodeInfo(onSuccess)
                 data["batch_size"]));
 
             if (!data["is_active"])
+            {
                 $("#button-stop").attr("disabled", true);
+                $("#new-alarm-button").attr("disabled", true);
+            }
 
             $("#node-info-group").css("display", "block");
             loadingCount--;

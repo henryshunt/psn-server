@@ -56,11 +56,11 @@ if ($session === NULL)
                         else echo $session["user_id"];
                         ?>
                     </span>
-                </div>
 
-                <div id="account-menu" class="account-menu">
-                    <button onclick="logOut()">Log Out</button>
-                    <p>Created by Henry Hunt at the University of Nottingham.</p>
+                    <div id="account-menu" class="account-menu">
+                        <button onclick="logOut()">Log Out</button>
+                        <p>Created by Henry Hunt at the University of Nottingham.</p>
+                    </div>
                 </div>
             </div>
         </header>
@@ -79,8 +79,13 @@ if ($session === NULL)
                 
                     <div class="info-group-right">
                         <button>Download All Data</button>
-                        <button id="button-stop" onclick="stopSessionNow()">Stop Session Now</button>
-                        <button class="last-item" id="button-delete" onclick="deleteSessionClick()">Delete Session</button>
+                        <?php
+                        if ($session["user_id"] !== "guest")
+                        {
+                            echo "<button id=\"button-stop1\" onclick=\"stopSessionNow()\">Stop Session Now</button>";
+                            echo "<button class=\"last-item\" id=\"button-delete\" onclick=\"deleteSessionClick()\">Delete Session</button>";
+                        }
+                        ?>
                     </div>
                 </div>
             </div>
