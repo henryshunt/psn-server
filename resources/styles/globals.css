@@ -27,12 +27,33 @@ h1 {
     float: left;
     margin-right: 5px;
     cursor: pointer;
+    user-select: none;
 }
 .account > span
 {
     float: right;
     position: relative;
     top: 1px;
+}
+
+.account-menu {
+    width: 200px;
+    background-color: white;
+    border: 2px solid rgb(200, 200, 200);
+    border-top: unset;
+    position: absolute;
+    right: 30px;
+    z-index: 1;
+    padding: 10px;
+    display: none;
+}
+.account-menu > button {
+    width: 100%;
+}
+.account-menu > p {
+    font-size: 13px;
+    text-align: justify;
+    margin-bottom: 0;
 }
 
 main {

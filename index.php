@@ -34,6 +34,7 @@ if ($session === NULL)
         <script src="resources/scripts/config.js.php" type="text/javascript"></script>
         <script src="resources/scripts/helpers.js" type="text/javascript"></script>
 
+        <script src="resources/scripts/header.js" type="text/javascript"></script>
         <link href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.3/dist/flatpickr.min.css" rel="stylesheet" type="text/css">
         <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.3/dist/flatpickr.min.js" type="text/javascript"></script>
         <link href="resources/styles/grouping.css" rel="stylesheet" type="text/css">
@@ -49,7 +50,7 @@ if ($session === NULL)
                 <h1><a href=".">Phenotyping Sensor Network</a></h1>
 
                 <div class="account">
-                    <i class="material-icons">settings</i>
+                    <i id="account-button" class="material-icons">settings</i>
 
                     <span>
                         <?php
@@ -59,6 +60,11 @@ if ($session === NULL)
                         else echo $session["user_id"];
                         ?>
                     </span>
+                </div>
+
+                <div id="account-menu" class="account-menu">
+                    <button onclick="logOut()">Log Out</button>
+                    <p>Created by Henry Hunt at the University of Nottingham.</p>
                 </div>
             </div>
         </header>

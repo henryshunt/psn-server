@@ -261,7 +261,8 @@ function timeMachineRight()
 
 function downloadDataClick()
 {
-
+    window.open("data/get-node-download.php?sessionId=" +
+        getQueryStringValue("session") + "&nodeId=" + getQueryStringValue("id"));
 }
 
 function stopSessionNodeClick()
