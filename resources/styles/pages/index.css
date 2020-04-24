@@ -55,6 +55,11 @@
     width: 128px;
 }
 
+.modal-content > p {
+    margin-top: 0;
+    text-align: justify;
+}
+
 @media screen and (max-width: 800px) {
     .session-node-row {
         display: block !important;

@@ -63,6 +63,10 @@ if ($session === NULL)
 
                     <div id="account-menu" class="account-menu">
                         <button onclick="logOut()">Log Out</button>
+                        <?php
+                        if ($session["user_id"] === "admin")
+                            echo "<button onclick=\"newNodeModalOpen()\">Add New Sensor Node</button>";
+                        ?>
                         <p>Created by Henry Hunt at the University of Nottingham.</p>
                     </div>
                 </div>
@@ -115,6 +119,28 @@ if ($session === NULL)
             <div class="modal-footer">
                 <button onclick="newSessionModalSave()">Save & Start</button>
                 <button onclick="newSessionModalClose()">Cancel</button>
+            </div>
+        </div>
+
+        <div id="new-node-modal" class="modal" style="display: none">
+            <div class="modal-header">
+                <span>Add a New Sensor Node to the Network</span>
+                <button onclick="newNodeModalClose()">
+                    <i class="material-icons">close</i>
+                </button>
+            </div>
+
+            <div class="modal-content">
+                <p>Enter the MAC address of the sensor node exactly as displayed at the top of the node administrator program.</p>
+
+                <form>
+                    <input id="new-node-address" type="text" class="form-control" placeholder="Sensor Node MAC Address"/>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button onclick="newNodeModalSave()">Save</button>
+                <button onclick="newNodeModalClose()">Cancel</button>
             </div>
         </div>
     </body>

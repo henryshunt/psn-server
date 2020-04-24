@@ -153,7 +153,6 @@ function newSessionModalClose()
     $("#new-session-modal").css("display", "none");
 }
 
-
 function newSessionModalAddNode()
 {
     let TEMPLATE = `
@@ -253,5 +252,39 @@ function newSessionModalSave()
 
         success: () => window.location.reload(),
         error: () => alert("Error while creating the session")
+    });
+}
+
+
+function newNodeModalOpen()
+{
+    $("#modal-shade").css("display", "block");
+    $("#new-node-modal").css("display", "block");
+
+    // Reset form
+    $("#new-node-address").val("");
+}
+
+function newNodeModalClose()
+{
+    $("#modal-shade").css("display", "none");
+    $("#new-node-modal").css("display", "none");
+}
+
+function newNodeModalSave()
+{
+    if ($("#new-node-address").val() === "")
+    {
+        alert("You must enter a MAC address.");
+        return;
+    }
+
+    $.post({
+        url: "data/add-node.php",
+        data: { "address": $("#new-node-address").val() },
+        ContentType: "application/json",
+
+        success: () => newNodeModalClose(),
+        error: () => alert("Error while adding the sensor node. Are you sure a node with this address does not already exist?")
     });
 }

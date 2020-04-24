@@ -71,7 +71,7 @@ table td {
     stroke: rgb(55, 145, 109);
 }
 
-p {
+.modal-content > p {
     margin-top: 0;
     text-align: justify;
 }
