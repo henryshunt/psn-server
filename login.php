@@ -36,6 +36,7 @@ if ($session !== NULL)
 
         <link href="resources/styles/grouping.css" rel="stylesheet" type="text/css">
         <link href="resources/styles/modal.css" rel="stylesheet" type="text/css">
+        <link href="resources/styles/external/bootstrap.css" rel="stylesheet" type="text/css">
         <link href="resources/styles/pages/login.css" rel="stylesheet" type="text/css">
         <script src="resources/scripts/pages/login.js"  type="text/javascript"></script>
     </head>
@@ -48,9 +49,13 @@ if ($session !== NULL)
         </header>
 
         <main>
-            <button onclick="window.location.href = 'resources/routines/login.php?type=oauth'">Log in as University Member</button>
-            <button onclick="window.location.href = 'resources/routines/login.php?type=guest&password=guest'">Log in as Guest</button>
-            <button class="last-item" onclick="window.location.href = 'resources/routines/login.php?type=admin&password=admin'">Log in as Administrator</button>
+            <form id="login-form" method="post" action="resources/routines/login.php">
+                <button type="button" onclick="oauthLogin()">Log in as University Member</button>
+                <input id="admin-password" name="admin-password" type="password" class="form-control" placeholder="Administrator Password"/>
+                <button type="button" onclick="adminLogin()">Log in as Administrator</button>
+                <input id="guest-password" name="guest-password" type="password" class="form-control" placeholder="Guest Password"/>
+                <button type="button" onclick="guestLogin()" class="last-item">Log in as Guest</button>
+            </form>
         </main>
     </body>
 </html>

@@ -6,6 +6,8 @@ require_once("config.php");
 use League\OAuth2\Client\Provider\GenericProvider;
 
 if (!isset($_GET["type"])) die("URL error");
+if (!isset($_POST["admin-password"])) die("URL error");
+if (!isset($_POST["guest-password"])) die("URL error");
 $config = new Config();
 if (!$config->load_config("../../config.ini"))
     die("Configuration error");
@@ -27,8 +29,9 @@ switch ($_GET["type"])
     // functions such as adding nodes, etc.
     case "admin":
     {
-        if (isset($_GET["password"]) &&
-            $_GET["password"] === $config->get_admin_password() &&
+        $stored_hash = password_hash(trim($config->get_admin_password()), PASSWORD_DEFAULT);
+
+        if (password_verify(trim($_POST["admin-password"]), $stored_hash) &&
             new_login_session($db_connection, "admin", $config->get_session_timeout()))
         {
             header("Location: ../../");
@@ -46,8 +49,9 @@ switch ($_GET["type"])
     // Guest account has read access to everything
     case "guest":
     {
-        if (isset($_GET["password"]) &&
-            $_GET["password"] === $config->get_guest_password() &&
+        $stored_hash = password_hash(trim($config->get_guest_password()), PASSWORD_DEFAULT);
+
+        if (password_verify(trim($_POST["guest-password"]), $stored_hash) &&
             new_login_session($db_connection, "guest", $config->get_session_timeout()))
         {
             header("Location: ../../");
