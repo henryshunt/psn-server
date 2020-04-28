@@ -21,7 +21,6 @@ if ($session === FALSE || $session === NULL)
 
 $QUERY = "SELECT time, airt, relh, batv FROM reports WHERE session_id = ? AND node_id = ?";
 $result = query_database($db_connection, $QUERY, [$_GET["sessionId"], $_GET["nodeId"]]);
-
 if ($result === FALSE) die("false");
 
 // Make this PHP file respond with a CSV file download
@@ -30,9 +29,12 @@ header("Content-Disposition: attachment; filename=psn_data.csv");
 
 $csv_output = fopen("php://output", "w");
 fputcsv($csv_output, array("time", "airt", "relh", "batv"));
-if ($result === NULL) die("");
 
-// Output retrieved reports in CSV format
-foreach ($result as $report)
-    fputcsv($csv_output, $report);
+if ($result !== NULL)
+{
+    // Output retrieved reports in CSV format
+    foreach ($result as $report)
+        fputcsv($csv_output, $report);
+}
+
 fclose($csv_output);

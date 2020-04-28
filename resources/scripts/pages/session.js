@@ -157,6 +157,12 @@ function loadCompletedNodes()
     });
 }
 
+function downloadDataClick()
+{
+    window.open("data/get-session-download.php?sessionId=" +
+        getQueryStringValue("id"));
+}
+
 function deleteSessionClick()
 {
     if (confirm("This will delete the session and all reports produced by the nodes. Are you sure?"))

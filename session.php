@@ -78,7 +78,7 @@ if ($session === NULL)
                     </div>
                 
                     <div class="info-group-right">
-                        <button>Download All Data</button>
+                        <button onclick="downloadDataClick()">Download All Data</button>
                         <?php
                         if ($session["user_id"] !== "guest")
                         {

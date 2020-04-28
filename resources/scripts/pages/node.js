@@ -250,14 +250,14 @@ function loadGraphData(graphObject, dataField)
 function timeMachineLeft()
 {
     if (loadingCount > 0) return;
-    dataTime.subtract({ hours: 6 });
+    dataTime.subtract({ hours: 12 });
     loadData();
 }
 
 function timeMachineRight()
 {
     if (loadingCount > 0) return;
-    dataTime.add({ hours: 6 });
+    dataTime.add({ hours: 12 });
     loadData();
 }
 
