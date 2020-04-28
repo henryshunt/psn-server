@@ -18,6 +18,7 @@ class Config
     private $oauth_resource_owner_url = NULL;
     private $oauth_scopes = NULL;
     private $session_timeout = NULL;
+    private $oauth_post_logout_url = NULL;
 
     private $local_time_zone = NULL;
 
@@ -51,6 +52,8 @@ class Config
         $this->oauth_scopes =
             $config["oauth_scopes"] === "" ? NULL : $config["oauth_scopes"];
         $this->session_timeout = $config["session_timeout"];
+        $this->oauth_post_logout_url = $config["oauth_post_logout_url"] === "" ?
+            NULL : $config["oauth_post_logout_url"];
 
         $this->local_time_zone =
             $config["local_time_zone"] === "" ? NULL : $config["local_time_zone"];
@@ -69,7 +72,8 @@ class Config
             $this->oauth_client_id === NULL ||
             $this->oauth_client_secret === NULL ||
             $this->oauth_redirect_url === NULL ||
-            $this->session_timeout === NULL)
+            $this->session_timeout === NULL ||
+            $this->oauth_post_logout_url === NULL)
             { return FALSE; }
 
         return TRUE;
@@ -149,5 +153,10 @@ class Config
     function get_local_time_zone()
     {
         return $this->local_time_zone;
+    }
+
+    function get_oauth_post_logout_url()
+    {
+        return $this->oauth_post_logout_url;
     }
 }

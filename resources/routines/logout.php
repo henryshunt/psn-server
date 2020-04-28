@@ -26,5 +26,5 @@ setcookie("session", "", time() - 3600, "/"); // Delete cookie
 
 // If account is on Microsoft Graph then redirect to logout URL
 if (strpos($session["user_id"], "@") !== FALSE)
-    header("Location: https://login.microsoftonline.com/common/oauth2/v2.0/logout?post_logout_redirect_uri=http%3A%2F%2Flocalhost%2Fpsn-server%2Flogin.php");
+    header("Location: " . $config->get_oauth_post_logout_url());
 else header("Location: ../../login.php");
