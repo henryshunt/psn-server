@@ -294,7 +294,7 @@ function deleteSessionNodeClick()
         $.getJSON(url, (data) =>
         {
             if (data === true)
-                window.location.href = "session.html?id=" + getQueryStringValue("session");
+                window.location.href = "session.php?id=" + getQueryStringValue("session");
             else alert("An error occured while completing the operation.");
         }).fail(() => alert("An error occured while completing the operation."));
     }

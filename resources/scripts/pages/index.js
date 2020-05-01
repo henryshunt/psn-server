@@ -220,20 +220,30 @@ function newSessionModalSave()
     if ($("#new-session-name").val() === "") emptyFields = true;
 
     let TEMPLATE = `{"name":"{0}","description":"{1}","nodes":[{2}]}`;
-    let TEMPLATE2 = `{"nodeId":{0},"location":"{1}","endTime":"{2}","interval":{3},"batchSize":{4}}`;
+    let TEMPLATE2 = `{"nodeId":{0},"location":"{1}","endTime":{2},"interval":{3},"batchSize":{4}}`;
 
     let sessionNodes = "";
     for (let i = 1; i <= document.getElementById("session-node-rows").children.length; i++)
     {
         let selector = "#session-node-rows > :nth-child(" + i + ") ";
         let node = $(selector + "> :nth-child(2) > :last-child").val();
-        let location = $(selector + "> :nth-child(3) > :last-child").val();;
-        let end = moment($(selector + "> :nth-child(4) > :last-child").val(), "DD/MM/YYYY HH:mm").utc();
-        let interval = $(selector + "> :nth-child(5) > :last-child").val();;
-        let batch = $(selector + "> :nth-child(6) > :last-child").val();;
-        sessionNodes += TEMPLATE2.format(node, location, end.format("YYYY-MM-DD HH:mm:ss"), interval, batch);
+        let location = $(selector + "> :nth-child(3) > :last-child").val();
 
-        if (location === "" || end === "") emptyFields = true;
+        let end = null;
+        let endValue = $(selector + "> :nth-child(4) > :last-child").val();
+        if (endValue !== "") end = moment(endValue, "DD/MM/YYYY HH:mm").utc();
+        let interval = $(selector + "> :nth-child(5) > :last-child").val();
+        let batch = $(selector + "> :nth-child(6) > :last-child").val();
+
+        if (end === null)
+            sessionNodes += TEMPLATE2.format(node, location, "null", interval, batch);
+        else
+        {
+            sessionNodes += TEMPLATE2.format(node, location,
+                "\"" + end.format("YYYY-MM-DD HH:mm:ss") + "\"", interval, batch);
+        }
+
+        if (location === "") emptyFields = true;
     }
 
     if (emptyFields === true || sessionNodes === "")

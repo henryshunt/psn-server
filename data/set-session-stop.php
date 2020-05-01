@@ -18,6 +18,6 @@ if ($session === FALSE || $session === NULL)
     die("false");
 
 
-$QUERY = "UPDATE session_nodes SET end_time = NOW() WHERE session_id = ? AND NOW() >= start_time AND (end_time = NULL OR NOW() < end_time)";
+$QUERY = "UPDATE session_nodes SET end_time = NOW() WHERE session_id = ? AND NOW() >= start_time AND (end_time IS NULL OR NOW() < end_time)";
 $result = query_database($db_connection, $QUERY, [$_GET["sessionId"]]);
 echo $result === FALSE ? "false" : "true";

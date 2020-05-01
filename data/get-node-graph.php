@@ -28,6 +28,6 @@ $QUERY = "SELECT UNIX_TIMESTAMP(time) AS x, " . $_GET["field"] . " AS y FROM rep
 $result = query_database($db_connection, $QUERY, [$_GET["nodeId"], $_GET["sessionId"],
     date("Y-m-d H:i:s", strtotime($_GET["start"])), date("Y-m-d H:i:s", strtotime($_GET["end"]))]);
 
-if ($result !== FALSE || $result !== NULL)
+if ($result !== FALSE && $result !== NULL)
     echo "[" . json_encode($result) . "]";
 else echo json_encode($result);
