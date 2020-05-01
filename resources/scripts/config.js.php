@@ -1,4 +1,9 @@
 <?php
+/**
+ * Outputs JavaScript containing some back end config options to allow them
+ * to be used on the front end.
+ */
+
 require_once("../routines/helpers.php");
 require_once("../routines/config.php");
 

@@ -8,9 +8,50 @@ $(window).on("load", () =>
 });
 
 
+function loadSessionInfo(activeNodeCount)
+{
+    url = "data/get-session-info.php?sessionId=" + this.getQueryStringValue("id");
+    $.getJSON(url, (sessionData) =>
+    {
+        if (sessionData !== false)
+        {
+            if (sessionData !== null)
+            {
+                $("#session-name").html(sessionData["name"]);
+
+                if (sessionData["description"] !== "" && sessionData["description"] !== null)
+                    $("#session-description").html(sessionData["description"]);
+                else $("#session-description").html("No Description Available");
+
+                // Disable end session button if the session has already ended
+                if (activeNodeCount === 0)
+                    $("#button-stop").attr("disabled", true);
+
+                $("#session-info-group").css("display", "block");
+            }
+            else
+            {
+                $("#main").prepend(ERROR_HTML);
+                return false;
+            }
+        }
+        else
+        {
+            $("#main").prepend(ERROR_HTML);
+            return false;
+        }
+
+    }).fail(() => 
+    {
+        $("#main").prepend(ERROR_HTML);
+        return false;
+    });
+
+    return true;
+}
+
 function loadActiveNodes()
 {
-    // Load currently active nodes
     var url = "data/get-nodes-active.php?sessionId=" + this.getQueryStringValue("id");
     $.getJSON(url, (data) =>
     {
@@ -35,7 +76,7 @@ function loadActiveNodes()
                     var report_time = "";
                     var report_data = "";
 
-                    // Display data from the latest report from the node
+                    // Display data from the latest report for the node
                     if (data[i]["latest_report"] !== null)
                     {
                         report_time = "Latest Report on " + dbTimeToLocal(
@@ -61,6 +102,8 @@ function loadActiveNodes()
                 $("#active-nodes").append(html);
             } else $("#active-nodes").append(NO_DATA_HTML);
 
+            // Load session info now since data gotten in this function informs how session
+            // info displays
             loadSessionInfo(data === null ? 0 : data.length);
         }
         else
@@ -77,49 +120,6 @@ function loadActiveNodes()
         $("#active-nodes-group").css("display", "block");
         $("#main").prepend(ERROR_HTML);
     });
-}
-
-function loadSessionInfo(activeNodeCount)
-{
-    // Load session info
-    url = "data/get-session-info.php?sessionId=" + this.getQueryStringValue("id");
-    $.getJSON(url, (sessionData) =>
-    {
-        if (sessionData !== false)
-        {
-            if (sessionData !== null)
-            {
-                $("#session-name").html(sessionData["name"]);
-
-                if (sessionData["description"] !== "" && sessionData["description"] !== null)
-                    $("#session-description").html(sessionData["description"]);
-                else $("#session-description").html("No Description Available");
-
-                // Disable some buttons depending on how many active nodes there are
-                if (activeNodeCount === 0)
-                    $("#button-stop").attr("disabled", true);
-
-                $("#session-info-group").css("display", "block");
-            }
-            else
-            {
-                $("#main").prepend(ERROR_HTML);
-                return false;
-            }
-        }
-        else
-        {
-            $("#main").prepend(ERROR_HTML);
-            return false;
-        }
-
-    }).fail(() => 
-    {
-        $("#main").prepend(ERROR_HTML);
-        return false;
-    });
-
-    return true;
 }
 
 function loadCompletedNodes()

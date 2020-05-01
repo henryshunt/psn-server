@@ -17,6 +17,7 @@ if ($session === FALSE || $session === NULL)
     die("false");
 
 
+// Get all sessions for admin and guest accounts
 if ($session["user_id"] === "admin" || $session["user_id"] === "guest")
 {
     $QUERY = "SELECT session_id, name, " .

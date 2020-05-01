@@ -1,5 +1,4 @@
 let availableNodes = [];
-// var datePicker = null;
 
 $(window).on("load", () =>
 {
@@ -223,6 +222,8 @@ function newSessionModalSave()
     let TEMPLATE2 = `{"nodeId":{0},"location":"{1}","endTime":{2},"interval":{3},"batchSize":{4}}`;
 
     let sessionNodes = "";
+
+    // Convert each added sensor node to a JSON string
     for (let i = 1; i <= document.getElementById("session-node-rows").children.length; i++)
     {
         let selector = "#session-node-rows > :nth-child(" + i + ") ";

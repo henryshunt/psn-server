@@ -10,9 +10,9 @@ $(window).on("load", () =>
     loadNodeInfo(() =>
     {
         loadNodeAlarms();
-        temperatureGraph = loadGraph("temperature-graph");
+        temperatureGraph = initialiseGraph("temperature-graph");
         $("#temperature-graph-group").css("display", "block");
-        humidityGraph = loadGraph("humidity-graph");
+        humidityGraph = initialiseGraph("humidity-graph");
         $("#humidity-graph-group").css("display", "block");
 
         if (sessionIsActive)
@@ -50,6 +50,7 @@ function loadNodeInfo(onSuccess)
             $("#node-options").html(optionsString.format(startTime, endTime, data["interval"],
                 data["batch_size"]));
 
+            // Disable stop session and new alarm buttons if the session has already ended
             if (!data["is_active"])
             {
                 $("#button-stop").attr("disabled", true);
@@ -121,7 +122,7 @@ function loadNodeAlarms()
     });
 }
 
-function loadGraph(targetElementId)
+function initialiseGraph(targetElementId)
 {
     let options =
     {
@@ -149,6 +150,7 @@ function loadGraph(targetElementId)
         ["screen and (max-width: 650px)", { height: 200 }]
     ];
 
+    // Initialise a new line graph with the specified options
     return new Chartist.Line("#" + targetElementId, null, options, responsiveOptions);
 }
 
@@ -228,6 +230,7 @@ function loadGraphData(graphObject, dataField)
         startTime.format("YYYY-MM-DD[T]HH:mm:ss[Z]"),
         endTime.format("YYYY-MM-DD[T]HH:mm:ss[Z]"), dataField);
 
+    // Change the minimum and maximum of the X axis to fir the new data
     let options = graphObject.options;
     options.axisX.low = startTime.tz(configTimeZone).unix();
     options.axisX.high = endTime.tz(configTimeZone).unix();
@@ -324,6 +327,8 @@ function newAlarmModalSave()
 
     let emptyFields = false;
     let parameter = "";
+
+    // Validate the entered minimum and maximum based on the parameter selected
     switch ($("#new-alarm-parameter").val())
     {
         case "0": emptyFields = true; break;

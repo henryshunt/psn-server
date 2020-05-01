@@ -1,6 +1,7 @@
 <?php
 
-// Based on https://github.com/henryshunt/c-aws-server/blob/master/routines/config.php
+// Taken from https://github.com/henryshunt/c-aws-server and modified to support
+// the configuration options for this project
 class Config
 {
     private $database_host = NULL;
@@ -23,6 +24,13 @@ class Config
     private $local_time_zone = NULL;
 
 
+    /**
+     * Loads a configuration file from disk and parses the values.
+     * 
+     * @param string $config_file Path to the INI configuration file to load.
+     * @return boolean Returns a boolean indicating whether the configuration file was
+     * successfully loaded and whether the values are valid.
+     */
     function load_config($config_file)
     {
         $config = parse_ini_file($config_file);
@@ -61,6 +69,12 @@ class Config
         return $this->validate();
     }
 
+    /**
+     * Checks the loaded configuration values for validity.
+     * 
+     * @return boolean Returns a boolean indicating the validity of the loaded configuration
+     * values.
+     */
     private function validate()
     {
         if ($this->database_host === NULL ||
