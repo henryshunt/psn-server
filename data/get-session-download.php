@@ -20,6 +20,8 @@ if ($session === FALSE || $session === NULL)
 
     
 if (!file_exists("../output")) mkdir("../output");
+if (file_exists("../output/psn_data.zip"))
+    unlink("../output/psn_data.zip");
 
 // Get the nodes in the session
 $QUERY = "SELECT node_id, location FROM session_nodes WHERE session_id = ?";
