@@ -4,14 +4,11 @@
  * to be used on the front end.
  */
 
-require_once("../routines/helpers.php");
-require_once("../routines/config.php");
+require_once "../../php/helpers.php";
+require_once "../../php/config.php";
 
-$config = new Config();
-if (!$config->load_config("../../config.ini"))
-    die();
-$db_connection = database_connection($config);
-if (!$db_connection) die();
+$config = load_configuration("../../config.json");
+if ($config === false)
+    exit();
 
-
-echo "var configTimeZone = '" . $config->get_local_time_zone() . "';";
+echo "var configTimeZone = '" . $config["local_time_zone"] . "';";

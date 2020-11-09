@@ -1,20 +1,34 @@
 <?php
-// require_once("resources/routines/helpers.php");
-// require_once("resources/routines/config.php");
+require_once "php/helpers.php";
 
-// $config = new Config();
-// if (!$config->load_config("config.ini"))
-//     die("Configuration error");
-// $db_connection = database_connection($config);
-// if (!$db_connection) die("Database error");
+$config = load_configuration("config.json");
+if ($config === false)
+    die("Configuration error");
 
-// $session = try_loading_session($db_connection);
-// if ($session === FALSE) die("Session error");
-// if ($session === NULL)
-// {
-//     header("Location: login.php");
-//     exit();
-// }
+try
+{
+    $pdo = database_connect($config["databaseHost"], $config["databaseName"],
+        $config["databaseUsername"], $config["databasePassword"]);
+}
+catch (Exception $ex)
+{
+    die("Database error");
+}
+
+if (isset($_COOKIE["session"]))
+{
+    $session = get_login_session($_COOKIE["session"], $pdo);
+
+    if ($session === false)
+        die("Session error");
+}
+else $session = null;
+
+if ($session === null)
+{
+    header("Location: login.php");
+    exit();
+}
 ?>
 
 <meta charset="UTF-8">
@@ -51,12 +65,12 @@
 
                 <div class="account">
                     <i id="account-button" class="material-icons">settings</i>
-                    <span><?php echo $session["user_id"]; ?></span>
+                    <span><?php echo $session["username"]; ?></span>
 
                     <div id="account-menu" class="account-menu">
                         <button onclick="logOut()">Log Out</button>
                         <?php
-                        if ($session["user_id"] === "admin")
+                        if ($session["username"] === "admin")
                             echo "<button onclick=\"newNodeModalOpen()\">Add New Sensor Node</button>";
                         ?>
                         <p>Created by Henry Hunt at the University of Nottingham.</p>

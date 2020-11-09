@@ -1,5 +1,3 @@
-config.ini
-composer.json
-composer.lock
-vendor/
-output/
+vendor
+config.json
+output
