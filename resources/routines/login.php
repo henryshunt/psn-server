@@ -6,8 +6,13 @@ require_once("config.php");
 use League\OAuth2\Client\Provider\GenericProvider;
 
 if (!isset($_GET["type"])) die("URL error");
-if (!isset($_POST["admin-password"])) die("URL error");
-if (!isset($_POST["guest-password"])) die("URL error");
+
+if ($_GET["type"] !== "oauth")
+{
+    if (!isset($_POST["username"])) die("URL error");
+    if (!isset($_POST["password"])) die("URL error");
+}
+
 $config = new Config();
 if (!$config->load_config("../../config.ini"))
     die("Configuration error");

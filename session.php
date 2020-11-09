@@ -47,15 +47,7 @@ if ($session === NULL)
 
                 <div class="account">
                     <i id="account-button" class="material-icons">settings</i>
-
-                    <span>
-                        <?php
-                        // If the user ID contains an @, only display the part before the @
-                        if (strpos($session["user_id"], "@") !== FALSE)
-                            echo substr($session["user_id"], 0, strpos($session["user_id"], "@"));
-                        else echo $session["user_id"];
-                        ?>
-                    </span>
+                    <span><?php echo $session["user_id"]; ?></span>
 
                     <div id="account-menu" class="account-menu">
                         <button onclick="logOut()">Log Out</button>

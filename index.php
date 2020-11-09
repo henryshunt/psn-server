@@ -1,20 +1,20 @@
 <?php
-require_once("resources/routines/helpers.php");
-require_once("resources/routines/config.php");
+// require_once("resources/routines/helpers.php");
+// require_once("resources/routines/config.php");
 
-$config = new Config();
-if (!$config->load_config("config.ini"))
-    die("Configuration error");
-$db_connection = database_connection($config);
-if (!$db_connection) die("Database error");
+// $config = new Config();
+// if (!$config->load_config("config.ini"))
+//     die("Configuration error");
+// $db_connection = database_connection($config);
+// if (!$db_connection) die("Database error");
 
-$session = try_loading_session($db_connection);
-if ($session === FALSE) die("Session error");
-if ($session === NULL)
-{
-    header("Location: login.php");
-    exit();
-}
+// $session = try_loading_session($db_connection);
+// if ($session === FALSE) die("Session error");
+// if ($session === NULL)
+// {
+//     header("Location: login.php");
+//     exit();
+// }
 ?>
 
 <meta charset="UTF-8">
@@ -51,15 +51,7 @@ if ($session === NULL)
 
                 <div class="account">
                     <i id="account-button" class="material-icons">settings</i>
-
-                    <span>
-                        <?php
-                        // If the user ID contains an @, only display the part before the @
-                        if (strpos($session["user_id"], "@") !== FALSE)
-                            echo substr($session["user_id"], 0, strpos($session["user_id"], "@"));
-                        else echo $session["user_id"];
-                        ?>
-                    </span>
+                    <span><?php echo $session["user_id"]; ?></span>
 
                     <div id="account-menu" class="account-menu">
                         <button onclick="logOut()">Log Out</button>

@@ -1,6 +1,12 @@
 main {
-    width: 250px;
-    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    height: calc(100vh - 110px);
+}
+form {
+    width: 300px;
 }
 form > button {
     width: 100%;
@@ -9,4 +15,9 @@ form > button {
 
 input {
     margin-bottom: 5px;
+}
+
+main > form > a {
+    text-decoration: underline;
+    font-size: 12px;
 }

@@ -49,12 +49,12 @@ if ($session !== NULL)
         </header>
 
         <main>
-            <form id="login-form" method="post" action="resources/routines/login.php">
-                <button type="button" onclick="oauthLogin()">Log in as University Member</button>
-                <input id="admin-password" name="admin-password" type="password" class="form-control" placeholder="Administrator Password"/>
-                <button type="button" onclick="adminLogin()">Log in as Administrator</button>
-                <input id="guest-password" name="guest-password" type="password" class="form-control" placeholder="Guest Password"/>
-                <button type="button" onclick="guestLogin()" class="last-item">Log in as Guest</button>
+            <form id="login-form" method="post" action="../psn-api/login/internal.php">
+                <input id="username" name="username" type="text" class="form-control" placeholder="Username"/>
+                <input id="password" name="password" type="password" class="form-control" placeholder="Password"/>
+                <button type="submit">Log In</button>
+
+                <a href="resources/routines/login.php?type=oauth">Log in with Microsoft Azure</button>
             </form>
         </main>
     </body>
