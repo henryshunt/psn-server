@@ -47,6 +47,8 @@
                 </div>
 
                 <div class="admin-actions">
+                    <span>Sensor Network Overview</span>
+                    <span>&bull;</span>
                     <span>Manage Sensor Nodes</span>
                     <span>&bull;</span>
                     <span>Manage Users</span>

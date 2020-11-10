@@ -30,7 +30,7 @@
 
                 <div class="account">
                     <i id="account-button" class="material-icons">settings</i>
-                    <span><?php echo $session["userId"]; ?></span>
+                    <span><?php echo $session["username"]; ?></span>
 
                     <div id="account-menu" class="account-menu">
                         <button onclick="logOut()">Log Out</button>

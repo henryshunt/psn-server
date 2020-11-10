@@ -52,12 +52,13 @@ function loadSessionInfo(activeNodeCount)
 
 function loadActiveNodes()
 {
-    var url = "data/get-nodes-active.php?sessionId=" + this.getQueryStringValue("id");
+    var url = "api.php/projects/{0}/nodes?mode=active&report=true".format(this.getQueryStringValue("id"));
+
     $.getJSON(url, (data) =>
     {
         if (data !== false)
         {
-            if (data !== null)
+            if (data.length > 0)
             {
                 const REPORT_TEMPLATE = "<div><span>{0}</span><br><span>{1}</span></div>";
                 const TEMPLATE = `
@@ -77,25 +78,25 @@ function loadActiveNodes()
                     var report_data = "";
 
                     // Display data from the latest report for the node
-                    if (data[i]["latest_report"] !== null)
+                    if (data[i]["latestReport"] !== null)
                     {
                         report_time = "Latest Report on " + dbTimeToLocal(
-                            data[i]["latest_report"]["time"]).format("DD/MM/YYYY [at] HH:mm");
+                            data[i]["latestReport"]["time"]).format("DD/MM/YYYY [at] HH:mm");
 
-                        if (data[i]["latest_report"]["airt"] !== null)
+                        if (data[i]["latestReport"]["airt"] !== null)
                         {
                             report_data += REPORT_TEMPLATE.format("Temp.",
-                                round(data[i]["latest_report"]["airt"], 1) + "°C");
+                                round(data[i]["latestReport"]["airt"], 1) + "°C");
                         } else report_data += REPORT_TEMPLATE.format("Temp.", "None");
 
-                        if (data[i]["latest_report"]["relh"] !== null)
+                        if (data[i]["latestReport"]["relh"] !== null)
                         {
                             report_data += REPORT_TEMPLATE.format("Humid.",
-                                round(data[i]["latest_report"]["relh"], 1) + "%");
+                                round(data[i]["latestReport"]["relh"], 1) + "%");
                         } else report_data += REPORT_TEMPLATE.format("Humid.", "None");
                     } else report_time = "No Latest Report";
                     
-                    html += TEMPLATE.format(data[i]["node_id"], getQueryStringValue("id"),
+                    html += TEMPLATE.format(data[i]["nodeId"], getQueryStringValue("id"),
                         data[i]["location"], report_time, report_data);
                 }
 
@@ -124,11 +125,13 @@ function loadActiveNodes()
 
 function loadCompletedNodes()
 {
-    var url = "data/get-nodes-completed.php?sessionId=" + this.getQueryStringValue("id");
-    $.getJSON(url, (data) => {
+    var url = "api.php/projects/{0}/nodes?mode=completed".format(this.getQueryStringValue("id"));
+
+    $.getJSON(url, (data) =>
+    {
         if (data !== false)
         {
-            if (data !== null)
+            if (data.length > 0)
             {
                 var html = "";
                 for (var i = 0; i < data.length; i++)
@@ -140,7 +143,7 @@ function loadCompletedNodes()
                             </a>
                         </div>`;
 
-                    html += TEMPLATE.format(data[i]["node_id"], getQueryStringValue("id"),
+                    html += TEMPLATE.format(data[i]["nodeId"], getQueryStringValue("id"),
                         data[i]["location"]);
                 }
 

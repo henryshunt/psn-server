@@ -27,6 +27,7 @@ $router->map("POST", "/nodes", "nodes.php/api_nodes_post");
 $router->map("GET", "/projects", "projects.php/api_projects_get");
 $router->map("POST", "/projects", "projects.php/api_projects_post");
 $router->map("GET", "/projects/[i:projectId]", "project.php/api_project_get");
+$router->map("GET", "/projects/[i:projectId]/nodes", "project-nodes.php/api_project_nodes_get");
 
 $match = $router->match();
 
