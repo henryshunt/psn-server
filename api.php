@@ -25,6 +25,7 @@ $router->setBasePath($_SERVER["SCRIPT_NAME"]);
 $router->map("GET", "/nodes", "nodes.php/api_nodes_get");
 $router->map("POST", "/nodes", "nodes.php/api_nodes_post");
 $router->map("GET", "/projects", "projects.php/api_projects_get");
+$router->map("POST", "/projects", "projects.php/api_projects_post");
 $router->map("GET", "/projects/[i:projectId]", "project.php/api_project_get");
 
 $match = $router->match();

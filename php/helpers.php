@@ -129,6 +129,26 @@ function get_login_session($token, $pdo)
 }
 
 
+/**
+ * Removes the keys from an associative array that are not included in a whitelist.
+ * @param array $array - The associative array to remove keys from.
+ * @param array $whitelist - The whitelist of allowed keys.
+ * @return array The original $array but with all non-whitelisted keys removed.
+ */
+function filter_attributes_allowed($array, $whitelist)
+{
+    $finalArray = $array;
+
+    foreach (array_keys($array) as $key)
+    {
+        if (!in_array($key, $whitelist))
+            unset($finalArray[$key]);
+    }
+
+    return $finalArray;
+}
+
+
 function get_random_string($length)
 {
     $characters = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";

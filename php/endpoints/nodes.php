@@ -17,7 +17,7 @@ function api_nodes_get()
     // ----- Query generation
     if (isset($_GET["inactive"]) && $_GET["inactive"] === "true")
     {
-        $sql .=  "SELECT * FROM nodes WHERE nodeId NOT IN (SELECT nodeId FROM projectNodes " .
+        $sql =  "SELECT * FROM nodes WHERE nodeId NOT IN (SELECT nodeId FROM projectNodes " .
             "WHERE (startAt > NOW() OR endAt IS NULL OR NOW() BETWEEN startAt AND endAt))";
     }
     else $sql = "SELECT * FROM nodes";

@@ -1,13 +1,13 @@
 let availableNodes = [];
 
-$(window).on("load", () =>
+window.addEventListener("load", () =>
 {
-    loadActiveSessions();
-    loadCompletedSessions();
+    loadActiveProjects();
+    loadCompletedProjects();
 });
 
 
-function loadActiveSessions()
+function loadActiveProjects()
 {
     $.getJSON("api.php/projects?mode=active", (data) =>
     {
@@ -59,7 +59,7 @@ function loadActiveSessions()
     });
 }
 
-function loadCompletedSessions()
+function loadCompletedProjects()
 {
     $.getJSON("api.php/projects?mode=completed", (data) =>
     {
@@ -152,116 +152,32 @@ function newSessionModalClose()
     $("#new-session-modal").css("display", "none");
 }
 
-function newSessionModalAddNode()
-{
-    let TEMPLATE = `
-        <div class="session-node-row">
-            <button type="button" onclick="newSessionModalRemoveNode(this)">
-                <i class="material-icons">delete</i>
-            </button>
-
-            <div>
-                <span>SENSOR NODE</span>
-                <select class="form-control">{0}</select>
-            </div>
-
-            <div>
-                <span>LOCATION DESCRIPTION</span>
-                <input type="text" id="session-title" class="form-control">
-            </div>
-
-            <div>
-                <span>END TIME</span>
-                <input type="text" id="session-description" class="form-control">
-            </div>
-
-            <div>
-                <span>REPORTING INTERVAL</span>
-                <select class="form-control" id="node-interval">
-                    <option value="1">1 Minute</option>
-                    <option value="2">2 Minutes</option>
-                    <option value="5">5 Minutes</option>
-                    <option value="10">10 Minutes</option>
-                    <option value="15">15 Minutes</option>
-                    <option value="20">20 Minutes</option>
-                    <option value="30">30 Minutes</option>
-                </select>
-            </div>
-
-            <div>
-                <span title="Transmit reports in batches of X to save battery power">BATCH TRANSMIT</span>
-                <input type="number" min="1" max="127" value="1" class="form-control">
-            </div>
-        </div>`;
-    let TEMPLATE2 = `<option value="{0}">{1}</option>`;
-
-    let options = "";
-    for (let i = 0; i < availableNodes.length; i++)
-        options += TEMPLATE2.format(availableNodes[i]["nodeId"], availableNodes[i]["macAddress"]);
-
-    let elements = $(TEMPLATE.format(options));
-
-    // Add date picker for end time
-    flatpickr($(elements).children().eq(3).children().eq(1)[0],
-    { enableTime: true, time_24hr: true, dateFormat: "d/m/Y H:i" });
-                
-    $("#session-node-rows").append(elements);
-}
-
-function newSessionModalRemoveNode(element)
-{
-    $(element).parent().remove();
-}
-
 function newSessionModalSave()
 {
     let emptyFields = false;
     if ($("#new-session-name").val() === "") emptyFields = true;
 
-    let TEMPLATE = `{"name":"{0}","description":"{1}","nodes":[{2}]}`;
-    let TEMPLATE2 = `{"nodeId":{0},"location":"{1}","endTime":{2},"interval":{3},"batchSize":{4}}`;
-
-    let sessionNodes = "";
-
-    // Convert each added sensor node to a JSON string
-    for (let i = 1; i <= document.getElementById("session-node-rows").children.length; i++)
-    {
-        let selector = "#session-node-rows > :nth-child(" + i + ") ";
-        let node = $(selector + "> :nth-child(2) > :last-child").val();
-        let location = $(selector + "> :nth-child(3) > :last-child").val();
-
-        let end = null;
-        let endValue = $(selector + "> :nth-child(4) > :last-child").val();
-        if (endValue !== "") end = moment(endValue, "DD/MM/YYYY HH:mm").utc();
-        let interval = $(selector + "> :nth-child(5) > :last-child").val();
-        let batch = $(selector + "> :nth-child(6) > :last-child").val();
-
-        if (end === null)
-            sessionNodes += TEMPLATE2.format(node, location, "null", interval, batch);
-        else
-        {
-            sessionNodes += TEMPLATE2.format(node, location,
-                "\"" + end.format("YYYY-MM-DD HH:mm:ss") + "\"", interval, batch);
-        }
-
-        if (location === "") emptyFields = true;
-    }
-
-    if (emptyFields === true || sessionNodes === "")
+    if (emptyFields === true)
     {
         alert("Cannot submit, one or more fields are empty or you have not added any sensor nodes.");
         return;
     }
 
-    let session = TEMPLATE.format(
-        $("#new-session-name").val(), $("#new-session-description").val(), sessionNodes);
+    let session =
+    {
+        name: $("#new-session-name").val(),
+        //description: $("#new-session-description").val()
+    };
 
     $.post({
-        url: "data/add-session.php",
-        data: { "data": session },
+        url: "api.php/projects",
+        data: JSON.stringify(session),
         ContentType: "application/json",
 
-        success: () => window.location.reload(),
+        success: (data) =>
+        {
+            window.location.href = "session.php?id=" + data["projectId"];
+        },
         error: () => alert("Error while creating the session")
     });
 }

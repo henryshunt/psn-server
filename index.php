@@ -81,7 +81,7 @@
         <div id="modal-shade" class="modal-shade" style="display: none"></div>
         <div id="new-session-modal" class="modal" style="display: none">
             <div class="modal-header">
-                <span>Start a New Session</span>
+                <span>Create a New Session</span>
                 <button onclick="newSessionModalClose()">
                     <i class="material-icons">close</i>
                 </button>
@@ -91,14 +91,11 @@
                 <form>
                     <input id="new-session-name" type="text" class="form-control" placeholder="Session Name"/>
                     <textarea id="new-session-description" class="form-control" placeholder="Session Description"></textarea>
-
-                    <div id="session-node-rows" class="session-node-rows"></div>
-                    <button id="session-node-add-button" type="button" onclick="newSessionModalAddNode()" disabled>Add Sensor Node</button>
                 </form>
             </div>
 
             <div class="modal-footer">
-                <button onclick="newSessionModalSave()">Save & Start</button>
+                <button onclick="newSessionModalSave()">Create</button>
                 <button onclick="newSessionModalClose()">Cancel</button>
             </div>
         </div>
