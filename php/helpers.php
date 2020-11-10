@@ -14,41 +14,57 @@ function load_configuration($file_path)
 }
 
 
-function api_respond($status_code, $content = null)
+/**
+ * Finalises the response to an API request. Outputs the body, sets the headers and status code,
+ * and terminates the script.
+ * @param object $response - The Response object to use to finalise the response.
+ * @return void
+ */
+function api_respond($response)
 {
     header("Content-Type: application/json");
-    
-    if ($content === null)
-        echo "{\"status_code\":$status_code}";
-    else echo $content;
 
-    http_response_code($status_code);
+    if ($response->getStatus() === 200 && $response->getBody() !== null)
+        echo $response->getBody();
+    else
+    {
+        $json = ["status" => $response->getStatus()];
+
+        if ($response->getStatus() !== 200 && $response->getError() !== null)
+            $json["error"] = $response->getError();
+
+        echo json_encode($json);
+    }
+
+    http_response_code($response->getStatus());
     exit();
 }
 
 function api_authenticate($pdo)
 {
-    if (isset(apache_request_headers()["Authorization"]) === true &&
-        starts_with(apache_request_headers()["Authorization"], "Bearer ") === true)
+    if (isset(apache_request_headers()["Authorization"]) &&
+        starts_with(apache_request_headers()["Authorization"], "Bearer "))
     {
         $token = substr(apache_request_headers()["Authorization"], 7);
-        
-        try
-        {
-            $sql = "SELECT user_id FROM tokens WHERE token = ?";
-            $query = database_query($pdo, $sql, [$token]);
-
-            if (count($query) === 0)
-                api_respond(401, null);
-
-            return $query[0]["user_id"];
-        }
-        catch (PDOException $ex)
-        {
-            api_respond(500, null);
-        }
     }
-    else api_respond(401, null);
+    else if (isset($_COOKIE["session"]))
+        $token = $_COOKIE["session"];
+    else api_respond(new Response(401));
+
+    try
+    {
+        $sql = "SELECT user_id FROM tokens WHERE token = ?";
+        $query = database_query($pdo, $sql, [$token]);
+
+        if (count($query) === 0)
+            api_respond(new Response(401));
+
+        return $query[0]["user_id"];
+    }
+    catch (PDOException $ex)
+    {
+        api_respond(500, null);
+    }
 }
 
 

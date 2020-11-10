@@ -9,11 +9,11 @@ $(window).on("load", () =>
 
 function loadActiveSessions()
 {
-    $.getJSON("data/get-sessions-active.php", (data) =>
+    $.getJSON("api.php/sessions?mode=active", (data) =>
     {
         if (data !== false)
         {
-            if (data !== null)
+            if (data.length > 0)
             {
                 const TEMPLATE = `
                     <div class="item">
@@ -61,11 +61,11 @@ function loadActiveSessions()
 
 function loadCompletedSessions()
 {
-    $.getJSON("data/get-sessions-completed.php", (data) =>
+    $.getJSON("api.php/sessions?mode=completed", (data) =>
     {
         if (data !== false)
         {
-            if (data !== null)
+            if (data.length > 0)
             {
                 const TEMPLATE = `
                     <div class="item item-thin">
@@ -124,7 +124,7 @@ function newSessionModalOpen()
     $("#session-node-add-button").attr("disabled", true);
 
     // Get all available nodes for display in sensor node dropdown
-    $.getJSON("data/get-nodes-completed-all.php", (data) =>
+    $.getJSON("api.php/nodes?completed-only=true", (data) =>
     {
         if (data !== false)
         {
@@ -291,8 +291,8 @@ function newNodeModalSave()
     }
 
     $.post({
-        url: "data/add-node.php",
-        data: { "address": $("#new-node-address").val() },
+        url: "api.php/nodes",
+        data: { "mac_address": $("#new-node-address").val() },
         ContentType: "application/json",
 
         success: () => newNodeModalClose(),

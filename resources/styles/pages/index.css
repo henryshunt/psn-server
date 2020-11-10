@@ -103,3 +103,23 @@
         width: 65px !important;
     } */
 }
+
+
+.admin-actions {
+    text-align: center;
+    background-color: rgb(200, 200, 200);
+    padding: 10px;
+    font-size: 14px;
+    margin-top: 10px;
+    text-align: center;
+}
+.admin-actions span:nth-child(odd) {
+    text-decoration: underline;
+}
+.admin-actions span:nth-child(odd) {
+    cursor: pointer;
+}
+
+main {
+    margin-top: 40px !important;
+}

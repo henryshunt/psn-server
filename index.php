@@ -1,35 +1,4 @@
-<?php
-require_once "php/helpers.php";
-
-$config = load_configuration("config.json");
-if ($config === false)
-    die("Configuration error");
-
-try
-{
-    $pdo = database_connect($config["databaseHost"], $config["databaseName"],
-        $config["databaseUsername"], $config["databasePassword"]);
-}
-catch (Exception $ex)
-{
-    die("Database error");
-}
-
-if (isset($_COOKIE["session"]))
-{
-    $session = get_login_session($_COOKIE["session"], $pdo);
-
-    if ($session === false)
-        die("Session error");
-}
-else $session = null;
-
-if ($session === null)
-{
-    header("Location: login.php");
-    exit();
-}
-?>
+<?php require_once "php/all-pages.php"; ?>
 
 <meta charset="UTF-8">
 <!DOCTYPE html>
@@ -76,13 +45,21 @@ if ($session === null)
                         <p>Created by Henry Hunt at the University of Nottingham.</p>
                     </div>
                 </div>
+
+                <div class="admin-actions">
+                    <span>Add Sensor Node to System</span>
+                    <span>&bull;</span>
+                    <span>Administer Users</span>
+                    <span>&bull;</span>
+                    <span>Dashboard</span>
+                </div>
             </div>
         </header>
 
         <main class="main">
             <div id="active-sessions-group" style="display: none">
                 <div class="titled-group-header">
-                    <h2>Active Sessions</h2>
+                    <h2>Active Projects</h2>
                     <?php
                     if ($session["user_id"] !== "guest")
                         echo "<button onclick=\"newSessionModalOpen()\">Start New</button>";
@@ -95,7 +72,7 @@ if ($session === null)
         
             <div id="completed-sessions-group" style="display: none">
                 <div class="titled-group-header">
-                    <h2>Completed Sessions</h2>
+                    <h2>Completed Projects</h2>
                     <div class="titled-group-separator"></div>
                 </div>
 

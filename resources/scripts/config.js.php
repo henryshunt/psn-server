@@ -5,7 +5,6 @@
  */
 
 require_once "../../php/helpers.php";
-require_once "../../php/config.php";
 
 $config = load_configuration("../../config.json");
 if ($config === false)
