@@ -9,7 +9,7 @@ $(window).on("load", () =>
 
 function loadActiveSessions()
 {
-    $.getJSON("api.php/sessions?mode=active", (data) =>
+    $.getJSON("api.php/projects?mode=active", (data) =>
     {
         if (data !== false)
         {
@@ -29,20 +29,20 @@ function loadActiveSessions()
                 for (let i = 0; i < data.length; i++)
                 {
                     let dateRange = "From " + 
-                        dbTimeToLocal(data[i]["start_time"]).format("DD/MM/YYYY");
+                        dbTimeToLocal(data[i]["startAt"]).format("DD/MM/YYYY");
 
-                    if (data[i]["end_time"] !== null)
+                    if (data[i]["endAt"] !== null)
                     {
                         dateRange += " to " +
-                            dbTimeToLocal(data[i]["end_time"]).format("DD/MM/YYYY");
+                            dbTimeToLocal(data[i]["endAt"]).format("DD/MM/YYYY");
                     } else dateRange += ", Indefinitely";
 
                     let nodeCount = "";
-                    if (data[i]["node_count"] != 1)
-                        nodeCount = data[i]["node_count"] + " Sensor Nodes";
+                    if (data[i]["nodeCount"] != 1)
+                        nodeCount = data[i]["nodeCount"] + " Sensor Nodes";
                     else nodeCount = "1 Sensor Node";
 
-                    html += TEMPLATE.format(data[i]["session_id"], data[i]["name"],
+                    html += TEMPLATE.format(data[i]["sessionId"], data[i]["name"],
                         dateRange, nodeCount);
                 }
 
@@ -61,7 +61,7 @@ function loadActiveSessions()
 
 function loadCompletedSessions()
 {
-    $.getJSON("api.php/sessions?mode=completed", (data) =>
+    $.getJSON("api.php/projects?mode=completed", (data) =>
     {
         if (data !== false)
         {
@@ -81,20 +81,20 @@ function loadCompletedSessions()
                 for (let i = 0; i < data.length; i++)
                 {
                     let dateRange = "";
-                    if (data[i]["start_time"] !== null)
+                    if (data[i]["startAt"] !== null)
                     {
                         dateRange += "From " +
-                            dbTimeToLocal(data[i]["start_time"]).format("DD/MM/YYYY");
+                            dbTimeToLocal(data[i]["startAt"]).format("DD/MM/YYYY");
                         dateRange += " to " +
-                            dbTimeToLocal(data[i]["end_time"]).format("DD/MM/YYYY");
+                            dbTimeToLocal(data[i]["endAt"]).format("DD/MM/YYYY");
                     }
 
                     let nodeCount = "";
-                    if (data[i]["node_count"] != 1)
-                        nodeCount = data[i]["node_count"] + " Sensor Nodes";
+                    if (data[i]["nodeCount"] != 1)
+                        nodeCount = data[i]["nodeCount"] + " Sensor Nodes";
                     else nodeCount = "1 Sensor Node";
 
-                    html += TEMPLATE.format(data[i]["session_id"], data[i]["name"],
+                    html += TEMPLATE.format(data[i]["sessionId"], data[i]["name"],
                         dateRange, nodeCount);
                 }
 
@@ -197,7 +197,7 @@ function newSessionModalAddNode()
 
     let options = "";
     for (let i = 0; i < availableNodes.length; i++)
-        options += TEMPLATE2.format(availableNodes[i]["node_id"], availableNodes[i]["mac_address"]);
+        options += TEMPLATE2.format(availableNodes[i]["nodeId"], availableNodes[i]["macAddress"]);
 
     let elements = $(TEMPLATE.format(options));
 
@@ -291,7 +291,7 @@ function newNodeModalSave()
     }
 
     $.post({
-        url: "api.php/nodes",
+        url: "api.php/nodes?inactive=true",
         data: { "mac_address": $("#new-node-address").val() },
         ContentType: "application/json",
 

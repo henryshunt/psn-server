@@ -30,7 +30,7 @@
 
                 <div class="account">
                     <i id="account-button" class="material-icons">settings</i>
-                    <span><?php echo $session["user_id"]; ?></span>
+                    <span><?php echo $session["userId"]; ?></span>
 
                     <div id="account-menu" class="account-menu">
                         <button onclick="logOut()">Log Out</button>
@@ -55,7 +55,7 @@
                     <div class="info-group-right">
                         <button onclick="downloadDataClick()">Download All Data</button>
                         <?php
-                        if ($session["user_id"] !== "guest")
+                        if ($session["userId"] !== "guest")
                         {
                             echo "<button id=\"button-stop1\" onclick=\"stopSessionNow()\">Stop Session Now</button>";
                             echo "<button class=\"last-item\" id=\"button-delete\" onclick=\"deleteSessionClick()\">Delete Session</button>";

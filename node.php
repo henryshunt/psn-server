@@ -34,7 +34,7 @@
 
                 <div class="account">
                     <i id="account-button" class="material-icons">settings</i>
-                    <span><?php echo $session["user_id"]; ?></span>
+                    <span><?php echo $session["userId"]; ?></span>
 
                     <div id="account-menu" class="account-menu">
                         <button onclick="logOut()">Log Out</button>
@@ -62,7 +62,7 @@
                     <div class="info-group-right">
                         <button onclick="downloadDataClick()">Download All Data</button>
                         <?php
-                        if ($session["user_id"] !== "guest")
+                        if ($session["userId"] !== "guest")
                         {
                             echo "<button id=\"button-stop\" onclick=\"stopSessionNodeClick()\">Stop Node Reporting Now</button>";
                             echo "<button class=\"last-item\" onclick=\"deleteSessionNodeClick()\">Delete Node from Session</button>";
@@ -115,7 +115,7 @@
                 <div class="titled-group-header">
                     <h2>Alarms</h2>
                     <?php
-                    if ($session["user_id"] !== "guest")
+                    if ($session["userId"] !== "guest")
                         echo "<button id=\"new-alarm-button\" onclick=\"newAlarmModalOpen()\">Add New</button>";
                     ?>
                     <div class="titled-group-separator"></div>

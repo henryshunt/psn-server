@@ -12,19 +12,19 @@ try
     $pdo = database_connect($config["databaseHost"], $config["databaseName"],
         $config["databaseUsername"], $config["databasePassword"]);
 }
-catch (Exception $ex) { api_respond(new Response(500)); }
+catch (Exception $ex)
+{
+    api_respond(new Response(500));
+}
 
-$user_id = api_authenticate($pdo);
+$userId = api_authenticate($pdo);
 
 $router = new AltoRouter();
 $router->setBasePath($_SERVER["SCRIPT_NAME"]);
 
 $router->map("GET", "/nodes", "nodes.php/api_nodes_get");
 $router->map("POST", "/nodes", "nodes.php/api_nodes_post");
-
-$router->map("POST", "/tokens", "test.php/api_tokens_post");
-$router->map("GET", "/sessions", "sessions.php/api_sessions_get");
-$match = $router->match();
+$router->map("GET", "/projects", "projects.php/api_projects_get");
 
 $match = $router->match();
 

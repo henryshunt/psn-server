@@ -27,8 +27,8 @@ try
         {
             $token = get_random_string(64);
 
-            $sql = "INSERT INTO tokens (user_id, token) VALUES (?, ?)";
-            $query = database_query($pdo, $sql, [$query[0]["user_id"], $token]);
+            $sql = "INSERT INTO tokens (userId, token) VALUES (?, ?)";
+            $query = database_query($pdo, $sql, [$query[0]["userId"], $token]);
 
             setcookie("session", $token, time() + (3600 * 1), "/");
             header("Location: http://localhost/psn-server");

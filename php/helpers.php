@@ -53,21 +53,30 @@ function api_authenticate($pdo)
 
     try
     {
-        $sql = "SELECT user_id FROM tokens WHERE token = ?";
+        $sql = "SELECT userId FROM tokens WHERE token = ?";
         $query = database_query($pdo, $sql, [$token]);
 
         if (count($query) === 0)
             api_respond(new Response(401));
 
-        return $query[0]["user_id"];
+        return $query[0]["userId"];
     }
     catch (PDOException $ex)
     {
-        api_respond(500, null);
+        api_respond(new Response(500));
     }
 }
 
 
+/**
+ * Opens a connection to a MySQL database using the provided credentials.
+ * @param string $host - The hostname of the database server.
+ * @param string $database - The name of the database.
+ * @param string $username - The username to connect to the database with.
+ * @param string $password - The password to connect to the database with.
+ * @throws PDOException if there is any error.
+ * @return object The PDO connection object.
+ */
 function database_connect($host, $database, $username, $password)
 {
     $options =
@@ -81,11 +90,22 @@ function database_connect($host, $database, $username, $password)
     return new PDO($data_source, $username, $password, $options);
 }
 
-function database_query($pdo, $sql, $values)
+/**
+ * Queries a database and returns the results.
+ * @param object $pdo - The PDO connection object.
+ * @param string $sql - The SQL query to run. Any values should be replaced with question marks.
+ * @param array|null $values (optional) - The values to put into the SQL query. There should be the
+ * same number of values as there are question marks in the SQL query.
+ * @throws PDOException if there is any error.
+ * @return array|boolean The records selected by the query, or true if the query is not a SELECT
+ * query.
+ */
+function database_query($pdo, $sql, $values = null)
 {
     $query = $pdo->prepare($sql);
     $query->execute($values);
 
+    // Return the data if a select query was run
     if (starts_with(strtolower($sql), "select"))
         return $query->fetchAll();
     else return true;
@@ -96,7 +116,7 @@ function get_login_session($token, $pdo)
 {
     try
     {
-        $sql = "SELECT * FROM users WHERE user_id = (SELECT user_id FROM tokens WHERE token = ?)";
+        $sql = "SELECT * FROM users WHERE userId = (SELECT userId FROM tokens WHERE token = ?)";
         $query = database_query($pdo, $sql, [$token]);
 
         return count($query) === 0 ? null : $query[0];

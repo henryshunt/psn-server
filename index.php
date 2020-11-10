@@ -47,11 +47,9 @@
                 </div>
 
                 <div class="admin-actions">
-                    <span>Add Sensor Node to System</span>
+                    <span>Manage Sensor Nodes</span>
                     <span>&bull;</span>
-                    <span>Administer Users</span>
-                    <span>&bull;</span>
-                    <span>Dashboard</span>
+                    <span>Manage Users</span>
                 </div>
             </div>
         </header>
@@ -61,7 +59,7 @@
                 <div class="titled-group-header">
                     <h2>Active Projects</h2>
                     <?php
-                    if ($session["user_id"] !== "guest")
+                    if ($session["userId"] !== "guest")
                         echo "<button onclick=\"newSessionModalOpen()\">Start New</button>";
                     ?>
                     <div class="titled-group-separator"></div>
