@@ -10,7 +10,7 @@ $(window).on("load", () =>
 
 function loadSessionInfo(activeNodeCount)
 {
-    url = "data/get-session-info.php?sessionId=" + this.getQueryStringValue("id");
+    url = "api.php/projects/" + this.getQueryStringValue("id");
     $.getJSON(url, (sessionData) =>
     {
         if (sessionData !== false)

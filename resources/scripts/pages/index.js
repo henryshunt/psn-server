@@ -42,7 +42,7 @@ function loadActiveSessions()
                         nodeCount = data[i]["nodeCount"] + " Sensor Nodes";
                     else nodeCount = "1 Sensor Node";
 
-                    html += TEMPLATE.format(data[i]["sessionId"], data[i]["name"],
+                    html += TEMPLATE.format(data[i]["projectId"], data[i]["name"],
                         dateRange, nodeCount);
                 }
 
@@ -94,7 +94,7 @@ function loadCompletedSessions()
                         nodeCount = data[i]["nodeCount"] + " Sensor Nodes";
                     else nodeCount = "1 Sensor Node";
 
-                    html += TEMPLATE.format(data[i]["sessionId"], data[i]["name"],
+                    html += TEMPLATE.format(data[i]["projectId"], data[i]["name"],
                         dateRange, nodeCount);
                 }
 
@@ -124,7 +124,7 @@ function newSessionModalOpen()
     $("#session-node-add-button").attr("disabled", true);
 
     // Get all available nodes for display in sensor node dropdown
-    $.getJSON("api.php/nodes?completed-only=true", (data) =>
+    $.getJSON("api.php/nodes?inactive=true", (data) =>
     {
         if (data !== false)
         {

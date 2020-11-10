@@ -25,6 +25,7 @@ $router->setBasePath($_SERVER["SCRIPT_NAME"]);
 $router->map("GET", "/nodes", "nodes.php/api_nodes_get");
 $router->map("POST", "/nodes", "nodes.php/api_nodes_post");
 $router->map("GET", "/projects", "projects.php/api_projects_get");
+$router->map("GET", "/projects/[i:projectId]", "project.php/api_project_get");
 
 $match = $router->match();
 
@@ -32,6 +33,17 @@ if ($match)
 {
     $target = explode("/", $match["target"]);
     require_once "php/endpoints/" . $target[0];
+
+    // Validate any ID parameters in the URL and convert them to integers
+    foreach ($match["params"] as $key => $value)
+    {
+        if (ends_with($key, "Id"))
+        {
+            if ((int)$value >= 0 && (int)$value <= MYSQL_MAX_INT)
+                $match["params"][$key] = (int)$value;
+            else api_respond(new Response(404));
+        }
+    }
 
     // Call the target function with the elements in the array as arguments
     $response = call_user_func_array($target[1], $match["params"]);

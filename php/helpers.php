@@ -1,4 +1,5 @@
 <?php
+const MYSQL_MAX_INT = 2147483647;
 
 function load_configuration($file_path)
 {
@@ -138,7 +139,26 @@ function get_random_string($length)
     return $string;
 }
 
+/**
+ * Determines whether a string starts with another string.
+ * @param string $string - The string to check inside of.
+ * @param string $start - The string to check for at the start.
+ * @return boolean true if the string starts with the start string, otherwise false.
+ */
 function starts_with($string, $start)
 {
     return substr($string, 0, strlen($start)) === $start;
+}
+
+/**
+ * Determines whether a string ends with another string.
+ * @param string $string - The string to check inside of.
+ * @param string $end - The string to check for at the end.
+ * @return boolean true if the string ends with the start string, otherwise false.
+ */
+function ends_with($string, $end)
+{
+    if (strlen($end) > 0)
+        return substr($string, -strlen($end)) === $end;
+    else return true;
 }
