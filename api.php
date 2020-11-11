@@ -21,13 +21,18 @@ $userId = api_authenticate($pdo);
 
 $router = new AltoRouter();
 $router->setBasePath($_SERVER["SCRIPT_NAME"]);
+$router->addMatchTypes(["mac" => "([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2}"]);
 
 $router->map("GET", "/nodes", "nodes.php/api_nodes_get");
 $router->map("POST", "/nodes", "nodes.php/api_nodes_post");
+$router->map("GET", "/nodes/[i:nodeId]", "node.php/api_node_get");
+$router->map("GET", "/nodes/[mac:macAddress]", "node.php/api_node_mac_get");
+
 $router->map("GET", "/projects", "projects.php/api_projects_get");
 $router->map("POST", "/projects", "projects.php/api_projects_post");
 $router->map("GET", "/projects/[i:projectId]", "project.php/api_project_get");
 $router->map("GET", "/projects/[i:projectId]/nodes", "project-nodes.php/api_project_nodes_get");
+$router->map("GET", "/projects/[i:projectId]/nodes/[i:nodeId]", "project-node.php/api_project_node_get");
 
 $match = $router->match();
 

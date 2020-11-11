@@ -45,12 +45,11 @@ function api_project_nodes_get($projectId)
         // Get the latest report data for each node
         if (isset($_GET["report"]) && $_GET["report"] === "true")
         {
-            $sql = "SELECT * FROM reports WHERE reportId = ?";
-
             for ($i = 0; $i < count($query); $i++)
             {
                 if ($query[$i]["latestReportId"] !== null)
                 {
+                    $sql = "SELECT * FROM reports WHERE reportId = ?";
                     $query2 = database_query($pdo, $sql, [$query[$i]["latestReportId"]]);
 
                     if (count($query2) > 0)

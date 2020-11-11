@@ -43,7 +43,23 @@ function api_respond($response)
 
 function api_authenticate($pdo)
 {
-    if (isset(apache_request_headers()["Authorization"]) &&
+    if (isset($_SERVER["PHP_AUTH_USER"]) === true)
+    {
+        try
+        {
+            $sql = "SELECT userId FROM users WHERE username = ? AND password = ?";
+            $query = database_query($pdo, $sql, [$_SERVER["PHP_AUTH_USER"], $_SERVER["PHP_AUTH_PW"]]);
+
+            if (count($query) > 0)
+                return $query["userId"];
+            else api_respond(new Response(401));
+        }
+        catch (PDOException $ex)
+        {
+            api_respond(new Response(500));
+        }
+    }
+    else if (isset(apache_request_headers()["Authorization"]) &&
         starts_with(apache_request_headers()["Authorization"], "Bearer "))
     {
         $token = substr(apache_request_headers()["Authorization"], 7);
