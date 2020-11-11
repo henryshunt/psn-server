@@ -6,75 +6,20 @@ body {
     min-width: 450px;
 }
 
-header {
-    height: 50px;
-    background-color: rgb(200, 200, 200);
-}
-h1 {
-    font-size: 20px;
-    margin: 0;
-    display: inline-block;
-    line-height: 50px;
-}
-.account
-{
-    float: right;
-    position: relative;
-    top: 13px;
-}
-.account > i
-{
-    float: left;
-    margin-right: 5px;
-    cursor: pointer;
-    user-select: none;
-}
-.account > span
-{
-    float: right;
-    position: relative;
-    top: 1px;
-}
-
-.account-menu {
-    width: 200px;
-    background-color: white;
-    border: 2px solid rgb(200, 200, 200);
-    border-top: unset;
-    position: absolute;
-    right: 0;
-    z-index: 1;
-    padding: 10px;
-    padding-top: 0;
-    display: none;
-    top: 37px;
-}
-.account-menu > button {
-    width: 100%;
-    margin-top: 10px;
-}
-.account-menu > p {
-    font-size: 13px;
-    text-align: justify;
-    margin-bottom: 0;
-    margin-top: 10px;
-}
-
-main {
-    padding-top: 30px;
-    padding-bottom: 30px;
-}
+main,
 .main {
     max-width: 1000px;
     margin: 0 auto;
-    padding-left: 30px;
-    padding-right: 30px;
+    padding-left: 20px;
+    padding-right: 20px;
 }
-main > div {
-    margin-bottom: 30px;
+main {
+    margin-top: 20px;
+    margin-bottom: 20px;
 }
 main > :last-child {
     margin-bottom: 0;
+    margin-top: 20px;
 }
 
 a {

@@ -67,3 +67,42 @@ function dbTimeToUtc(time)
 {
     return moment.utc(time, "YYYY-MM-DD HH:mm:ss");
 }
+
+
+function getJson(url)
+{
+    return new Promise((resolve, reject) =>
+    {
+        var request = new XMLHttpRequest();
+        request.open("GET", url, true);
+
+        request.onload = () =>
+        {
+            if (request.status >= 200 && request.status < 400)
+                resolve(JSON.parse(request.responseText), request.status);
+            else reject(JSON.parse(request.responseText), request.status);
+        };
+
+        request.onerror = () => reject(null, null);
+        request.send();
+    });
+}
+
+function postJson(url, json)
+{
+    return new Promise((resolve, reject) =>
+    {
+        var request = new XMLHttpRequest();
+        request.open("POST", url, true);
+
+        request.onload = () =>
+        {
+            if (request.status >= 200 && request.status < 400)
+                resolve(JSON.parse(request.responseText), request.status);
+            else reject(JSON.parse(request.responseText), request.status);
+        };
+
+        request.onerror = () => reject(null, null);
+        request.send(json);
+    });
+}

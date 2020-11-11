@@ -1,3 +1,6 @@
+.item {
+    line-height: 22px;
+}
 .item > a > :last-child {
     position: absolute;
     bottom: 20px;
@@ -5,121 +8,19 @@
     line-height: 10px;
 }
 
-
-.modal-content > form > :first-child {
+.new-project-modal {
+    width: 550px;
+}
+.new-project-name {
     margin-bottom: 5px;
 }
-.session-node-rows {
-    margin-top: 15px;
-    margin-bottom: 15px;
+.new-project-description {
+    height: 100px !important;
+    font-family: inherit;
 }
 
-.modal-content > form > :last-child {
-    width: 100%;
-}
-
-.session-node-row {
-    display: flex;
-    margin-top: 5px;
-    height: 48px;
-}
-.session-node-row > button {
-    padding-left: 3px;
-    padding-right: 3px;
-    height: 100%;
-}
-.session-node-row > div {
-    position: relative;
-    height: 100%;
-}
-.session-node-row > :not(:last-child) {
-    margin-right: 5px;
-}
-.session-node-row > div > :first-child {
-    font-weight: bold;
-    font-size: 10px;
-    margin-right: 5px;
-}
-.session-node-row > div > :last-child {
-    position: absolute;
-    bottom: 0;
-}
-
-.session-node-row > :nth-child(2) {
-    width: 151px;
-}
-.session-node-row > :nth-child(3) {
-    flex-grow: 1;
-}
-.session-node-row > :nth-child(4) {
-    width: 128px;
-}
-
-.modal-content > p {
-    margin-top: 0;
-    text-align: justify;
-}
-
-@media screen and (max-width: 800px) {
-    .session-node-row {
-        display: block !important;
-        height: unset !important;
-        margin-top: 15px !important;
+@media screen and (max-width: 614px) {
+    .modal {
+        width: calc(100% - 64px);
     }
-    .session-node-row > * {
-        width: 100% !important;
-        margin-bottom: 5px !important;
-        height: 48px !important;
-    }
-
-    .session-node-row > :first-child {
-        float: left;
-        width: 30px !important;
-    }
-    .session-node-row > :nth-child(2) {
-        width: calc(100% - 35px) !important;
-        margin-left: 35px;
-    }
-    .session-node-row > :nth-child(2) > :first-child {
-        margin-left: 0 !important;
-    }
-    /* .session-node-row > :nth-child(1) {
-        width: 30px !important;
-        float: left;
-    }
-    .session-node-row > :nth-child(2) {
-        width: calc(100% - 35px) !important;
-        margin-right: 0 !important;
-    }
-    .session-node-row > :nth-child(5) {
-        display: inline;
-        font-size: 14px;
-    }
-    .session-node-row > :nth-child(6) {
-        margin-right: 5px;
-        width: 80px !important;
-    }
-    .session-node-row > :nth-child(7) {
-        width: 65px !important;
-    } */
-}
-
-
-.admin-actions {
-    text-align: center;
-    background-color: rgb(200, 200, 200);
-    padding: 10px;
-    font-size: 14px;
-    margin-top: 10px;
-    text-align: center;
-}
-.admin-actions span:nth-child(odd) {
-    text-decoration: underline;
-}
-.admin-actions span:nth-child(odd) {
-    cursor: pointer;
-}
-
-main {
-    margin-top: 40px !important;
 }

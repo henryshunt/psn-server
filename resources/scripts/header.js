@@ -1,14 +1,12 @@
-$(window).on("load", () =>
+window.addEventListener("load", () =>
 {
-    $("#account-button").on("click", () => toggleAccountMenu());
+    document.getElementById("user-button").addEventListener("click", () =>
+    {
+        if (document.getElementById("user-menu").style.display === "none")
+            document.getElementById("user-menu").style.display = "block";
+        else document.getElementById("user-menu").style.display = "none";
+    });
 });
-
-function toggleAccountMenu()
-{
-    if ($("#account-menu").css("display") === "none")
-        $("#account-menu").css("display", "block");
-    else $("#account-menu").css("display", "none");
-}
 
 function logOut()
 {

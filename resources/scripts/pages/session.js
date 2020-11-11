@@ -195,3 +195,31 @@ function stopSessionNow()
         }).fail(() => alert("An error occured while completing the operation."));
     }
 }
+
+
+
+// function newSessionModalOpen()
+// {
+//     document.getElementById("modal-shade").style.display = "block";
+//     document.getElementById("new-session-modal").style.display = "block";
+
+//     document.getElementById("new-session-name").value = "";
+//     document.getElementById("new-session-description").value = "";
+//     document.getElementById("new-session-status").innerText = "";
+
+//     // Get all available nodes for display in sensor node dropdown
+//     getJson("api.php/nodes?inactive=true", (data) =>
+//     {
+//         availableNodes = data;
+
+//         document.getElementById("new-session-name").disabled = false;
+//         document.getElementById("new-session-description").disabled = false;
+//         document.getElementById("new-session-create").disabled = false;
+//         document.getElementById("new-session-name").focus();
+//     },
+//     () =>
+//     {
+//         document.getElementById("new-session-status").innerText =
+//             "Error getting available sensor nodes";
+//     });
+// }

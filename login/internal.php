@@ -31,7 +31,7 @@ try
             $query = database_query($pdo, $sql, [$query[0]["userId"], $token]);
 
             setcookie("session", $token, time() + (3600 * 1), "/");
-            header("Location: http://localhost/psn-server");
+            header("Location: ../");
             exit();
         }
         catch (PDOException $ex)

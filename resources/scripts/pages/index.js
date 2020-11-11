@@ -1,217 +1,148 @@
-let availableNodes = [];
-
 window.addEventListener("load", () =>
 {
-    loadActiveProjects();
-    loadCompletedProjects();
+    document.getElementById("new-project-form").addEventListener("submit", newProjectModalSubmit);
+    document.getElementById("new-project-modal-cancel").addEventListener("click", newProjectModalClose);
+    document.getElementById("new-project-modal-submit").addEventListener("click", newProjectModalSubmit);
+
+    getJson("api.php/projects?mode=active")
+        .then((data) => loadActiveProjectsSuccess(data))
+        .catch(() => document.getElementById("active-projects").innerHTML = ERROR_HTML);
+    
+    getJson("api.php/projects?mode=completed")
+        .then((data) => loadCompletedProjectsSuccess(data))
+        .catch(() => document.getElementById("completed-projects").innerHTML = ERROR_HTML);
 });
 
 
-function loadActiveProjects()
+function loadActiveProjectsSuccess(data)
 {
-    $.getJSON("api.php/projects?mode=active", (data) =>
+    if (data.length === 0)
     {
-        if (data !== false)
-        {
-            if (data.length > 0)
-            {
-                const TEMPLATE = `
-                    <div class="item">
-                        <a href="session.php?id={0}">
-                            <span>{1}</span>
-                            <br>
-                            <span>{2}</span>
-                            <span>{3}</span>
-                        </a>
-                    </div>`;
-
-                let html = "";
-                for (let i = 0; i < data.length; i++)
-                {
-                    let dateRange = "From " + 
-                        dbTimeToLocal(data[i]["startAt"]).format("DD/MM/YYYY");
-
-                    if (data[i]["endAt"] !== null)
-                    {
-                        dateRange += " to " +
-                            dbTimeToLocal(data[i]["endAt"]).format("DD/MM/YYYY");
-                    } else dateRange += ", Indefinitely";
-
-                    let nodeCount = "";
-                    if (data[i]["nodeCount"] != 1)
-                        nodeCount = data[i]["nodeCount"] + " Sensor Nodes";
-                    else nodeCount = "1 Sensor Node";
-
-                    html += TEMPLATE.format(data[i]["projectId"], data[i]["name"],
-                        dateRange, nodeCount);
-                }
-
-                $("#active-sessions").append(html);
-            } else $("#active-sessions").append(NO_DATA_HTML);
-        } else $("#active-sessions").append(ERROR_HTML);
-
-        $("#active-sessions-group").css("display", "block");
-
-    }).fail(() =>
-    {
-        $("#active-sessions").append(ERROR_HTML);
-        $("#active-sessions-group").css("display", "block");
-    });
-}
-
-function loadCompletedProjects()
-{
-    $.getJSON("api.php/projects?mode=completed", (data) =>
-    {
-        if (data !== false)
-        {
-            if (data.length > 0)
-            {
-                const TEMPLATE = `
-                    <div class="item item-thin">
-                        <a href="session.php?id={0}">
-                            <span>{1}</span>
-                            <br>
-                            <span>{2}</span>
-                            <span>{3}</span>
-                        </a>
-                    </div>`;
-
-                let html = "";
-                for (let i = 0; i < data.length; i++)
-                {
-                    let dateRange = "";
-                    if (data[i]["startAt"] !== null)
-                    {
-                        dateRange += "From " +
-                            dbTimeToLocal(data[i]["startAt"]).format("DD/MM/YYYY");
-                        dateRange += " to " +
-                            dbTimeToLocal(data[i]["endAt"]).format("DD/MM/YYYY");
-                    }
-
-                    let nodeCount = "";
-                    if (data[i]["nodeCount"] != 1)
-                        nodeCount = data[i]["nodeCount"] + " Sensor Nodes";
-                    else nodeCount = "1 Sensor Node";
-
-                    html += TEMPLATE.format(data[i]["projectId"], data[i]["name"],
-                        dateRange, nodeCount);
-                }
-
-                $("#completed-sessions").append(html);
-            } else $("#completed-sessions").append(NO_DATA_HTML);
-        } else $("#completed-sessions").append(ERROR_HTML);
-
-        $("#completed-sessions-group").css("display", "block");
-
-    }).fail(() =>
-    {
-        $("#completed-sessions").append(ERROR_HTML);
-        $("#completed-sessions-group").css("display", "block");
-    });
-}
-
-
-function newSessionModalOpen()
-{
-    $("#modal-shade").css("display", "block");
-    $("#new-session-modal").css("display", "block");
-
-    // Reset form
-    $("#new-session-name").val("");
-    $("#new-session-description").val("");
-    $("#session-node-rows").children().empty();
-    $("#session-node-add-button").attr("disabled", true);
-
-    // Get all available nodes for display in sensor node dropdown
-    $.getJSON("api.php/nodes?inactive=true", (data) =>
-    {
-        if (data !== false)
-        {
-            if (data !== null)
-                availableNodes = data;
-
-            $("#session-node-add-button").attr("disabled", false);
-        }
-        else
-        {
-            alert("Error while getting the available sensor nodes.");
-            newSessionModalClose();
-        }
-
-    }).fail(() =>
-    {
-        alert("Error while getting the available sensor nodes.");
-        newSessionModalClose();
-    });
-}
-
-function newSessionModalClose()
-{
-    $("#modal-shade").css("display", "none");
-    $("#new-session-modal").css("display", "none");
-}
-
-function newSessionModalSave()
-{
-    let emptyFields = false;
-    if ($("#new-session-name").val() === "") emptyFields = true;
-
-    if (emptyFields === true)
-    {
-        alert("Cannot submit, one or more fields are empty or you have not added any sensor nodes.");
+        document.getElementById("active-projects").innerHTML = NO_DATA_HTML;
         return;
     }
 
-    let session =
+    for (const project of data)
     {
-        name: $("#new-session-name").val(),
-        //description: $("#new-session-description").val()
-    };
+        let dateRange = "From " + dbTimeToLocal(project["startAt"]).format("DD/MM/YYYY");
 
-    $.post({
-        url: "api.php/projects",
-        data: JSON.stringify(session),
-        ContentType: "application/json",
+        if (project["endAt"] !== null)
+            dateRange += " to " + dbTimeToLocal(project["endAt"]).format("DD/MM/YYYY");
+        else dateRange += ", Indefinitely";
 
-        success: (data) =>
-        {
-            window.location.href = "session.php?id=" + data["projectId"];
-        },
-        error: () => alert("Error while creating the session")
-    });
+        if (project["nodeCount"] !== 1)
+            var nodeCount = project["nodeCount"] + " Sensor Nodes";
+        else var nodeCount = "1 Sensor Node";
+
+
+        const item = document.createElement("div");
+        item.className = "item"
+        document.getElementById("active-projects").append(item);
+
+        const link = document.createElement("a");
+        link.href = "session.php?id=" + project["projectId"];
+        link.innerHTML = "<span>{0}</span><br><span>{1}</span><span>{2}</span>".format(
+            project["name"], dateRange, nodeCount);
+        item.append(link);
+    }
 }
 
-
-function newNodeModalOpen()
+function loadCompletedProjectsSuccess(data)
 {
-    $("#modal-shade").css("display", "block");
-    $("#new-node-modal").css("display", "block");
-
-    // Reset form
-    $("#new-node-address").val("");
-}
-
-function newNodeModalClose()
-{
-    $("#modal-shade").css("display", "none");
-    $("#new-node-modal").css("display", "none");
-}
-
-function newNodeModalSave()
-{
-    if ($("#new-node-address").val() === "")
+    if (data.length === 0)
     {
-        alert("You must enter a MAC address.");
+        document.getElementById("completed-projects").innerHTML = NO_DATA_HTML;
         return;
     }
 
-    $.post({
-        url: "api.php/nodes?inactive=true",
-        data: { "mac_address": $("#new-node-address").val() },
-        ContentType: "application/json",
+    for (project of data)
+    {
+        let dateRange = "";
+        if (project["startAt"] !== null)
+        {
+            dateRange += "From " + dbTimeToLocal(project["startAt"]).format("DD/MM/YYYY");
+            dateRange += " to " + dbTimeToLocal(project["endAt"]).format("DD/MM/YYYY");
+        }
 
-        success: () => newNodeModalClose(),
-        error: () => alert("Error while adding the sensor node. Are you sure a node with this address does not already exist?")
-    });
+        if (project["nodeCount"] !== 1)
+            var nodeCount = project["nodeCount"] + " Sensor Nodes";
+        else var nodeCount = "1 Sensor Node";
+
+        
+        const item = document.createElement("div");
+        item.className = "item item-thin"
+        document.getElementById("completed-projects").append(item);
+
+        const link = document.createElement("a");
+        link.href = "session.php?id=" + project["projectId"];
+        link.innerHTML = "<span>{0}</span><br><span>{1}</span><span>{2}</span>".format(
+            project["name"], dateRange, nodeCount);
+        item.append(link);
+    }
+}
+
+
+function newProjectModalOpen()
+{
+    document.getElementById("modal-shade").style.display = "block";
+    document.getElementById("new-project-modal").style.display = "block";
+
+    document.getElementById("new-project-name").value = "";
+    document.getElementById("new-project-description").value = "";
+    document.getElementById("new-project-status").innerText = "";
+    document.getElementById("new-project-name").focus();
+}
+
+function newProjectModalClose()
+{
+    document.getElementById("modal-shade").style.display = "none";
+    document.getElementById("new-project-modal").style.display = "none";
+}
+
+function newProjectModalSubmit(event)
+{
+    event.preventDefault();
+
+    if (document.getElementById("new-project-name").value.length === 0)
+    {
+        document.getElementById("new-project-status").innerText = "Name cannot be empty";
+        return;
+    }
+
+    document.getElementById("new-project-name").disabled = true;
+    document.getElementById("new-project-description").disabled = true;
+    document.getElementById("new-project-modal-submit").disabled = true;
+    document.getElementById("new-project-modal-cancel").disabled = true;
+    document.getElementById("new-project-status").innerText = "";
+
+    const enableForm = () => 
+    {
+        document.getElementById("new-project-name").disabled = false;
+        document.getElementById("new-project-description").disabled = false;
+        document.getElementById("new-project-modal-submit").disabled = false;
+        document.getElementById("new-project-modal-cancel").disabled = false;
+    }
+
+
+    let project = { name: document.getElementById("new-project-name").value };
+
+    if (document.getElementById("new-project-description").value.length > 0)
+        project.description = document.getElementById("new-project-description").value;
+
+    postJson("api.php/projects", JSON.stringify(project))
+        .then((data) => window.location.href = "session.php?id=" + data["projectId"])
+        .catch((data) =>
+        {
+            enableForm();
+            if (data !== null && data.error === "name is not unique")
+            {
+                document.getElementById("new-project-status").innerText =
+                    "A project with that name already exists";
+            }
+            else
+            {
+                document.getElementById("new-project-status").innerText =
+                    "Error creating project";
+            }
+        });
 }
