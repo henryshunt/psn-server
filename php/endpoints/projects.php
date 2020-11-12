@@ -4,6 +4,8 @@ use Respect\Validation\Exceptions\ValidationException;
 
 function api_projects_get()
 {
+    global $pdo, $userId;
+
     // ----- Validation
     $validator = V
         ::key("mode", V::anyOf(V::identical("active"), V::identical("completed")), false);
@@ -15,28 +17,37 @@ function api_projects_get()
     }
 
     // ----- Query generation
-    $sql = "SELECT *, " .
-        "(SELECT startAt FROM projectNodes WHERE projectId = projects.projectId ORDER BY startAt ASC LIMIT 1) AS startAt, " .
-        "(SELECT endAt FROM projectNodes WHERE projectId = projects.projectId ORDER BY endAt DESC LIMIT 1) AS endAt, " .
-        "(SELECT COUNT(*) FROM projectNodes WHERE projectId = projects.projectId) AS nodeCount " .
-        "FROM projects WHERE userId = ?";
+    $sql = "SELECT projects.projectId, name, description, createdAt, startAt, endAt, nodeCount
+                FROM projects LEFT JOIN
+                    (SELECT projectId, MIN(startAt) AS startAt, MAX(endAt) AS endAt, COUNT(*) AS nodeCount
+                        FROM projectNodes GROUP BY projectId)
+                AS b ON b.projectId = projects.projectId WHERE userId = ?";
 
     if (isset($_GET["mode"]) && $_GET["mode"] === "active")
-    {
-        $sql .= " HAVING startAt IS NOT NULL " .
-            "AND (startAt > NOW() OR endAt IS NULL OR NOW() BETWEEN startAt AND endAt) ORDER BY name";
-    }
+        $sql .= " AND nodeCount IS NOT NULL AND (endAt IS NULL OR NOW() < endAt)";
     else if (isset($_GET["mode"]) && $_GET["mode"] === "completed")
-    {
-        $sql .= " HAVING NOT (startAt IS NOT NULL " .
-            "AND (startAt > NOW() OR endAt IS NULL OR NOW() BETWEEN startAt AND endAt)) ORDER BY name";
-    }
+        $sql .= " AND nodeCount IS NULL OR (endAt IS NOT NULL AND NOW() >= endAt)";
+    
+    $sql .= " ORDER BY name";
 
     // ----- Query execution
     try
     {
-        global $pdo, $userId;
         $query = database_query($pdo, $sql, [$userId]);
+
+        if (!(isset($_GET["mode"]) && $_GET["mode"] === "active"))
+        {
+            for ($i = 0; $i < count($query); $i++)
+            {
+                if ($query[$i]["nodeCount"] === null)
+                {
+                    $query[$i]["nodeCount"] = 0;
+                    unset($query[$i]["startAt"]);
+                    unset($query[$i]["endAt"]);
+                }
+            }
+        }
+
         return (new Response(200))->setBody(json_encode($query));
     }
     catch (PDOException $ex)
@@ -47,30 +58,29 @@ function api_projects_get()
 
 function api_projects_post()
 {
+    global $pdo, $userId;
+
     // ----- Validation section
     $json = json_decode(file_get_contents("php://input"));
 
-    if (gettype($json) === "object")
+    if (gettype($json) !== "object")
+        return (new Response(400))->setError("Invalid JSON object supplied");
+
+    $json = (array)$json;
+
+    $validator = V
+        ::key("name", V::stringType()->length(1, 128))
+        ->key("description", V::anyOf(V::nullType(), V::stringType()->length(1, 255)), false);
+
+    try { $validator->check($json); }
+    catch (ValidationException $ex)
     {
-        $json = (array)$json;
-
-        $validator = V
-            ::key("name", V::stringType()->length(1, 128))
-            ->key("description", V::anyOf(
-                V::nullType(), V::stringType()->length(1, 255)), false);
-
-        try { $validator->check($json); }
-        catch (ValidationException $ex)
-        {
-            return (new Response(400))->setError($ex->getMessage());
-        }
-
-        $json = filter_attributes_allowed($json, ["name", "description"]);
+        return (new Response(400))->setError($ex->getMessage());
     }
-    else return (new Response(400))->setError("Invalid JSON object supplied");
+
+    $json = filter_attributes_allowed($json, ["name", "description"]);
 
     // ----- Query generation section
-    global $userId;
     $json["userId"] = $userId;
 
     $sqlColumns = [];

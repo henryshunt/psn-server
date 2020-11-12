@@ -166,7 +166,7 @@ function api_node_patch($nodeId)
     }
 }
 
-function api_node_delete($node)
+function api_node_delete($nodeId)
 {
     global $pdo;
 
@@ -174,10 +174,7 @@ function api_node_delete($node)
     {
         $sql = "DELETE FROM nodes WHERE nodeId = ?";
         $affected = query_database_affected($pdo, $sql, [$nodeId]);
-        
-        if ($affected > 0)
-            return new Response(200);
-        else return new Response(404);
+        return new Response($affected > 0 ? 200 : 404);
     }
     catch (PDOException $ex)
     {

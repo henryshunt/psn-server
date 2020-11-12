@@ -33,6 +33,9 @@ $router->map("DELETE", "/nodes/[i:nodeId]", "node.php/api_node_delete");
 $router->map("GET", "/projects", "projects.php/api_projects_get");
 $router->map("POST", "/projects", "projects.php/api_projects_post");
 $router->map("GET", "/projects/[i:projectId]", "project.php/api_project_get");
+$router->map("PATCH", "/projects/[i:projectId]", "project.php/api_project_patch");
+$router->map("DELETE", "/projects/[i:projectId]", "project.php/api_project_delete");
+
 $router->map("GET", "/projects/[i:projectId]/nodes", "project-nodes.php/api_project_nodes_get");
 $router->map("GET", "/projects/[i:projectId]/nodes/[i:nodeId]", "project-node.php/api_project_node_get");
 
