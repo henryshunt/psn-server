@@ -17,11 +17,12 @@ function api_projects_get()
     }
 
     // ----- Query generation
-    $sql = "SELECT projects.projectId, name, description, createdAt, startAt, endAt, nodeCount
-                FROM projects LEFT JOIN
-                    (SELECT projectId, MIN(startAt) AS startAt, MAX(endAt) AS endAt, COUNT(*) AS nodeCount
-                        FROM projectNodes GROUP BY projectId)
-                AS b ON b.projectId = projects.projectId WHERE userId = ?";
+    $sql = "SELECT projects.projectId, name, description, createdAt, startAt, endAt, nodeCount,
+                (nodeCount IS NOT NULL AND (endAt IS NULL OR NOW() < endAt)) as isActive
+                    FROM projects LEFT JOIN
+                        (SELECT projectId, MIN(startAt) AS startAt, MAX(endAt) AS endAt, COUNT(*) AS nodeCount
+                            FROM projectNodes GROUP BY projectId)
+                    AS b ON b.projectId = projects.projectId WHERE userId = ?";
 
     if (isset($_GET["mode"]) && $_GET["mode"] === "active")
         $sql .= " AND nodeCount IS NOT NULL AND (endAt IS NULL OR NOW() < endAt)";
@@ -39,6 +40,8 @@ function api_projects_get()
         {
             for ($i = 0; $i < count($query); $i++)
             {
+                $query[$i]["isActive"] = (bool)$query[$i]["isActive"];
+
                 if ($query[$i]["nodeCount"] === null)
                 {
                     $query[$i]["nodeCount"] = 0;

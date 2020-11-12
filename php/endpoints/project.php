@@ -6,23 +6,26 @@ function api_project_get($projectId)
     
     try
     {
-        $sql = "SELECT projects.projectId, name, description, createdAt, startAt, endAt, nodeCount
-                    FROM projects LEFT JOIN
-                        (SELECT projectId, MIN(startAt) AS startAt, MAX(endAt) AS endAt, COUNT(*) AS nodeCount
-                            FROM projectNodes GROUP BY projectId)
-                    AS b ON b.projectId = projects.projectId WHERE projects.projectId = ?";
+        $sql = "SELECT projects.projectId, name, description, createdAt, startAt, endAt, nodeCount,
+                    (nodeCount IS NOT NULL AND (endAt IS NULL OR NOW() < endAt)) as isActive
+                        FROM projects LEFT JOIN
+                            (SELECT projectId, MIN(startAt) AS startAt, MAX(endAt) AS endAt, COUNT(*) AS nodeCount
+                                FROM projectNodes GROUP BY projectId)
+                        AS b ON b.projectId = projects.projectId WHERE projects.projectId = ?";
                 
         $query = database_query($pdo, $sql, [$projectId]);
 
         if (count($query) > 0)
         {
+            $query[0]["isActive"] = (bool)$query[0]["isActive"];
+
             if ($query[0]["nodeCount"] === null)
             {
                 $query[0]["nodeCount"] = 0;
                 unset($query[0]["startAt"]);
                 unset($query[0]["endAt"]);
             }
-            
+
             return (new Response(200))->setBody(json_encode($query[0]));
         }
         else return new Response(404);
