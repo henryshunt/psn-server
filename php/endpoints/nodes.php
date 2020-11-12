@@ -4,9 +4,12 @@ use Respect\Validation\Exceptions\ValidationException;
 
 function api_nodes_get()
 {
+    global $pdo;
+
     // ----- Validation
     $validator = V
-        ::key("inactive", V::anyOf(V::identical("true"), V::identical("false")), false);
+        ::key("project", V::anyOf(V::identical("true"), V::identical("false")), false)
+        ->key("inactive", V::anyOf(V::identical("true"), V::identical("false")), false);
 
     try { $validator->check($_GET); }
     catch (ValidationException $ex)
@@ -17,50 +20,94 @@ function api_nodes_get()
     // ----- Query generation
     if (isset($_GET["inactive"]) && $_GET["inactive"] === "true")
     {
-        $sql =  "SELECT * FROM nodes WHERE nodeId NOT IN (SELECT nodeId FROM projectNodes " .
-            "WHERE (startAt > NOW() OR endAt IS NULL OR NOW() BETWEEN startAt AND endAt))";
+        $sql = "SELECT * FROM nodes WHERE nodeId NOT IN
+                (SELECT nodeId FROM projectNodes WHERE endAt IS NULL OR NOW() < endAt)";
+    }
+    else if (isset($_GET["project"]) && $_GET["project"] === "true")
+    {
+        $sql = "SELECT nodes.*, projectId AS b_projectId, location AS b_location, startAt AS b_startAt,
+                    endAt as b_endAt, `interval` AS b_interval, batchSize AS b_batchSize FROM nodes
+                LEFT JOIN (SELECT * FROM projectNodes WHERE endAt IS NULL OR NOW() < endAt)
+                    AS b ON b.nodeId = nodes.nodeId";
     }
     else $sql = "SELECT * FROM nodes";
 
     // ----- Query execution
     try
     {
-        global $pdo;
         $query = database_query($pdo, $sql);
+
+        if (isset($_GET["project"]) && $_GET["project"] === "true")
+        {
+            // Ensure each node has a project attribute. If inactive=true then it should be
+            // null, otherwise the keys from the projectNodes table should be moved into it
+            for ($i = 0; $i < count($query); $i++)
+            {
+                if (isset($_GET["inactive"]) && $_GET["inactive"] === "true")
+                    $query[$i]["project"] = null;
+                else
+                {
+                    foreach ($query[$i] as $key => $value)
+                    {
+                        if (starts_with($key, "b_"))
+                        {
+                            $query[$i]["project"][substr($key, 2)] = $value;
+                            unset($query[$i][$key]);
+                        }
+                    }
+
+                    if ($query[$i]["project"]["projectId"] === null)
+                        $query[$i]["project"] = null;
+                }
+            }
+        }
+
         return (new Response(200))->setBody(json_encode($query));
     }
     catch (PDOException $ex)
     {
-        return new Response(500);
+        return (new Response(500))->setError($ex->getMessage());
     }
 }
 
 function api_nodes_post()
 {
+    global $pdo;
+
     // ----- Validation
     $json = json_decode(file_get_contents("php://input"));
 
-    if (gettype($json) === "object")
+    if (gettype($json) !== "object")
+        return (new Response(400))->setError("Invalid JSON object supplied");
+
+    $json = (array)$json;
+
+    $validator = V
+        ::key("macAddress", V::stringType()->regex("/([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2}/"))
+        ->key("name", V::anyOf(V::nullType(), V::stringType()->length(1, 128)), false);
+
+    try { $validator->check($json); }
+    catch (ValidationException $ex)
     {
-        $json = (array)$json;
-
-        $validator = V::key("macAddress", V::stringType()->length(17));
-
-        try { $validator->check($json); }
-        catch (ValidationException $ex)
-        {
-            return (new Response(400))->setError($ex->getMessage());
-        }
+        return (new Response(400))->setError($ex->getMessage());
     }
-    else return (new Response(400))->setError("Invalid JSON object supplied");
+
+    $json = filter_attributes_allowed($json, ["macAddress", "name"]);
+
+    // ----- Query generation
+    $sqlColumns = [];
+    $values = array_values($json);
+
+    foreach ($json as $key => $value)
+        array_push($sqlColumns, "`$key`");
+
+    $sql = "INSERT INTO nodes (" . join(", ", $sqlColumns) . ") VALUES (" .
+        join(", ", array_fill(0, count($values), "?")) . ")";
 
     // ----- Query execution
     try
     {
-        global $pdo;
-        $sql = "INSERT INTO nodes (macAddress) VALUES (?)";
-        database_query($pdo, $sql, [$json["macAddress"]]);
-
+        database_query($pdo, $sql, $values);
         return (new Response(200))->setBody("{\"nodeId\":" . $pdo->lastInsertId() . "}");
     }
     catch (PDOException $ex)
@@ -68,7 +115,12 @@ function api_nodes_post()
         if ($ex->errorInfo[1] === 1062 &&
             strpos($ex->errorInfo[2], "for key 'macAddress'") !== false)
         {
-            return (new Response(409))->setError("macAddress is not unique");
+            return (new Response(400))->setError("macAddress is not unique");
+        }
+        else if ($ex->errorInfo[1] === 1062 &&
+            strpos($ex->errorInfo[2], "for key 'name'") !== false)
+        {
+            return (new Response(400))->setError("name is not unique");
         }
         else return new Response(500);
     }

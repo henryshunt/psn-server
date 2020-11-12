@@ -1,3 +1,5 @@
+window.addEventListener("load", () => document.getElementById("username").focus());
+
 function oauthLogin()
 {
     $("#login-form").attr("action", "resources/routines/login.php?type=oauth");
