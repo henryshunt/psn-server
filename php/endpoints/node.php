@@ -4,6 +4,8 @@ use Respect\Validation\Exceptions\ValidationException;
 
 function api_node_get($nodeId)
 {
+    global $pdo;
+
     // ----- Validation
     $validator = V
         ::key("project", V::anyOf(V::identical("true"), V::identical("false")), false);
@@ -17,25 +19,39 @@ function api_node_get($nodeId)
     // ----- Query generation
     if (isset($_GET["project"]) && $_GET["project"] === "true")
     {
-        $sql = "SELECT *, (SELECT projectId FROM projectNodes WHERE nodeId = ? " .
-            "AND NOW() >= startAt AND (endAt IS NULL OR NOW() < endAt)) AS projectId FROM nodes WHERE nodeId = ?";
-        $values = [$nodeId, $nodeId];
+        $sql = "SELECT nodes.*, projectId AS b_projectId, location AS b_location, startAt AS b_startAt,
+                    endAt as b_endAt, `interval` AS b_interval, batchSize AS b_batchSize FROM nodes
+                LEFT JOIN (SELECT * FROM projectNodes WHERE endAt IS NULL OR NOW() < endAt)
+                    AS b ON b.nodeId = nodes.nodeId WHERE nodes.nodeId = ?";
     }
-    else
-    {
-        $sql = "SELECT * FROM nodes WHERE nodeId = ?";
-        $values = [$nodeId];
-    }
+    else $sql = "SELECT * FROM nodes WHERE nodeId = ?";
 
     // ----- Query execution
     try
     {
-        global $pdo;
-        $query = database_query($pdo, $sql, $values);
+        $query = database_query($pdo, $sql, [$nodeId]);
 
-        if (count($query) > 0)
-            return (new Response(200))->setBody(json_encode($query[0]));
-        else return new Response(404);
+        if (count($query) === 0)
+            return new Response(404);
+
+        if (isset($_GET["project"]) && $_GET["project"] === "true")
+        {
+            // Move the keys from the projectNodes table into a project sub-object
+            foreach ($query[0] as $key => $value)
+            {
+                if (starts_with($key, "b_"))
+                {
+                    $query[0]["project"][substr($key, 2)] = $value;
+                    unset($query[0][$key]);
+                }
+            }
+
+            // If no project exists then set the project sub-object to null
+            if ($query[0]["project"]["projectId"] === null)
+                $query[0]["project"] = null;
+        }
+
+        return (new Response(200))->setBody(json_encode($query[0]));
     }
     catch (PDOException $ex)
     {
@@ -45,6 +61,8 @@ function api_node_get($nodeId)
 
 function api_node_mac_get($macAddress)
 {
+    global $pdo;
+
     // ----- Validation
     $validator = V
         ::key("project", V::anyOf(V::identical("true"), V::identical("false")), false);
@@ -57,43 +75,112 @@ function api_node_mac_get($macAddress)
 
     // ----- Query generation
     if (isset($_GET["project"]) && $_GET["project"] === "true")
-    { 
-        $sql = "SELECT *, (SELECT projectId FROM projectNodes WHERE nodeId = (SELECT nodeId FROM nodes WHERE macAddress = ?) " .
-            "AND NOW() >= startAt AND (endAt IS NULL OR NOW() < endAt)) AS projectId FROM nodes WHERE nodeId = (SELECT nodeId FROM nodes WHERE macAddress = ?)";
-        $values = [$macAddress, $macAddress];
-    }
-    else
     {
-        $sql = "SELECT * FROM nodes WHERE macAddress = ?";
-        $values = [$macAddress];
+        $sql = "SELECT nodes.*, projectId AS b_projectId, location AS b_location, startAt AS b_startAt,
+                    endAt as b_endAt, `interval` AS b_interval, batchSize AS b_batchSize FROM nodes
+                LEFT JOIN (SELECT * FROM projectNodes WHERE endAt IS NULL OR NOW() < endAt)
+                    AS b ON b.nodeId = nodes.nodeId WHERE nodes.macAddress = ?";
     }
+    else $sql = "SELECT * FROM nodes WHERE macAddress = ?";
 
     // ----- Query execution
     try
     {
-        global $pdo;
-        $query = database_query($pdo, $sql, $values);
+        $query = database_query($pdo, $sql, [$macAddress]);
 
-        if (count($query) > 0)
+        if (count($query) === 0)
+            return new Response(404);
+
+        if (isset($_GET["project"]) && $_GET["project"] === "true")
         {
-            if ($query[0]["projectId"] !== null)
+            // Move the keys from the projectNodes table into a project sub-object
+            foreach ($query[0] as $key => $value)
             {
-                $sql = "SELECT * FROM projectNodes WHERE projectId = ? AND nodeId = ?";
-                $query2 = database_query($pdo, $sql, [$query[0]["projectId"], $query[0]["nodeId"]]);
-
-                if (count($query2) > 0)
-                    $query[0]["project"] = $query2[0];
-                else $query[0]["project"] = null;
+                if (starts_with($key, "b_"))
+                {
+                    $query[0]["project"][substr($key, 2)] = $value;
+                    unset($query[0][$key]);
+                }
             }
-            else $query[0]["project"] = null;
 
-            unset($query[0]["projectId"]);
-            return (new Response(200))->setBody(json_encode($query[0]));
+            // If no project exists then set the project sub-object to null
+            if ($query[0]["project"]["projectId"] === null)
+                $query[0]["project"] = null;
         }
-        else return new Response(404);
+
+        return (new Response(200))->setBody(json_encode($query[0]));
     }
     catch (PDOException $ex)
     {
         return (new Response(500))->setError($ex->getMessage());
+    }
+}
+
+function api_node_patch($nodeId)
+{
+    global $pdo;
+
+    // ----- Validation
+    $json = json_decode(file_get_contents("php://input"));
+
+    if (gettype($json) !== "object")
+        return (new Response(400))->setError("Invalid JSON object supplied");
+
+    $json = (array)$json;
+
+    $validator = V
+        ->key("name", V::anyOf(V::nullType(), V::stringType()->length(1, 128)), false);
+
+    try { $validator->check($json); }
+    catch (ValidationException $ex)
+    {
+        return (new Response(400))->setError($ex->getMessage());
+    }
+
+    $json = filter_attributes_allowed($json, ["name"]);
+
+    if (count($json) === 0)
+        return (new Response(400))->setError("No attributes supplied");
+
+    // Check the node exists
+    $node = api_node_get($nodeId);
+
+    if ($node->getStatus() !== 200)
+        return $node;
+
+    // ----- Query execution
+    try
+    {
+        $sql = "UPDATE nodes SET name = ?";
+        database_query($pdo, $sql, $json["name"]);
+        return new Response(200);
+    }
+    catch (PDOException $ex)
+    {
+        if ($ex->errorInfo[1] === 1062 &&
+            strpos($ex->errorInfo[2], "for key 'name'") !== false)
+        {
+            return (new Response(400))->setError("name is not unique");
+        }
+        else return new Response(500);
+    }
+}
+
+function api_node_delete($node)
+{
+    global $pdo;
+
+    try
+    {
+        $sql = "DELETE FROM nodes WHERE nodeId = ?";
+        $affected = query_database_affected($pdo, $sql, [$nodeId]);
+        
+        if ($affected > 0)
+            return new Response(200);
+        else return new Response(404);
+    }
+    catch (PDOException $ex)
+    {
+        return new Response(500);
     }
 }

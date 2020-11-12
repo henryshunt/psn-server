@@ -27,6 +27,8 @@ $router->map("GET", "/nodes", "nodes.php/api_nodes_get");
 $router->map("POST", "/nodes", "nodes.php/api_nodes_post");
 $router->map("GET", "/nodes/[i:nodeId]", "node.php/api_node_get");
 $router->map("GET", "/nodes/[mac:macAddress]", "node.php/api_node_mac_get");
+$router->map("PATCH", "/nodes/[i:nodeId]", "node.php/api_node_patch");
+$router->map("DELETE", "/nodes/[i:nodeId]", "node.php/api_node_delete");
 
 $router->map("GET", "/projects", "projects.php/api_projects_get");
 $router->map("POST", "/projects", "projects.php/api_projects_post");

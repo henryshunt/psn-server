@@ -39,7 +39,7 @@ function api_nodes_get()
 
         if (isset($_GET["project"]) && $_GET["project"] === "true")
         {
-            // Ensure each node has a project attribute. If inactive=true then it should be
+            // Ensure each node has a project attribute. If inactive=true then set it to
             // null, otherwise the keys from the projectNodes table should be moved into it
             for ($i = 0; $i < count($query); $i++)
             {
@@ -56,6 +56,7 @@ function api_nodes_get()
                         }
                     }
 
+                    // If no project exists then set the project sub-object to null
                     if ($query[$i]["project"]["projectId"] === null)
                         $query[$i]["project"] = null;
                 }
@@ -66,7 +67,7 @@ function api_nodes_get()
     }
     catch (PDOException $ex)
     {
-        return (new Response(500))->setError($ex->getMessage());
+        return(new Response(500);
     }
 }
 
