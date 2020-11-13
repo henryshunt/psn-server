@@ -2,13 +2,13 @@
 use Respect\Validation\Validator as V;
 use Respect\Validation\Exceptions\ValidationException;
 
-function api_project_get($projectId)
+function api_project_get($projectId, $asArray = false)
 {
     global $pdo;
     
     try
     {
-        $sql = "SELECT projects.projectId, name, description, createdAt, startAt, endAt, nodeCount,
+        $sql = "SELECT name, description, createdAt, startAt, endAt, nodeCount,
                     (nodeCount IS NOT NULL AND (endAt IS NULL OR NOW() < endAt)) isActive
                 FROM projects
                     LEFT JOIN
@@ -29,7 +29,9 @@ function api_project_get($projectId)
                 unset($query[0]["endAt"]);
             }
 
-            return (new Response(200))->setBody(json_encode($query[0]));
+            if (!$asArray)
+                return (new Response(200))->setBody(json_encode($query[0]));
+            else return (new Response(200))->setBody($query[0]);
         }
         else return new Response(404);
     }
@@ -43,7 +45,26 @@ function api_project_patch($projectId)
 {
     global $pdo;
 
-    // ----- Validation
+    // ----- Validation 1
+    $validator = V::key("stop", V::in(["true", "false"], true), false);
+
+    try { $validator->check($_GET); }
+    catch (ValidationException $ex)
+    {
+        return (new Response(400))->setError($ex->getMessage());
+    }
+
+    // Check the project exists
+    $project = api_project_get($projectId, true);
+
+    if ($project->getStatus() !== 200)
+        return $project;
+
+    // If stop=true then do something different
+    if (isset($_GET["stop"]) && $_GET["stop"] === "true")
+        return api_project_stop($projectId, $project);
+
+    // ----- Validation 2
     $json = json_decode(file_get_contents("php://input"));
 
     if (gettype($json) !== "object")
@@ -65,12 +86,6 @@ function api_project_patch($projectId)
 
     if (count($json) === 0)
         return (new Response(400))->setError("No attributes supplied");
-
-    // Check the project exists
-    $project = api_project_get($projectId);
-
-    if ($projectId->getStatus() !== 200)
-        return $projectId;
 
     // ----- Query generation
     $sqlColumns = [];
@@ -96,6 +111,27 @@ function api_project_patch($projectId)
             return (new Response(400))->setError("name is not unique within user");
         }
         else return new Response(500);
+    }
+}
+
+function api_project_stop($projectId, $project)
+{
+    global $pdo;
+
+    if (!$project["isActive"])
+        return (new Response(400))->setError("Project is not active");
+
+    try
+    {
+        $sql = "UPDATE projectNodes SET (endAt = NOW())
+                    WHERE projectId = ? AND (endAt IS NULL OR NOW() < endAt)";
+
+        $query = database_query($pdo, $sql, [$projectId]);
+        return new Response(200);
+    }
+    catch (PDOException $ex)
+    {
+        return new Response(500);
     }
 }
 
