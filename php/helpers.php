@@ -1,5 +1,6 @@
 <?php
 const MYSQL_MAX_INT = 2147483647;
+const MYSQL_MAX_TINYINT = 127;
 
 function load_configuration($file_path)
 {

@@ -7,8 +7,7 @@ function api_projects_get()
     global $pdo, $userId;
 
     // ----- Validation
-    $validator = V
-        ::key("mode", V::anyOf(V::identical("active"), V::identical("completed")), false);
+    $validator = V::key("mode", V::in(["active", "completed"], true), false);
 
     try { $validator->check($_GET); }
     catch (ValidationException $ex)
@@ -20,7 +19,7 @@ function api_projects_get()
     $sql = "SELECT projects.projectId, name, description, createdAt, startAt, endAt, nodeCount";
 
     if (!isset($_GET["mode"]))
-        $sql .= ", (nodeCount IS NOT NULL AND (endAt IS NULL OR NOW() < endAt)) as isActive";
+        $sql .= ", (nodeCount IS NOT NULL AND (endAt IS NULL OR NOW() < endAt)) isActive";
 
     $sql .= " FROM projects
                   LEFT JOIN (SELECT projectId, MIN(startAt) startAt, MAX(endAt) endAt, COUNT(*) nodeCount
@@ -49,7 +48,7 @@ function api_projects_get()
                 if (!isset($_GET["mode"]))
                     $query[$i]["isActive"] = (bool)$query[$i]["isActive"];
 
-                    if ($query[$i]["nodeCount"] === null)
+                if ($query[$i]["nodeCount"] === null)
                 {
                     $query[$i]["nodeCount"] = 0;
                     unset($query[$i]["startAt"]);

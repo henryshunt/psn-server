@@ -7,8 +7,7 @@ function api_node_get($nodeId)
     global $pdo;
 
     // ----- Validation
-    $validator = V
-        ::key("project", V::anyOf(V::identical("true"), V::identical("false")), false);
+    $validator = V::key("project", V::in(["true", "false"], true), false);
 
     try { $validator->check($_GET); }
     catch (ValidationException $ex)
@@ -19,9 +18,8 @@ function api_node_get($nodeId)
     // ----- Query generation
     if (isset($_GET["project"]) && $_GET["project"] === "true")
     {
-        $sql = "SELECT nodes.*, projectId b_projectId, location b_location, startAt b_startAt,
-                    endAt as b_endAt, `interval` b_interval, batchSize b_batchSize,
-                    latestReportId b_latestReportId
+        $sql = "SELECT nodes.*, projectId b_projectId, location b_location, startAt b_startAt, endAt b_endAt,
+                    `interval` b_interval, batchSize b_batchSize, latestReportId b_latestReportId
                 FROM nodes
                     LEFT JOIN (SELECT * FROM projectNodes WHERE endAt IS NULL OR NOW() < endAt) b
                         ON b.nodeId = nodes.nodeId WHERE nodes.nodeId = ?";
@@ -66,8 +64,7 @@ function api_node_mac_get($macAddress)
     global $pdo;
 
     // ----- Validation
-    $validator = V
-        ::key("project", V::anyOf(V::identical("true"), V::identical("false")), false);
+    $validator = V::key("project", V::in(["true", "false"], true), false);
 
     try { $validator->check($_GET); }
     catch (ValidationException $ex)
@@ -78,9 +75,8 @@ function api_node_mac_get($macAddress)
     // ----- Query generation
     if (isset($_GET["project"]) && $_GET["project"] === "true")
     {
-        $sql = "SELECT nodes.*, projectId b_projectId, location b_location, startAt b_startAt,
-                    endAt as b_endAt, `interval` b_interval, batchSize b_batchSize,
-                    latestReportId b_latestReportId
+        $sql = "SELECT nodes.*, projectId b_projectId, location b_location, startAt b_startAt, endAt b_endAt,
+                `interval` b_interval, batchSize b_batchSize, latestReportId b_latestReportId
                 FROM nodes
                     LEFT JOIN (SELECT * FROM projectNodes WHERE endAt IS NULL OR NOW() < endAt) b
                         ON b.nodeId = nodes.nodeId WHERE nodes.macAddress = ?";
