@@ -20,7 +20,8 @@ function api_node_get($nodeId)
     if (isset($_GET["project"]) && $_GET["project"] === "true")
     {
         $sql = "SELECT nodes.*, projectId AS b_projectId, location AS b_location, startAt AS b_startAt,
-                    endAt as b_endAt, `interval` AS b_interval, batchSize AS b_batchSize FROM nodes
+                    endAt as b_endAt, `interval` AS b_interval, batchSize AS b_batchSize,
+                    latestReportId AS b_latestReportId FROM nodes
                 LEFT JOIN (SELECT * FROM projectNodes WHERE endAt IS NULL OR NOW() < endAt)
                     AS b ON b.nodeId = nodes.nodeId WHERE nodes.nodeId = ?";
     }
@@ -77,7 +78,8 @@ function api_node_mac_get($macAddress)
     if (isset($_GET["project"]) && $_GET["project"] === "true")
     {
         $sql = "SELECT nodes.*, projectId AS b_projectId, location AS b_location, startAt AS b_startAt,
-                    endAt as b_endAt, `interval` AS b_interval, batchSize AS b_batchSize FROM nodes
+                    endAt as b_endAt, `interval` AS b_interval, batchSize AS b_batchSize,
+                    latestReportId AS b_latestReportId FROM nodes
                 LEFT JOIN (SELECT * FROM projectNodes WHERE endAt IS NULL OR NOW() < endAt)
                     AS b ON b.nodeId = nodes.nodeId WHERE nodes.macAddress = ?";
     }
@@ -129,7 +131,7 @@ function api_node_patch($nodeId)
     $json = (array)$json;
 
     $validator = V
-        ->key("name", V::anyOf(V::nullType(), V::stringType()->length(1, 128)), false);
+        ::key("name", V::anyOf(V::nullType(), V::stringType()->length(1, 128)), false);
 
     try { $validator->check($json); }
     catch (ValidationException $ex)

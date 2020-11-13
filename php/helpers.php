@@ -51,7 +51,7 @@ function api_authenticate($pdo)
             $query = database_query($pdo, $sql, [$_SERVER["PHP_AUTH_USER"], $_SERVER["PHP_AUTH_PW"]]);
 
             if (count($query) > 0)
-                return $query["userId"];
+                return $query[0]["userId"];
             else api_respond(new Response(401));
         }
         catch (PDOException $ex)

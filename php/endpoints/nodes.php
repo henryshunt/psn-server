@@ -26,7 +26,8 @@ function api_nodes_get()
     else if (isset($_GET["project"]) && $_GET["project"] === "true")
     {
         $sql = "SELECT nodes.*, projectId AS b_projectId, location AS b_location, startAt AS b_startAt,
-                    endAt as b_endAt, `interval` AS b_interval, batchSize AS b_batchSize FROM nodes
+                    endAt as b_endAt, `interval` AS b_interval, batchSize AS b_batchSize,
+                    latestReportId AS b_latestReportId FROM nodes
                 LEFT JOIN (SELECT * FROM projectNodes WHERE endAt IS NULL OR NOW() < endAt)
                     AS b ON b.nodeId = nodes.nodeId";
     }
@@ -39,14 +40,14 @@ function api_nodes_get()
 
         if (isset($_GET["project"]) && $_GET["project"] === "true")
         {
-            // Ensure each node has a project attribute. If inactive=true then set it to
-            // null, otherwise the keys from the projectNodes table should be moved into it
+            // Ensure each node has a project attribute
             for ($i = 0; $i < count($query); $i++)
             {
                 if (isset($_GET["inactive"]) && $_GET["inactive"] === "true")
                     $query[$i]["project"] = null;
                 else
                 {
+                    // Move the keys from the projectNodes table into a project sub-object
                     foreach ($query[$i] as $key => $value)
                     {
                         if (starts_with($key, "b_"))
@@ -67,7 +68,7 @@ function api_nodes_get()
     }
     catch (PDOException $ex)
     {
-        return(new Response(500);
+        return new Response(500);
     }
 }
 
