@@ -19,11 +19,11 @@ function api_node_get($nodeId)
     // ----- Query generation
     if (isset($_GET["project"]) && $_GET["project"] === "true")
     {
-        $sql = "SELECT nodes.*, projectId AS b_projectId, location AS b_location, startAt AS b_startAt,
-                    endAt as b_endAt, `interval` AS b_interval, batchSize AS b_batchSize,
-                    latestReportId AS b_latestReportId FROM nodes
+        $sql = "SELECT nodes.*, projectId b_projectId, location b_location, startAt b_startAt,
+                    endAt as b_endAt, `interval` b_interval, batchSize b_batchSize,
+                    latestReportId b_latestReportId FROM nodes
                 LEFT JOIN (SELECT * FROM projectNodes WHERE endAt IS NULL OR NOW() < endAt)
-                    AS b ON b.nodeId = nodes.nodeId WHERE nodes.nodeId = ?";
+                    b ON b.nodeId = nodes.nodeId WHERE nodes.nodeId = ?";
     }
     else $sql = "SELECT * FROM nodes WHERE nodeId = ?";
 
@@ -77,11 +77,11 @@ function api_node_mac_get($macAddress)
     // ----- Query generation
     if (isset($_GET["project"]) && $_GET["project"] === "true")
     {
-        $sql = "SELECT nodes.*, projectId AS b_projectId, location AS b_location, startAt AS b_startAt,
-                    endAt as b_endAt, `interval` AS b_interval, batchSize AS b_batchSize,
-                    latestReportId AS b_latestReportId FROM nodes
+        $sql = "SELECT nodes.*, projectId b_projectId, location b_location, startAt b_startAt,
+                    endAt as b_endAt, `interval` b_interval, batchSize b_batchSize,
+                    latestReportId b_latestReportId FROM nodes
                 LEFT JOIN (SELECT * FROM projectNodes WHERE endAt IS NULL OR NOW() < endAt)
-                    AS b ON b.nodeId = nodes.nodeId WHERE nodes.macAddress = ?";
+                    b ON b.nodeId = nodes.nodeId WHERE nodes.macAddress = ?";
     }
     else $sql = "SELECT * FROM nodes WHERE macAddress = ?";
 

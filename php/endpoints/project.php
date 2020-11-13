@@ -9,11 +9,11 @@ function api_project_get($projectId)
     try
     {
         $sql = "SELECT projects.projectId, name, description, createdAt, startAt, endAt, nodeCount,
-                    (nodeCount IS NOT NULL AND (endAt IS NULL OR NOW() < endAt)) as isActive
+                    (nodeCount IS NOT NULL AND (endAt IS NULL OR NOW() < endAt)) isActive
                         FROM projects LEFT JOIN
-                            (SELECT projectId, MIN(startAt) AS startAt, MAX(endAt) AS endAt, COUNT(*) AS nodeCount
+                            (SELECT projectId, MIN(startAt) startAt, MAX(endAt) endAt, COUNT(*) nodeCount
                                 FROM projectNodes GROUP BY projectId)
-                        AS b ON b.projectId = projects.projectId WHERE projects.projectId = ?";
+                        b ON b.projectId = projects.projectId WHERE projects.projectId = ?";
                 
         $query = database_query($pdo, $sql, [$projectId]);
 
