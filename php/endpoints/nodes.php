@@ -27,11 +27,14 @@ function api_nodes_get()
     {
         $sql = "SELECT nodes.*, projectId b_projectId, location b_location, startAt b_startAt,
                     endAt as b_endAt, `interval` b_interval, batchSize b_batchSize,
-                    latestReportId b_latestReportId FROM nodes
-                LEFT JOIN (SELECT * FROM projectNodes WHERE endAt IS NULL OR NOW() < endAt)
-                    b ON b.nodeId = nodes.nodeId";
+                    latestReportId b_latestReportId
+                FROM nodes
+                    LEFT JOIN (SELECT * FROM projectNodes WHERE endAt IS NULL OR NOW() < endAt) b
+                        ON b.nodeId = nodes.nodeId";
     }
     else $sql = "SELECT * FROM nodes";
+
+    $sql .- " ORDER BY macAddress";
 
     // ----- Query execution
     try
@@ -44,7 +47,7 @@ function api_nodes_get()
             for ($i = 0; $i < count($query); $i++)
             {
                 if (isset($_GET["inactive"]) && $_GET["inactive"] === "true")
-                    $query[$i]["project"] = null;
+                    $query[$i]["currentProject"] = null;
                 else
                 {
                     // Move the keys from the projectNodes table into a project sub-object
@@ -52,14 +55,14 @@ function api_nodes_get()
                     {
                         if (starts_with($key, "b_"))
                         {
-                            $query[$i]["project"][substr($key, 2)] = $value;
+                            $query[$i]["currentProject"][substr($key, 2)] = $value;
                             unset($query[$i][$key]);
                         }
                     }
 
                     // If no project exists then set the project sub-object to null
-                    if ($query[$i]["project"]["projectId"] === null)
-                        $query[$i]["project"] = null;
+                    if ($query[$i]["currentProject"]["projectId"] === null)
+                        $query[$i]["currentProject"] = null;
                 }
             }
         }

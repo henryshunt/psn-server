@@ -22,10 +22,10 @@ function api_projects_get()
     if (!isset($_GET["mode"]))
         $sql .= ", (nodeCount IS NOT NULL AND (endAt IS NULL OR NOW() < endAt)) as isActive";
 
-    $sql .= " FROM projects LEFT JOIN
-                  (SELECT projectId, MIN(startAt) startAt, MAX(endAt) endAt, COUNT(*) nodeCount
-                      FROM projectNodes GROUP BY projectId)
-              b ON b.projectId = projects.projectId WHERE userId = ?";
+    $sql .= " FROM projects
+                  LEFT JOIN (SELECT projectId, MIN(startAt) startAt, MAX(endAt) endAt, COUNT(*) nodeCount
+                      FROM projectNodes GROUP BY projectId) b
+                  ON b.projectId = projects.projectId WHERE userId = ?";
 
     if (isset($_GET["mode"]) && $_GET["mode"] === "active")
         $sql .= " AND nodeCount IS NOT NULL AND (endAt IS NULL OR NOW() < endAt)";
@@ -39,14 +39,17 @@ function api_projects_get()
     {
         $query = database_query($pdo, $sql, [$userId]);
 
+        // If we're not getting the active projects (which always have at least 1 node)
+        // then perform some cleanup of the data
         if (!(isset($_GET["mode"]) && $_GET["mode"] === "active"))
         {
             for ($i = 0; $i < count($query); $i++)
             {
+                // If we're not also getting the completed projects...
                 if (!isset($_GET["mode"]))
                     $query[$i]["isActive"] = (bool)$query[$i]["isActive"];
 
-                if ($query[$i]["nodeCount"] === null)
+                    if ($query[$i]["nodeCount"] === null)
                 {
                     $query[$i]["nodeCount"] = 0;
                     unset($query[$i]["startAt"]);
@@ -104,15 +107,14 @@ function api_projects_post()
     {
         global $pdo;
         database_query($pdo, $sql, $values);
-
         return (new Response(200))->setBody("{\"projectId\":" . $pdo->lastInsertId() . "}");
     }
     catch (PDOException $ex)
     {
         if ($ex->errorInfo[1] === 1062 &&
-            strpos($ex->errorInfo[2], "for key 'name'") !== false)
+            strpos($ex->errorInfo[2], "for key 'userId_name'") !== false)
         {
-            return (new Response(400))->setError("name is not unique");
+            return (new Response(400))->setError("name is not unique within user");
         }
         else return new Response(500);
     }

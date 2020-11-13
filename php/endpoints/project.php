@@ -10,10 +10,11 @@ function api_project_get($projectId)
     {
         $sql = "SELECT projects.projectId, name, description, createdAt, startAt, endAt, nodeCount,
                     (nodeCount IS NOT NULL AND (endAt IS NULL OR NOW() < endAt)) isActive
-                        FROM projects LEFT JOIN
-                            (SELECT projectId, MIN(startAt) startAt, MAX(endAt) endAt, COUNT(*) nodeCount
-                                FROM projectNodes GROUP BY projectId)
-                        b ON b.projectId = projects.projectId WHERE projects.projectId = ?";
+                FROM projects
+                    LEFT JOIN
+                        (SELECT projectId, MIN(startAt) startAt, MAX(endAt) endAt, COUNT(*) nodeCount
+                            FROM projectNodes GROUP BY projectId) b
+                    ON b.projectId = projects.projectId WHERE projects.projectId = ?";
                 
         $query = database_query($pdo, $sql, [$projectId]);
 
@@ -90,9 +91,9 @@ function api_project_patch($projectId)
     catch (PDOException $ex)
     {
         if ($ex->errorInfo[1] === 1062 &&
-            strpos($ex->errorInfo[2], "for key 'name'") !== false)
+            strpos($ex->errorInfo[2], "for key 'userId_name'") !== false)
         {
-            return (new Response(400))->setError("name is not unique");
+            return (new Response(400))->setError("name is not unique within user");
         }
         else return new Response(500);
     }

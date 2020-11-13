@@ -21,9 +21,10 @@ function api_node_get($nodeId)
     {
         $sql = "SELECT nodes.*, projectId b_projectId, location b_location, startAt b_startAt,
                     endAt as b_endAt, `interval` b_interval, batchSize b_batchSize,
-                    latestReportId b_latestReportId FROM nodes
-                LEFT JOIN (SELECT * FROM projectNodes WHERE endAt IS NULL OR NOW() < endAt)
-                    b ON b.nodeId = nodes.nodeId WHERE nodes.nodeId = ?";
+                    latestReportId b_latestReportId
+                FROM nodes
+                    LEFT JOIN (SELECT * FROM projectNodes WHERE endAt IS NULL OR NOW() < endAt) b
+                        ON b.nodeId = nodes.nodeId WHERE nodes.nodeId = ?";
     }
     else $sql = "SELECT * FROM nodes WHERE nodeId = ?";
 
@@ -42,21 +43,21 @@ function api_node_get($nodeId)
             {
                 if (starts_with($key, "b_"))
                 {
-                    $query[0]["project"][substr($key, 2)] = $value;
+                    $query[0]["currentProject"][substr($key, 2)] = $value;
                     unset($query[0][$key]);
                 }
             }
 
             // If no project exists then set the project sub-object to null
-            if ($query[0]["project"]["projectId"] === null)
-                $query[0]["project"] = null;
+            if ($query[0]["currentProject"]["projectId"] === null)
+                $query[0]["currentProject"] = null;
         }
 
         return (new Response(200))->setBody(json_encode($query[0]));
     }
     catch (PDOException $ex)
     {
-        return (new Response(500))->setError($ex->getMessage());
+        return new Response(500);
     }
 }
 
@@ -79,9 +80,10 @@ function api_node_mac_get($macAddress)
     {
         $sql = "SELECT nodes.*, projectId b_projectId, location b_location, startAt b_startAt,
                     endAt as b_endAt, `interval` b_interval, batchSize b_batchSize,
-                    latestReportId b_latestReportId FROM nodes
-                LEFT JOIN (SELECT * FROM projectNodes WHERE endAt IS NULL OR NOW() < endAt)
-                    b ON b.nodeId = nodes.nodeId WHERE nodes.macAddress = ?";
+                    latestReportId b_latestReportId
+                FROM nodes
+                    LEFT JOIN (SELECT * FROM projectNodes WHERE endAt IS NULL OR NOW() < endAt) b
+                        ON b.nodeId = nodes.nodeId WHERE nodes.macAddress = ?";
     }
     else $sql = "SELECT * FROM nodes WHERE macAddress = ?";
 
@@ -100,21 +102,21 @@ function api_node_mac_get($macAddress)
             {
                 if (starts_with($key, "b_"))
                 {
-                    $query[0]["project"][substr($key, 2)] = $value;
+                    $query[0]["currentProject"][substr($key, 2)] = $value;
                     unset($query[0][$key]);
                 }
             }
 
             // If no project exists then set the project sub-object to null
-            if ($query[0]["project"]["projectId"] === null)
-                $query[0]["project"] = null;
+            if ($query[0]["currentProject"]["projectId"] === null)
+                $query[0]["currentProject"] = null;
         }
 
         return (new Response(200))->setBody(json_encode($query[0]));
     }
     catch (PDOException $ex)
     {
-        return (new Response(500))->setError($ex->getMessage());
+        return new Response(500);
     }
 }
 
