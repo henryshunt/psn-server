@@ -38,11 +38,15 @@ $router->map("DELETE", "/projects/[i:projectId]", "project.php/api_project_delet
 
 $router->map("GET", "/projects/[i:projectId]/nodes", "project-nodes.php/api_project_nodes_get");
 $router->map("POST", "/projects/[i:projectId]/nodes", "project-nodes.php/api_project_nodes_post");
+$router->map("GET",
+    "/projects/[i:projectId]/nodes/[i:nodeId]", "project-node.php/api_project_node_get");
+$router->map("PATCH",
+    "/projects/[i:projectId]/nodes/[i:nodeId]", "project-node.php/api_project_node_patch");
+$router->map("DELETE",
+    "/projects/[i:projectId]/nodes/[i:nodeId]", "project-node.php/api_project_node_delete");
 
 $router->map("POST", "/projects/[i:projectId]/nodes/[mac:macAddress]/reports",
     "project-node-reports.php/api_project_node_reports_post");
-
-$router->map("GET", "/projects/[i:projectId]/nodes/[i:nodeId]", "project-node.php/api_project_node_get");
 
 $match = $router->match();
 

@@ -27,14 +27,11 @@ function api_project_nodes_get($projectId)
     // ----- Query generation
     $sql = "SELECT projectNodes.nodeId,
                 (SELECT macAddress FROM nodes WHERE nodeId = projectNodes.nodeId) macAddress,
-                (SELECT name FROM nodes WHERE nodeId = projectNodes.nodeId) name";
+                (SELECT name FROM nodes WHERE nodeId = projectNodes.nodeId) name,
+                location, startAt, endAt, `interval`, batchSize";
 
     if (isset($_GET["report"]) && $_GET["report"] === "true")
-    {
-        $sql .= ", location, startAt, endAt, `interval`, batchSize, reportId b_reportId, time b_time,
-                    airt b_airt, relh b_relh, batv b_batv";
-    }
-    else $sql .= ", location, startAt, endAt, `interval`, batchSize";
+        $sql .= ", reportId b_reportId, time b_time, airt b_airt, relh b_relh, batv b_batv";
 
     if (!isset($_GET["mode"]))
         $sql .= ", (endAt IS NULL OR NOW() < endAt) isActive";

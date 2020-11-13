@@ -46,7 +46,6 @@ function api_node_get($nodeId)
                 }
             }
 
-            // If no project exists then set the project sub-object to null
             if ($query[0]["currentProject"]["projectId"] === null)
                 $query[0]["currentProject"] = null;
         }
