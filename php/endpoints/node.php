@@ -78,13 +78,13 @@ function api_node_mac_get($macAddress)
 
     if (isset($_GET["project"]) && $_GET["project"] === "true")
     {
-        $sql = ", projectId b_projectId, location b_location, startAt b_startAt, endAt b_endAt,
+        $sql .= ", projectId b_projectId, location b_location, startAt b_startAt, endAt b_endAt,
                     `interval` b_interval, batchSize b_batchSize, latestReportId b_latestReportId
                 FROM nodes
                     LEFT JOIN (SELECT * FROM projectNodes WHERE endAt IS NULL OR NOW() < endAt) b
                         ON b.nodeId = nodes.nodeId WHERE nodes.macAddress = ?";
     }
-    else $sql = " FROM nodes WHERE macAddress = ?";
+    else $sql .= " FROM nodes WHERE macAddress = ?";
 
     // ----- Query execution
     try
@@ -176,7 +176,7 @@ function api_node_delete($nodeId)
     try
     {
         $sql = "DELETE FROM nodes WHERE nodeId = ?";
-        $affected = query_database_affected($pdo, $sql, [$nodeId]);
+        $affected = database_query_affected($pdo, $sql, [$nodeId]);
         return new Response($affected > 0 ? 200 : 404);
     }
     catch (PDOException $ex)

@@ -129,6 +129,22 @@ function database_query($pdo, $sql, $values = null)
     else return true;
 }
 
+/**
+ * Queries a database and returns the number of affected records.
+ * @param object $pdo - The PDO connection object.
+ * @param string $sql - The SQL query to run. Any values should be replaced with question marks.
+ * @param array|null $values (optional) - The values to put into the SQL query. There should be the
+ * same number of values as there are question marks in the SQL query.
+ * @throws PDOException if there is any error.
+ * @return integer The number of records affected by the query.
+ */
+function database_query_affected($pdo, $sql, $values = null)
+{
+    $query = $pdo->prepare($sql);
+    $query->execute($values);
+    return $query->rowCount();
+}
+
 
 function get_login_session($token, $pdo)
 {

@@ -112,7 +112,7 @@ function api_project_node_delete($projectId, $nodeId)
     try
     {
         $sql = "DELETE FROM projectNodes WHERE projectId = ? AND nodeId = ?";
-        $affected = query_database_affected($pdo, $sql, [$projectId, $nodeId]);
+        $affected = database_query_affected($pdo, $sql, [$projectId, $nodeId]);
         return new Response($affected > 0 ? 200 : 404);
     }
     catch (PDOException $ex)

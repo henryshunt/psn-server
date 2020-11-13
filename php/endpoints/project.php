@@ -142,7 +142,7 @@ function api_project_delete($projectId)
     try
     {
         $sql = "DELETE FROM projects WHERE projectId = ?";
-        $affected = query_database_affected($pdo, $sql, [$projectId]);
+        $affected = database_query_affected($pdo, $sql, [$projectId]);
         return new Response($affected > 0 ? 200 : 404);
     }
     catch (PDOException $ex)
