@@ -1,14 +1,10 @@
 window.addEventListener("load", () =>
 {
-    document.getElementById("user-button").addEventListener("click", () =>
-    {
-        if (document.getElementById("user-menu").style.display === "none")
-            document.getElementById("user-menu").style.display = "block";
-        else document.getElementById("user-menu").style.display = "none";
-    });
-});
+    document.getElementById("log-out-btn").addEventListener("click",
+        () => window.location.href = "php/logout.php"
+    );
 
-function logOut()
-{
-    window.location.href = "resources/routines/logout.php";
-}
+    document.getElementById("user-menu-btn").addEventListener("click",
+        () => document.getElementById("user-menu").classList.toggle("user__menu--hidden")
+    );
+});

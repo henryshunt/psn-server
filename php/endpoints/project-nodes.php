@@ -120,14 +120,14 @@ function api_project_nodes_post($projectId)
     // Check if the node is already active
     require_once __DIR__ . "/node.php";
     $_GET["project"] = "true";
-    $node = api_node_get($json["nodeId"]);
+    $node = api_node_get($json["nodeId"], true);
 
     if ($node->getStatus() === 404)
         return (new Response(400))->setError("Node does not exist");
     else if ($node->getStatus() !== 200)
         return $node;
-    
-    if ($node["currentProject"] !== null)
+
+    if ($node->getBody()["currentProject"] !== null)
         return (new Response(400))->setError("Node is already active");
 
     // ----- Query execution

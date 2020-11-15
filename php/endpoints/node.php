@@ -2,7 +2,7 @@
 use Respect\Validation\Validator as V;
 use Respect\Validation\Exceptions\ValidationException;
 
-function api_node_get($nodeId)
+function api_node_get($nodeId, $asArray = false)
 {
     global $pdo;
 
@@ -52,7 +52,9 @@ function api_node_get($nodeId)
                 $query[0]["currentProject"] = null;
         }
 
-        return (new Response(200))->setBody(json_encode($query[0]));
+        if (!$asArray)
+            return (new Response(200))->setBody(json_encode($query[0]));
+        else return (new Response(200))->setBody($query[0]);
     }
     catch (PDOException $ex)
     {

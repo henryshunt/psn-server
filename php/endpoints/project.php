@@ -106,7 +106,7 @@ function api_project_patch($projectId)
     catch (PDOException $ex)
     {
         if ($ex->errorInfo[1] === 1062 &&
-            strpos($ex->errorInfo[2], "for key 'userId_name'") !== false)
+            strpos($ex->errorInfo[2], "for key 'name'") !== false)
         {
             return (new Response(400))->setError("name is not unique within user");
         }

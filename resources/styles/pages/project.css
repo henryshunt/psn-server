@@ -1,0 +1,10 @@
+.item__corner--node > div {
+    display: inline-block;
+    margin-left: 10px;
+    text-align: center;
+}
+.item__corner--node > div > :first-child {
+    font-weight: bold;
+    font-size: 12px;
+    line-height: 18px;
+}

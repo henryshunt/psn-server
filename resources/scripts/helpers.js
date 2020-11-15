@@ -106,3 +106,41 @@ function postJson(url, json)
         request.send(json);
     });
 }
+
+function deleteReq(url)
+{
+    return new Promise((resolve, reject) =>
+    {
+        var request = new XMLHttpRequest();
+        request.open("DELETE", url, true);
+
+        request.onload = () =>
+        {
+            if (request.status >= 200 && request.status < 400)
+                resolve(request.status);
+            else reject(request.status);
+        };
+
+        request.onerror = () => reject(null);
+        request.send();
+    });
+}
+
+function patchReq(url, data)
+{
+    return new Promise((resolve, reject) =>
+    {
+        var request = new XMLHttpRequest();
+        request.open("PATCH", url, true);
+
+        request.onload = () =>
+        {
+            if (request.status >= 200 && request.status < 400)
+                resolve(JSON.parse(request.responseText), request.status);
+            else reject(JSON.parse(request.responseText), request.status);
+        };
+
+        request.onerror = () => reject(null, null);
+        request.send(data);
+    });
+}
