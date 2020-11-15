@@ -22,8 +22,6 @@ window.addEventListener("load", () =>
     const showAllErrors = () =>
     {
         document.getElementById("main").insertAdjacentHTML("afterbegin", ERROR_HTML);
-        document.getElementById(
-            "project-info-group").classList.remove("info-group--hidden");
 
         document.getElementById("active-nodes").innerHTML = ERROR_HTML;
         document.getElementById(
@@ -203,6 +201,16 @@ function onDownloadDataClick()
     //     getQueryStringValue("id"));
 }
 
+function onStopProjectClick()
+{
+    if (confirm("Are you sure you want to stop the project?"))
+    {
+        stopReq("api.php/projects/{0}?stop=true".format(getQueryStringValue("id")))
+            .then(() => window.location.reload())
+            .catch(() => alert("An error occured while stopping the project."));
+    }
+}
+
 function onDeleteProjectClick()
 {
     if (confirm("Are you sure you want to delete the project? " +
@@ -211,15 +219,5 @@ function onDeleteProjectClick()
         deleteReq("api.php/projects/" + getQueryStringValue("id"))
             .then(() => window.location.href = "index.php")
             .catch(() => alert("An error occured while deleting the project."));
-    }
-}
-
-function onStopProjectClick()
-{
-    if (confirm("Are you sure you want to stop the project?"))
-    {
-        deleteReq("api.php/projects/{0}?stop=true" + this.getQueryStringValue("id"))
-            .then(() => window.location.reload())
-            .catch(() => alert("An error occured while stopping the project."));
     }
 }
