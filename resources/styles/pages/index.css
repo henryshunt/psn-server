@@ -1,26 +1,6 @@
-.item {
-    line-height: 22px;
-}
-.item > a > :last-child {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-    line-height: 10px;
-}
-
-.new-project-modal {
-    width: 550px;
-}
-.new-project-name {
+.newproj-modal-name {
     margin-bottom: 5px;
 }
-.new-project-description {
-    height: 100px !important;
+.newproj-modal-desc {
     font-family: inherit;
-}
-
-@media screen and (max-width: 614px) {
-    .modal {
-        width: calc(100% - 64px);
-    }
 }

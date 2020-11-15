@@ -27,79 +27,81 @@
     </head>
 
     <body>
-        <header>
-            <div>
+        <header class="header">
+            <div class="header__first-row">
                 <div class="main">
-                    <h1><a href=".">Phenotyping Sensor Network</a></h1>
+                    <h1 class="header__title">
+                        <a href=".">Phenotyping Sensor Network</a>
+                    </h1>
 
                     <div class="user">
-                        <i id="user-button" class="material-icons">settings</i>
-                        <span><?php echo $session["username"]; ?></span>
+                        <i class="user__open-menu material-icons" id="user-menu-button">settings</i>
 
-                        <div id="user-menu" class="user-menu">
-                            <button onclick="logOut()">Log Out</button>
-                            <p>Created by Henry Hunt at the University of Nottingham.</p>
+                        <p class="user__name">
+                            <?php echo $session["username"]; ?>
+                        </p>
+
+                        <div class="user__menu user__menu--hidden" id="user-menu">
+                            <button class="user__log-out" id="log-out-button">Log Out</button>
+                            <p class="user__attribution">Created by Henry Hunt at the University of Nottingham.</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="main">
-                <div class="special-actions">
-                    <a href="special/network.php">Sensor Network Overview</a>
+            <div class="header__second-row main">
+                <div class="actions">
+                    <a class="actions__anchor" href="special/network.php">Sensor Network Overview</a>
                     <span>&bull;</span>
-                    <a href="special/nodes.php">Manage Sensor Nodes</a>
+                    <a class="actions__anchor" href="special/nodes.php">Manage Sensor Nodes</a>
                     <span>&bull;</span>
-                    <a href="special/users.php">Manage Users</a>
+                    <a class="actions__anchor" href="special/users.php">Manage Users</a>
                 </div>
             </div>
         </header>
 
-        <main>
-            <div>
-                <div class="titled-group-header">
-                    <h2>Active Projects</h2>
-                    <?php
-                    if ($session["userId"] !== "guest")
-                        echo "<button onclick=\"newProjectModalOpen()\">Create New</button>";
-                    ?>
-                    <div class="titled-group-separator"></div>
+        <main class="main">
+            <div class="titled-group titled-group--hidden" id="active-projects-group">
+                <div class="titled-group__header">
+                    <h2 class="titled-group__title">Active Projects</h2>
+                    <button class="titled-group__action" id="new-project-button">New Project</button>
+                    <div class="titled-group__separator"></div>
                 </div>
 
-                <div id="active-projects" class="items-block"></div>
+                <div class="items-block" id="active-projects"></div>
             </div>
         
-            <div>
-                <div class="titled-group-header">
-                    <h2>Completed Projects</h2>
-                    <div class="titled-group-separator"></div>
+            <div class="titled-group titled-group--hidden" id="completed-projects-group">
+                <div class="titled-group__header">
+                    <h2 class="titled-group__title">Completed Projects</h2>
+                    <div class="titled-group__separator"></div>
                 </div>
 
-                <div id="completed-projects" class="items-block"></div>
+                <div class="items-block" id="completed-projects"></div>
             </div>
         </main>
 
 
-        <div id="modal-shade" class="modal-shade"></div>
+        <div class="modal__shade modal__shade--hidden" id="modal-shade"></div>
 
-        <div class="modal new-project-modal" id="new-project-modal">
-            <div class="modal-header">
-                <span>Create a New Project</span>
+        <div class="modal modal--newproj modal--hidden" id="newproj-modal">
+            <div class="modal__header">
+                <p class="modal__title">Create a New Project</p>
             </div>
 
-            <div class="modal-content">
-                <form id="new-project-form">
-                    <input class="form-control new-project-name" id="new-project-name" type="text" placeholder="Name"/>
-                    <textarea class="form-control new-project-description" id="new-project-description" placeholder="Description"></textarea>
+            <div class="modal__content">
+                <form id="newproj-modal-form">
+                    <input class="newproj-modal-name form-control" id="newproj-modal-name" type="text" placeholder="Name"/>
+                    <textarea class="newproj-modal-desc form-control" id="newproj-modal-desc" placeholder="Description"></textarea>
                 </form>
             </div>
 
-            <div class="modal-footer">
-                <span class="modal-status" id="new-project-status"></span>
+            <div class="modal__footer">
+                <p class="modal__status" id="newproj-modal-status"></p>
 
-                <div class="modal-buttons">
-                    <button id="new-project-modal-submit" form="new-project-form">Create</button>
-                    <button id="new-project-modal-cancel">Cancel</button>
+                <div class="modal__buttons">
+                    <button class="modal__submit" id="newproj-modal-submit" form="newproj-modal-form">Create</button>
+                    <button class="modal__cancel" id="newproj-modal-cancel">Cancel</button>
                 </div>
             </div>
         </div>
