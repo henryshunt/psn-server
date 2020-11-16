@@ -2,7 +2,12 @@
 use Respect\Validation\Validator as V;
 use Respect\Validation\Exceptions\ValidationException;
 
-function api_project_get($projectId, $asArray = false)
+function endp_project_get($projectId)
+{
+    return endpmain_project_get($projectId);
+}
+
+function endpmain_project_get($projectId)
 {
     global $pdo;
     
@@ -29,9 +34,7 @@ function api_project_get($projectId, $asArray = false)
                 unset($query[0]["endAt"]);
             }
 
-            if (!$asArray)
-                return (new Response(200))->setBody(json_encode($query[0]));
-            else return (new Response(200))->setBody($query[0]);
+            return (new Response(200))->setBody($query[0]);
         }
         else return new Response(404);
     }
@@ -41,11 +44,9 @@ function api_project_get($projectId, $asArray = false)
     }
 }
 
-function api_project_patch($projectId)
-{
-    global $pdo;
 
-    // ----- Validation 1
+function endp_project_patch($projectId)
+{
     $validator = V::key("stop", V::in(["true", "false"], true), false);
 
     try { $validator->check($_GET); }
@@ -55,7 +56,7 @@ function api_project_patch($projectId)
     }
 
     // Check the project exists
-    $project = api_project_get($projectId, true);
+    $project = endp_project_get($projectId);
 
     if ($project->getStatus() !== 200)
         return $project;
@@ -64,7 +65,7 @@ function api_project_patch($projectId)
     if (isset($_GET["stop"]) && $_GET["stop"] === "true")
         return api_project_stop($projectId, $project);
 
-    // ----- Validation 2
+
     $json = json_decode(file_get_contents("php://input"));
 
     if (gettype($json) !== "object")
@@ -86,6 +87,13 @@ function api_project_patch($projectId)
 
     if (count($json) === 0)
         return (new Response(400))->setError("No attributes supplied");
+
+    return endpmain_project_patch($projectId, $json);
+}
+
+function endpmain_project_patch($projectId, $json)
+{
+    global $pdo;
 
     // ----- Query generation
     $sqlColumns = [];
@@ -114,7 +122,7 @@ function api_project_patch($projectId)
     }
 }
 
-function api_project_stop($projectId, $project)
+function endpmain_project_stop($projectId, $project)
 {
     global $pdo;
 
@@ -135,7 +143,13 @@ function api_project_stop($projectId, $project)
     }
 }
 
-function api_project_delete($projectId)
+
+function endp_project_delete($projectId)
+{
+    return endpmain_project_delete($projectId);
+}
+
+function endpmain_project_delete($projectId)
 {
     global $pdo;
 

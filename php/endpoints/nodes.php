@@ -2,11 +2,8 @@
 use Respect\Validation\Validator as V;
 use Respect\Validation\Exceptions\ValidationException;
 
-function api_nodes_get()
+function endp_nodes_get()
 {
-    global $pdo;
-
-    // ----- Validation
     $validator = V
         ::key("project", V::in(["true", "false"], true), false)
         ->key("inactive", V::in(["true", "false"], true), false);
@@ -16,6 +13,13 @@ function api_nodes_get()
     {
         return (new Response(400))->setError($ex->getMessage());
     }
+
+    return endpmain_nodes_get();
+}
+
+function endpmain_nodes_get()
+{
+    global $pdo;
 
     // ----- Query generation
     if (isset($_GET["inactive"]) && $_GET["inactive"] === "true")
@@ -66,7 +70,7 @@ function api_nodes_get()
             }
         }
 
-        return (new Response(200))->setBody(json_encode($query));
+        return (new Response(200))->setBody($query);
     }
     catch (PDOException $ex)
     {
@@ -74,11 +78,9 @@ function api_nodes_get()
     }
 }
 
-function api_nodes_post()
-{
-    global $pdo;
 
-    // ----- Validation
+function endp_nodes_post()
+{
     $json = json_decode(file_get_contents("php://input"));
 
     if (gettype($json) !== "object")
@@ -96,7 +98,14 @@ function api_nodes_post()
         return (new Response(400))->setError($ex->getMessage());
     }
 
-    $json = filter_attributes_allowed($json, ["macAddress", "name"]);
+    $json = filter_attributes_allowed($json, ["macAddress", "name"]));
+
+    return endpmain_nodes_post($json);
+}
+
+function endpmain_nodes_post($json)
+{
+    global $pdo;
 
     // ----- Query generation
     $sqlColumns = [];
@@ -112,7 +121,7 @@ function api_nodes_post()
     try
     {
         database_query($pdo, $sql, $values);
-        return (new Response(200))->setBody("{\"nodeId\":" . $pdo->lastInsertId() . "}");
+        return (new Response(200))->setBody(["nodeId" => $pdo->lastInsertId()]);
     }
     catch (PDOException $ex)
     {

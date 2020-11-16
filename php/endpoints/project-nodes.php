@@ -2,11 +2,8 @@
 use Respect\Validation\Validator as V;
 use Respect\Validation\Exceptions\ValidationException;
 
-function api_project_nodes_get($projectId)
+function endp_project_nodes_get($projectId)
 {
-    global $pdo;
-
-    // ----- Validation
     $validator = V
         ::key("mode", V::in(["active", "completed"], true), false)
         ->key("report", V::in(["true", "false"], true), false);
@@ -19,10 +16,17 @@ function api_project_nodes_get($projectId)
 
     // Check the project exists
     require_once __DIR__ . "/project.php";
-    $project = api_project_get($projectId);
+    $project = endp_project_get($projectId);
 
     if ($project->getStatus() !== 200)
         return $projectId;
+
+    return endpmain_project_nodes_get($projectId);
+}
+
+function endpmain_project_nodes_get($projectId)
+{
+    global $pdo;
 
     // ----- Query generation
     $sql = "SELECT projectNodes.nodeId,
@@ -81,7 +85,7 @@ function api_project_nodes_get($projectId)
             }
         }
 
-        return (new Response(200))->setBody(json_encode($query));
+        return (new Response(200))->setBody($query);
     }
     catch (PDOException $ex)
     {
@@ -89,11 +93,9 @@ function api_project_nodes_get($projectId)
     }
 }
 
-function api_project_nodes_post($projectId)
-{
-    global $pdo;
 
-    // ----- Validation section
+function endp_project_nodes_post($projectId)
+{
     $json = json_decode(file_get_contents("php://input"));
 
     if (gettype($json) !== "object")
@@ -120,7 +122,7 @@ function api_project_nodes_post($projectId)
     // Check if the node is already active
     require_once __DIR__ . "/node.php";
     $_GET["project"] = "true";
-    $node = api_node_get($json["nodeId"], true);
+    $node = endp_node_get($json["nodeId"]);
 
     if ($node->getStatus() === 404)
         return (new Response(400))->setError("Node does not exist");
@@ -129,6 +131,13 @@ function api_project_nodes_post($projectId)
 
     if ($node->getBody()["currentProject"] !== null)
         return (new Response(400))->setError("Node is already active");
+
+    return endpmain_project_nodes_post($projectId, $json);
+}
+
+function endpmain_project_nodes_post($projectId, $json)
+{
+    global $pdo;
 
     // ----- Query execution
     try

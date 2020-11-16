@@ -2,11 +2,8 @@
 use Respect\Validation\Validator as V;
 use Respect\Validation\Exceptions\ValidationException;
 
-function api_node_get($nodeId, $asArray = false)
+function endp_node_get($nodeId)
 {
-    global $pdo;
-
-    // ----- Validation
     $validator = V::key("project", V::in(["true", "false"], true), false);
 
     try { $validator->check($_GET); }
@@ -14,6 +11,13 @@ function api_node_get($nodeId, $asArray = false)
     {
         return (new Response(400))->setError($ex->getMessage());
     }
+
+    return endpmain_node_get($nodeId);
+}
+
+function endpmain_node_get($nodeId)
+{
+    global $pdo;
 
     // ----- Query generation
     $sql = "SELECT nodes.macAddress, nodes.name, nodes.createdAt";
@@ -52,9 +56,7 @@ function api_node_get($nodeId, $asArray = false)
                 $query[0]["currentProject"] = null;
         }
 
-        if (!$asArray)
-            return (new Response(200))->setBody(json_encode($query[0]));
-        else return (new Response(200))->setBody($query[0]);
+        return (new Response(200))->setBody($query[0]);
     }
     catch (PDOException $ex)
     {
@@ -62,11 +64,9 @@ function api_node_get($nodeId, $asArray = false)
     }
 }
 
-function api_node_mac_get($macAddress)
-{
-    global $pdo;
 
-    // ----- Validation
+function endp_node_mac_get($macAddress)
+{
     $validator = V::key("project", V::in(["true", "false"], true), false);
 
     try { $validator->check($_GET); }
@@ -74,6 +74,13 @@ function api_node_mac_get($macAddress)
     {
         return (new Response(400))->setError($ex->getMessage());
     }
+
+    return endpmain_node_mac_get($macAddress);
+}
+
+function endpmain_node_mac_get($macAddress)
+{
+    global $pdo;
 
     // ----- Query generation
     $sql = "SELECT nodes.macAddress, nodes.name, nodes.createdAt";
@@ -113,7 +120,7 @@ function api_node_mac_get($macAddress)
                 $query[0]["currentProject"] = null;
         }
 
-        return (new Response(200))->setBody(json_encode($query[0]));
+        return (new Response(200))->setBody($query[0]);
     }
     catch (PDOException $ex)
     {
@@ -121,11 +128,9 @@ function api_node_mac_get($macAddress)
     }
 }
 
-function api_node_patch($nodeId)
-{
-    global $pdo;
 
-    // ----- Validation
+function endp_node_patch($nodeId)
+{
     $json = json_decode(file_get_contents("php://input"));
 
     if (gettype($json) !== "object")
@@ -142,22 +147,28 @@ function api_node_patch($nodeId)
         return (new Response(400))->setError($ex->getMessage());
     }
 
-    $json = filter_attributes_allowed($json, ["name"]);
+    $json = filter_attributes_allowed($json, ["name"]));
 
     if (count($json) === 0)
         return (new Response(400))->setError("No attributes supplied");
 
     // Check the node exists
-    $node = api_node_get($nodeId);
+    $node = endp_node_get($nodeId);
 
     if ($node->getStatus() !== 200)
         return $node;
 
-    // ----- Query execution
+    return endpmain_node_patch($nodeId, $json);
+}
+
+function endpmain_node_patch($nodeId, $json)
+{
+    global $pdo;
+
     try
     {
-        $sql = "UPDATE nodes SET name = ?";
-        database_query($pdo, $sql, $json["name"]);
+        $sql = "UPDATE nodes SET name = ? WHERE nodeId = ?";
+        database_query($pdo, $sql, [$json["name"], $nodeId]);
         return new Response(200);
     }
     catch (PDOException $ex)
@@ -171,7 +182,13 @@ function api_node_patch($nodeId)
     }
 }
 
-function api_node_delete($nodeId)
+
+function endp_node_delete($nodeId)
+{
+    return endpmain_node_delete($nodeId);
+}
+
+function endpmain_node_delete($nodeId)
 {
     global $pdo;
 

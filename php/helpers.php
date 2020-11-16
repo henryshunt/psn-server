@@ -27,7 +27,7 @@ function api_respond($response)
     header("Content-Type: application/json");
 
     if ($response->getStatus() === 200 && $response->getBody() !== null)
-        echo $response->getBody();
+        echo json_encode($response->getBody());
     else
     {
         $json = ["status" => $response->getStatus()];

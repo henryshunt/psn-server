@@ -2,11 +2,8 @@
 use Respect\Validation\Validator as V;
 use Respect\Validation\Exceptions\ValidationException;
 
-function api_projects_get()
+function endp_projects_get()
 {
-    global $pdo, $userId;
-
-    // ----- Validation
     $validator = V::key("mode", V::in(["active", "completed"], true), false);
 
     try { $validator->check($_GET); }
@@ -14,6 +11,13 @@ function api_projects_get()
     {
         return (new Response(400))->setError($ex->getMessage());
     }
+
+    return endpmain_projects_get();
+}
+
+function endpmain_projects_get()
+{
+    global $pdo, $userId;
 
     // ----- Query generation
     $sql = "SELECT projects.projectId, name, description, createdAt, startAt, endAt, nodeCount";
@@ -57,7 +61,7 @@ function api_projects_get()
             }
         }
 
-        return (new Response(200))->setBody(json_encode($query));
+        return (new Response(200))->setBody($query);
     }
     catch (PDOException $ex)
     {
@@ -65,11 +69,9 @@ function api_projects_get()
     }
 }
 
-function api_projects_post()
-{
-    global $pdo, $userId;
 
-    // ----- Validation section
+function endp_projects_post()
+{
     $json = json_decode(file_get_contents("php://input"));
 
     if (gettype($json) !== "object")
@@ -89,7 +91,14 @@ function api_projects_post()
 
     $json = filter_attributes_allowed($json, ["name", "description"]);
 
-    // ----- Query generation section
+    return endpmain_projects_post($json);
+}
+
+function api_projects_post($json)
+{
+    global $pdo, $userId;
+
+    // ----- Query generation
     $json["userId"] = $userId;
 
     $sqlColumns = [];
@@ -101,12 +110,11 @@ function api_projects_post()
     $sql = "INSERT INTO projects (" . join(", ", $sqlColumns) . ") VALUES (" .
         join(", ", array_fill(0, count($values), "?")) . ")";
 
-    // ----- Query execution section
+    // ----- Query execution
     try
     {
-        global $pdo;
         database_query($pdo, $sql, $values);
-        return (new Response(200))->setBody("{\"projectId\":" . $pdo->lastInsertId() . "}");
+        return (new Response(200))->setBody(["projectId" => $pdo->lastInsertId()]);
     }
     catch (PDOException $ex)
     {

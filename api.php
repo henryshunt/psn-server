@@ -23,27 +23,29 @@ $router = new AltoRouter();
 $router->setBasePath($_SERVER["SCRIPT_NAME"]);
 $router->addMatchTypes(["mac" => "([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2}"]);
 
-$router->map("GET", "/nodes", "nodes.php/api_nodes_get");
-$router->map("POST", "/nodes", "nodes.php/api_nodes_post");
-$router->map("GET", "/nodes/[i:nodeId]", "node.php/api_node_get");
-$router->map("GET", "/nodes/[mac:macAddress]", "node.php/api_node_mac_get");
-$router->map("PATCH", "/nodes/[i:nodeId]", "node.php/api_node_patch");
-$router->map("DELETE", "/nodes/[i:nodeId]", "node.php/api_node_delete");
+$router->map("GET", "/nodes", "nodes.php/endp_nodes_get");
+$router->map("POST", "/nodes", "nodes.php/endp_nodes_post");
+$router->map("GET", "/nodes/[i:nodeId]", "node.php/endp_node_get");
+$router->map("GET", "/nodes/[mac:macAddress]", "node.php/endp_node_mac_get");
+$router->map("PATCH", "/nodes/[i:nodeId]", "node.php/endp_node_patch");
+$router->map("DELETE", "/nodes/[i:nodeId]", "node.php/endp_node_delete");
 
-$router->map("GET", "/projects", "projects.php/api_projects_get");
-$router->map("POST", "/projects", "projects.php/api_projects_post");
-$router->map("GET", "/projects/[i:projectId]", "project.php/api_project_get");
-$router->map("PATCH", "/projects/[i:projectId]", "project.php/api_project_patch");
-$router->map("DELETE", "/projects/[i:projectId]", "project.php/api_project_delete");
+$router->map("GET", "/projects", "projects.php/endp_projects_get");
+$router->map("POST", "/projects", "projects.php/endp_projects_post");
+$router->map("GET", "/projects/[i:projectId]", "project.php/endp_project_get");
+$router->map("PATCH", "/projects/[i:projectId]", "project.php/endp_project_patch");
+$router->map("DELETE", "/projects/[i:projectId]", "project.php/endp_project_delete");
 
-$router->map("GET", "/projects/[i:projectId]/nodes", "project-nodes.php/api_project_nodes_get");
-$router->map("POST", "/projects/[i:projectId]/nodes", "project-nodes.php/api_project_nodes_post");
-$router->map("GET",
-    "/projects/[i:projectId]/nodes/[i:nodeId]", "project-node.php/api_project_node_get");
-$router->map("PATCH",
-    "/projects/[i:projectId]/nodes/[i:nodeId]", "project-node.php/api_project_node_patch");
-$router->map("DELETE",
-    "/projects/[i:projectId]/nodes/[i:nodeId]", "project-node.php/api_project_node_delete");
+$router->map("GET", "/projects/[i:projectId]/nodes",
+    "project-nodes.php/endp_project_nodes_get");
+$router->map("POST", "/projects/[i:projectId]/nodes",
+    "project-nodes.php/endp_project_nodes_post");
+$router->map("GET", "/projects/[i:projectId]/nodes/[i:nodeId]",
+    "project-node.php/endp_project_node_get");
+$router->map("PATCH", "/projects/[i:projectId]/nodes/[i:nodeId]",
+    "project-node.php/endp_project_node_patch");
+$router->map("DELETE", "/projects/[i:projectId]/nodes/[i:nodeId]",
+    "project-node.php/endp_project_node_delete");
 
 $router->map("POST", "/projects/[i:projectId]/nodes/[mac:macAddress]/reports",
     "project-node-reports.php/api_project_node_reports_post");

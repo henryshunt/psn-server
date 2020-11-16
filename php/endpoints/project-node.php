@@ -2,11 +2,8 @@
 use Respect\Validation\Validator as V;
 use Respect\Validation\Exceptions\ValidationException;
 
-function api_project_node_get($projectId, $nodeId, $asArray = false)
+function endp_project_node_get($projectId, $nodeId)
 {
-    global $pdo;
-
-    // ----- Validation
     $validator = V::key("report", V::in(["true", "false"], true), false);
 
     try { $validator->check($_GET); }
@@ -14,6 +11,13 @@ function api_project_node_get($projectId, $nodeId, $asArray = false)
     {
         return (new Response(400))->setError($ex->getMessage());
     }
+
+    return endpmain_project_node_get($projectId, $nodeId);
+}
+
+function endpmain_project_node_get($projectId, $nodeId)
+{
+    global $pdo;
 
     // ----- Query generation
     $sql = "SELECT location, startAt, endAt, `interval`, batchSize";
@@ -54,9 +58,7 @@ function api_project_node_get($projectId, $nodeId, $asArray = false)
                 $query[0]["latestReport"] = null;
         }
 
-        if (!$asArray)
-            return (new Response(200))->setBody(json_encode($query[0]));
-        else return (new Response(200))->setBody($query[0]);
+        return (new Response(200))->setBody($query[0]);
     }
     catch (PDOException $ex)
     {
@@ -64,9 +66,9 @@ function api_project_node_get($projectId, $nodeId, $asArray = false)
     }
 }
 
-function api_project_node_patch($projectId, $nodeId)
+
+function endp_project_node_patch($projectId, $nodeId)
 {
-    // ----- Validation 1
     $validator = V::key("stop", V::in(["true", "false"], true), false);
 
     try { $validator->check($_GET); }
@@ -76,17 +78,19 @@ function api_project_node_patch($projectId, $nodeId)
     }
 
     // Check the projectNode exists
-    $projectNode = api_project_node_get($projectId, $nodeId, true);
+    $projectNode = endp_project_node_get($projectId, $nodeId);
 
     if ($projectNode->getStatus() !== 200)
         return $projectNode;
 
     // If stop=true then do something different
     if (isset($_GET["stop"]) && $_GET["stop"] === "true")
-        return api_project_node_stop($projectId, $nodeId $projectNode);
+        return endp_project_node_stop($projectId, $nodeId, $projectNode);
+
+    return endpmain_project_node_patch($projectId, $nodeId);
 }
 
-function api_project_node_stop($projectId, $nodeId, $projectNode)
+function endpmain_project_node_stop($projectId, $nodeId, $projectNode)
 {
     global $pdo;
 
@@ -105,7 +109,13 @@ function api_project_node_stop($projectId, $nodeId, $projectNode)
     }
 }
 
-function api_project_node_delete($projectId, $nodeId)
+
+function endp_project_node_delete($projectId, $nodeId)
+{
+    return endpmain_project_node_delete($projectId, $nodeId);
+}
+
+function endpmain_project_node_delete($projectId, $nodeId)
 {
     global $pdo;
 
