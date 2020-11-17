@@ -17,18 +17,19 @@ catch (Exception $ex)
     api_respond(new Response(500));
 }
 
-$userId = api_authenticate($pdo);
+$user = api_authenticate($pdo);
+
 
 $router = new AltoRouter();
 $router->setBasePath($_SERVER["SCRIPT_NAME"]);
 $router->addMatchTypes(["mac" => "([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2}"]);
 
-$router->map("GET", "/nodes", "nodes.php/endp_nodes_get");
-$router->map("POST", "/nodes", "nodes.php/endp_nodes_post");
-$router->map("GET", "/nodes/[i:nodeId]", "node.php/endp_node_get");
-$router->map("GET", "/nodes/[mac:macAddress]", "node.php/endp_node_mac_get");
-$router->map("PATCH", "/nodes/[i:nodeId]", "node.php/endp_node_patch");
-$router->map("DELETE", "/nodes/[i:nodeId]", "node.php/endp_node_delete");
+$router->map("GET", "/nodes", "nodes-get.php/EndpointNodesGet");
+$router->map("POST", "/nodes", "nodes-post.php/EndpointNodesPost");
+$router->map("GET", "/nodes/[i:nodeId]", "node-get.php/EndpointNodeGet");
+$router->map("GET", "/nodes/[mac:macAddress]", "node-get.php/EndpointNodeGet");
+$router->map("PATCH", "/nodes/[i:nodeId]", "node-patch.php/EndpointNodePatch");
+$router->map("DELETE", "/nodes/[i:nodeId]", "node-delete.php/EndpointNodeDelete");
 
 $router->map("GET", "/projects", "projects.php/endp_projects_get");
 $router->map("POST", "/projects", "projects.php/endp_projects_post");
@@ -50,6 +51,7 @@ $router->map("DELETE", "/projects/[i:projectId]/nodes/[i:nodeId]",
 $router->map("POST", "/projects/[i:projectId]/nodes/[mac:macAddress]/reports",
     "project-node-reports.php/api_project_node_reports_post");
 
+
 $match = $router->match();
 
 if ($match)
@@ -58,19 +60,19 @@ if ($match)
     require_once "php/endpoints/" . $target[0];
 
     // Validate any ID parameters in the URL and convert them to integers
-    foreach ($match["params"] as $key => $value)
-    {
-        if (ends_with($key, "Id"))
-        {
-            if ((int)$value >= 0 && (int)$value <= MYSQL_MAX_INT)
-                $match["params"][$key] = (int)$value;
-            else api_respond(new Response(404));
-        }
-    }
+    // foreach ($match["params"] as $key => $value)
+    // {
+    //     if (ends_with($key, "Id"))
+    //     {
+    //         if ((int)$value >= 0 && (int)$value <= MYSQL_MAX_INT)
+    //             $match["params"][$key] = (int)$value;
+    //         else api_respond(new Response(404));
+    //     }
+    // }
 
     // Call the target function with the elements in the array as arguments
-    $response = call_user_func_array($target[1], $match["params"]);
+    //$response = call_user_func_array($target[1], $match["params"]);
 
-    api_respond($response);
+    api_respond((new $target[1]($pdo, $user))->response($match["params"]));
 }
 else api_respond(new Response(404));
