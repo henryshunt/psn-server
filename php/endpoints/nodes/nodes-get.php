@@ -6,7 +6,7 @@ class EndpointNodesGet
 {
     private $pdo;
     private $user;
-    private $restParams;
+    private $resParams;
     private $urlParams;
 
     public function __construct(PDO $pdo, array $user)
@@ -15,9 +15,9 @@ class EndpointNodesGet
         $this->user = $user;
     }
 
-    public function response(array $restParams) : Response
+    public function response(array $resParams) : Response
     {
-        $this->restParams = $restParams;
+        $this->resParams = $resParams;
         $this->urlParams = $_GET;
 
         $validation = $this->validateParams();

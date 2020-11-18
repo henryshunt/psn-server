@@ -2,11 +2,11 @@
 use Respect\Validation\Validator as V;
 use Respect\Validation\Exceptions\ValidationException;
 
-class EndpointNodePatch
+class EndpointProjectsPost
 {
     private $pdo;
     private $user;
-    private $restParams;
+    private $resParams;
     private $jsonParams;
 
     public function __construct(PDO $pdo, array $user)
@@ -15,12 +15,9 @@ class EndpointNodePatch
         $this->user = $user;
     }
 
-    public function response(array $restParams) : Response
+    public function response(array $resParams) : Response
     {
-        $this->restParams = $restParams;
-
-        if (!$this->user["privNodes"])
-            return (new Response(403))->setBody("Only privileged users can update nodes");
+        $this->resParams = $resParams;
 
         $loadJson = $this->loadJsonParams();
         if ($loadJson->getStatus() !== 200)
@@ -30,7 +27,7 @@ class EndpointNodePatch
         if ($validation->getStatus() !== 200)
             return $validation;
 
-        return $this->updateNode();
+        return $this->createProject();
     }
 
     public function loadJsonParams() : Response
@@ -41,7 +38,7 @@ class EndpointNodePatch
             return (new Response(400))->setError("Invalid JSON object supplied");
 
         $json = (array)$json;
-        $json = filter_keys($json, ["name"]);
+        $json = filter_keys($json, ["name", "description"]);
 
         $this->jsonParams = $json;
         return new Response(200);
@@ -53,7 +50,8 @@ class EndpointNodePatch
             return (new Response(400))->setError("No JSON attributes supplied");
 
         $validator = V
-            ::key("name", V::anyOf(V::nullType(), V::stringType()->length(1, 128)), false);
+            ::key("name", V::stringType()->length(1, 128))
+            ->key("description", V::anyOf(V::nullType(), V::stringType()->length(1, 255)), false);
 
         try { $validator->check($this->jsonParams); }
         catch (ValidationException $ex)
@@ -61,39 +59,32 @@ class EndpointNodePatch
             return (new Response(400))->setError($ex->getMessage());
         }
 
-        try
-        {
-            if (api_get_node($this->pdo, $this->restParams["nodeId"]) === null)
-                return new Response(404);
-        }
-        catch (PDOException $ex)
-        {
-            error_log($ex);
-            return new Response(500);
-        }
-
         return new Response(200);
     }
 
-    private function updateNode() : Response
+    private function createProject() : Response
     {
         try
         {
-            $sql = "UPDATE nodes SET %s WHERE nodeId = ?";
-            $sql = sprintf($sql, sql_update_string($this->jsonParams));
+            $values = $this->jsonParams;
+            $values["userId"] = $this->user["userId"];
 
-            $values = array_values($this->jsonParams);
-            array_push($values, $this->restParams["nodeId"]);
+            $sql = "INSERT INTO projects " . sql_insert_string($values);
+            database_query($this->pdo, $sql, array_values($values));
 
-            database_query($this->pdo, $sql, $values);
-            return new Response(200);
+            return (new Response(200))->setBody(["projectId" => $this->pdo->lastInsertId()]);
         }
         catch (PDOException $ex)
         {
-            if ($ex->errorInfo[1] === 1062 &&
+            if ($ex->errorInfo[1] === 1452 &&
+                strpos($ex->errorInfo[2], "FOREIGN KEY (`userId`)") !== false)
+            {
+                return new Response(401);
+            }
+            else if ($ex->errorInfo[1] === 1062 &&
                 strpos($ex->errorInfo[2], "for key 'name'") !== false)
             {
-                return (new Response(400))->setError("name is not unique");
+                return (new Response(400))->setError("name is not unique within user");
             }
             else
             {

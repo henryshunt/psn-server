@@ -1,12 +1,9 @@
 <?php
-use Respect\Validation\Validator as V;
-use Respect\Validation\Exceptions\ValidationException;
-
 class EndpointNodeGet
 {
     private $pdo;
     private $user;
-    private $restParams;
+    private $resParams;
 
     public function __construct(PDO $pdo, array $user)
     {
@@ -14,9 +11,9 @@ class EndpointNodeGet
         $this->user = $user;
     }
 
-    public function response(array $restParams) : Response
+    public function response(array $resParams) : Response
     {
-        $this->restParams = $restParams;
+        $this->resParams = $resParams;
 
         if (!$this->user["privNodes"])
             return (new Response(403))->setBody("Only privileged users can delete nodes");
@@ -29,7 +26,7 @@ class EndpointNodeGet
         try
         {
             $sql = "DELETE FROM nodes WHERE nodeId = ?";
-            $affected = database_query_affected($pdo, $sql, [$this->restParams["nodeId"]]);
+            $affected = database_query_affected($pdo, $sql, [$this->resParams["nodeId"]]);
             return new Response($affected > 0 ? 200 : 404);
         }
         catch (PDOException $ex)

@@ -1,4 +1,7 @@
 <?php
+use Respect\Validation\Validator as V;
+use Respect\Validation\Exceptions\ValidationException;
+
 const MYSQL_MAX_INT = 2147483647;
 const MYSQL_MAX_TINYINT = 127;
 
@@ -44,44 +47,83 @@ function api_respond($response)
 
 function api_authenticate($pdo)
 {
+    // Authenticate via username and password in request
     if (isset($_SERVER["PHP_AUTH_USER"]) === true)
     {
         try
         {
-            $sql = "SELECT userId FROM users WHERE username = ? AND password = ?";
-            $query = database_query($pdo, $sql, [$_SERVER["PHP_AUTH_USER"], $_SERVER["PHP_AUTH_PW"]]);
+            // Need to lock the selected user so it can't be deleted
+            $sql = "SELECT * FROM users WHERE username = ? AND password = ?";
+            
+            $query = database_query($pdo, $sql,
+                [$_SERVER["PHP_AUTH_USER"], $_SERVER["PHP_AUTH_PW"]]);
 
             if (count($query) > 0)
-                return $query[0]["userId"];
-            else api_respond(new Response(401));
+            {
+                $query[0]["privNodes"] = (bool)$query[0]["privNodes"];
+                $query[0]["privUsers"] = (bool)$query[0]["privUsers"];
+                return $query[0];
+            }
+            else api_respond(new Response(403));
         }
         catch (PDOException $ex)
         {
+            error_log($ex);
             api_respond(new Response(500));
         }
     }
-    else if (isset(apache_request_headers()["Authorization"]) &&
-        starts_with(apache_request_headers()["Authorization"], "Bearer "))
-    {
-        $token = substr(apache_request_headers()["Authorization"], 7);
-    }
-    else if (isset($_COOKIE["session"]))
-        $token = $_COOKIE["session"];
-    else api_respond(new Response(401));
 
+    // Authenticate via session token in request or cookie
+    else if (isset(apache_request_headers()["Authorization"]) ||
+        isset($_COOKIE["session"]))
+    {
+        if (isset(apache_request_headers()["Authorization"]) &&
+            starts_with(apache_request_headers()["Authorization"], "Bearer "))
+        {
+            $token = substr(apache_request_headers()["Authorization"], 7);
+        }
+        else if (isset($_COOKIE["session"]))
+            $token = $_COOKIE["session"];
+        else api_respond(new Response(401));
+
+        try
+        {
+            // Need to lock the selected user so it can't be deleted
+            $sql = "SELECT * FROM users WHERE userId =
+                        (SELECT userId FROM tokens WHERE token = ?)";
+
+            $query = database_query($pdo, $sql, [$token]);
+
+            if (count($query) > 0)
+            {
+                $query[0]["privNodes"] = (bool)$query[0]["privNodes"];
+                $query[0]["privUsers"] = (bool)$query[0]["privUsers"];
+                return $query[0];
+            }
+            else api_respond(new Response(403));
+        }
+        catch (PDOException $ex)
+        {
+            error_log($ex);
+            api_respond(new Response(500));
+        }
+    }
+
+    else api_respond(new Response(401));
+}
+
+function get_login_session($token, $pdo)
+{
     try
     {
-        $sql = "SELECT userId FROM tokens WHERE token = ?";
+        $sql = "SELECT * FROM users WHERE userId = (SELECT userId FROM tokens WHERE token = ?)";
         $query = database_query($pdo, $sql, [$token]);
 
-        if (count($query) === 0)
-            api_respond(new Response(401));
-
-        return $query[0]["userId"];
+        return count($query) === 0 ? null : $query[0];
     }
     catch (PDOException $ex)
     {
-        api_respond(new Response(500));
+        return false;
     }
 }
 
@@ -146,29 +188,13 @@ function database_query_affected($pdo, $sql, $values = null)
 }
 
 
-function get_login_session($token, $pdo)
-{
-    try
-    {
-        $sql = "SELECT * FROM users WHERE userId = (SELECT userId FROM tokens WHERE token = ?)";
-        $query = database_query($pdo, $sql, [$token]);
-
-        return count($query) === 0 ? null : $query[0];
-    }
-    catch (PDOException $ex)
-    {
-        return false;
-    }
-}
-
-
 /**
  * Removes the keys from an associative array that are not included in a whitelist.
  * @param array $array - The associative array to remove keys from.
  * @param array $whitelist - The whitelist of allowed keys.
  * @return array The original $array but with all non-whitelisted keys removed.
  */
-function filter_attributes_allowed($array, $whitelist)
+function filter_keys($array, $whitelist)
 {
     $finalArray = $array;
 
@@ -214,4 +240,51 @@ function ends_with($string, $end)
     if (strlen($end) > 0)
         return substr($string, -strlen($end)) === $end;
     else return true;
+}
+
+
+
+function api_get_node($pdo, $nodeId)
+{
+    $sql = "SELECT * FROM nodes WHERE nodeId = ?";
+    $query = database_query($pdo, $sql, [$nodeId]);
+    return count($query) > 0 ? $query[0] : null;
+}
+
+function api_get_project($pdo, $projectId)
+{
+    $sql = "SELECT * FROM projects WHERE projectId = ?";
+    $query = database_query($pdo, $sql, [$projectId]);
+    return count($query) > 0 ? $query[0] : null;
+}
+
+function api_get_project_node($pdo, $projectId, $nodeId)
+{
+    $sql = "SELECT * FROM projectNodes WHERE projectId = ? AND nodeId = ?";
+    $query = database_query($pdo, $sql, [$projectId, $nodeId]);
+    return count($query) > 0 ? $query[0] : null;
+}
+
+
+function sql_update_string($attributes)
+{
+    $columns = [];
+
+    foreach (array_keys($attributes) as $key)
+        array_push($columns, sprintf("`%s` = ?", $key));
+
+    return join(", ", $columns);
+}
+
+function sql_insert_string($attributes)
+{
+    $columns = [];
+
+    foreach (array_keys($attributes) as $key)
+        array_push($columns, sprintf("`%s`", $key));
+
+    $sql = sprintf("(%s) VALUES (%s)",
+        join(", ", $columns), join(", ", array_fill(0, count($columns), "?")));
+
+    return $sql;
 }

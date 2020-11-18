@@ -2,11 +2,11 @@
 use Respect\Validation\Validator as V;
 use Respect\Validation\Exceptions\ValidationException;
 
-class EndpointNodesPost
+class EndpointNodePatch
 {
     private $pdo;
     private $user;
-    private $restParams;
+    private $resParams;
     private $jsonParams;
 
     public function __construct(PDO $pdo, array $user)
@@ -15,12 +15,12 @@ class EndpointNodesPost
         $this->user = $user;
     }
 
-    public function response(array $restParams) : Response
+    public function response(array $resParams) : Response
     {
-        $this->restParams = $restParams;
+        $this->resParams = $resParams;
 
         if (!$this->user["privNodes"])
-            return (new Response(403))->setBody("Only privileged users can create nodes");
+            return (new Response(403))->setBody("Only privileged users can update nodes");
 
         $loadJson = $this->loadJsonParams();
         if ($loadJson->getStatus() !== 200)
@@ -30,7 +30,7 @@ class EndpointNodesPost
         if ($validation->getStatus() !== 200)
             return $validation;
 
-        return $this->createNode();
+        return $this->updateNode();
     }
 
     public function loadJsonParams() : Response
@@ -41,7 +41,7 @@ class EndpointNodesPost
             return (new Response(400))->setError("Invalid JSON object supplied");
 
         $json = (array)$json;
-        $json = filter_keys($json, ["macAddress", "name"]);
+        $json = filter_keys($json, ["name"]);
 
         $this->jsonParams = $json;
         return new Response(200);
@@ -53,8 +53,7 @@ class EndpointNodesPost
             return (new Response(400))->setError("No JSON attributes supplied");
 
         $validator = V
-            ::key("macAddress", V::stringType()->regex("/([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2}/"))
-            ->key("name", V::anyOf(V::nullType(), V::stringType()->length(1, 128)), false);
+            ::key("name", V::anyOf(V::nullType(), V::stringType()->length(1, 128)), false);
 
         try { $validator->check($this->jsonParams); }
         catch (ValidationException $ex)
@@ -62,26 +61,37 @@ class EndpointNodesPost
             return (new Response(400))->setError($ex->getMessage());
         }
 
-        $this->jsonParams["macAddress"] = strtolower($this->jsonParams["macAddress"]);
+        // Check the node exists
+        try
+        {
+            if (api_get_node($this->pdo, $this->resParams["nodeId"]) === null)
+                return new Response(404);
+        }
+        catch (PDOException $ex)
+        {
+            error_log($ex);
+            return new Response(500);
+        }
+
         return new Response(200);
     }
 
-    private function createNode() : Response
+    private function updateNode() : Response
     {
         try
         {
-            $sql = "INSERT INTO nodes " . sql_insert_string($this->jsonParams);
-            database_query($this->pdo, $sql, array_values($this->jsonParams));
-            return (new Response(200))->setBody(["nodeId" => $this->pdo->lastInsertId()]);
+            $sql = "UPDATE nodes SET %s WHERE nodeId = ?";
+            $sql = sprintf($sql, sql_update_string($this->jsonParams));
+
+            $values = array_values($this->jsonParams);
+            array_push($values, $this->resParams["nodeId"]);
+
+            database_query($this->pdo, $sql, $values);
+            return new Response(200);
         }
         catch (PDOException $ex)
         {
             if ($ex->errorInfo[1] === 1062 &&
-                strpos($ex->errorInfo[2], "for key 'macAddress'") !== false)
-            {
-                return (new Response(400))->setError("macAddress is not unique");
-            }
-            else if ($ex->errorInfo[1] === 1062 &&
                 strpos($ex->errorInfo[2], "for key 'name'") !== false)
             {
                 return (new Response(400))->setError("name is not unique");

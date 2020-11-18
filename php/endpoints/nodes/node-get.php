@@ -6,7 +6,7 @@ class EndpointNodeGet
 {
     private $pdo;
     private $user;
-    private $restParams;
+    private $resParams;
     private $urlParams;
 
     public function __construct(PDO $pdo, array $user)
@@ -15,9 +15,9 @@ class EndpointNodeGet
         $this->user = $user;
     }
 
-    public function response(array $restParams) : Response
+    public function response(array $resParams) : Response
     {
-        $this->restParams = $restParams;
+        $this->resParams = $resParams;
         $this->urlParams = $_GET;
 
         $validation = $this->validateParams();
@@ -43,6 +43,9 @@ class EndpointNodeGet
         {
             return (new Response(400))->setError($ex->getMessage());
         }
+
+        if (array_key_exists("macAddress", $this->resParams))
+            $this->resParams["macAddress"] = strtolower($this->resParams["macAddress"]);
 
         return new Response(200);
     }
@@ -84,7 +87,7 @@ class EndpointNodeGet
 
     private function generateSql() : array
     {
-        if (array_key_exists("macAddress", $this->restParams))
+        if (array_key_exists("macAddress", $this->resParams))
             $idOrMac = "macAddress";
         else $idOrMac = "nodeId";
 
@@ -101,7 +104,7 @@ class EndpointNodeGet
         }
         else $sql .= " FROM nodes WHERE $idOrMac = ?";
 
-        $values = [$this->restParams[$idOrMac]];
+        $values = [$this->resParams[$idOrMac]];
         return [$sql, $values];
     }
 }
