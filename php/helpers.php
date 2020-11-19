@@ -81,15 +81,15 @@ function api_authenticate($pdo)
 
     // Authenticate via session token in request or cookie
     else if (isset(apache_request_headers()["Authorization"]) ||
-        isset($_COOKIE["session"]))
+        isset($_COOKIE[SESSION_COOKIE_NAME]))
     {
         if (isset(apache_request_headers()["Authorization"]) &&
             starts_with(apache_request_headers()["Authorization"], "Bearer "))
         {
             $token = substr(apache_request_headers()["Authorization"], 7);
         }
-        else if (isset($_COOKIE["session"]))
-            $token = $_COOKIE["session"];
+        else if (isset($_COOKIE[SESSION_COOKIE_NAME]))
+            $token = $_COOKIE[SESSION_COOKIE_NAME];
         else api_respond(new Response(401));
 
         try
