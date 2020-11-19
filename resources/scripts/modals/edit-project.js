@@ -86,7 +86,7 @@ var editProjectModal = (function ()
 
     return {
         open: open,
-        onFormSubmit: _onFormSubmit,
-        onCancelClick: _onCancelClick
+        _onFormSubmit: _onFormSubmit,
+        _onCancelClick: _onCancelClick
     };
 })();

@@ -33,6 +33,7 @@ class EndpointProjectDelete
                 return new Response(404);
             else if ($project["userId"] !== $this->user["userId"])
                 return new Response(403);
+            else return new Response(200);
         }
         catch (PDOException $ex)
         {

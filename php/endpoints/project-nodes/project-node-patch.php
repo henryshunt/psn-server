@@ -82,10 +82,10 @@ class EndpointProjectNodePatch
     {
         try
         {
-            $sql = "UPDATE projectNodes SET (endAt = NOW())
+            $sql = "UPDATE projectNodes SET endAt = NOW()
                         WHERE projectId = ? AND nodeId = ? AND (endAt IS NULL OR NOW() < endAt)";
 
-            $query = database_query($pdo, $sql,
+            $query = database_query($this->pdo, $sql,
                 [$this->resParams["projectId"], $this->resParams["nodeId"]]);
             return new Response(200);
         }

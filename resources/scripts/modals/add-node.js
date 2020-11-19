@@ -1,9 +1,9 @@
 window.addEventListener("load", () =>
 {
     document.getElementById(
-        "m-addnode-form").addEventListener("submit", addNodeModal.onFormSubmit);
+        "m-addnode-form").addEventListener("submit", addNodeModal._onFormSubmit);
     document.getElementById(
-        "m-addnode-cancel").addEventListener("click", addNodeModal.onCancelClick);
+        "m-addnode-cancel").addEventListener("click", addNodeModal._onCancelClick);
 });
 
 var addNodeModal = (function ()
@@ -150,7 +150,7 @@ var addNodeModal = (function ()
 
     return {
         open: open,
-        onFormSubmit: onFormSubmit,
-        onCancelClick: onCancelClick
+        _onFormSubmit: onFormSubmit,
+        _onCancelClick: onCancelClick
     };
 })();

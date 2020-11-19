@@ -205,7 +205,7 @@ function onStopProjectClick()
 {
     if (confirm("Are you sure you want to stop the project?"))
     {
-        stopReq("api.php/projects/{0}?stop=true".format(getQueryStringValue("id")))
+        patchReq("api.php/projects/{0}?stop=true".format(getQueryStringValue("id")))
             .then(() => window.location.reload())
             .catch(() => alert("An error occured while stopping the project."));
     }

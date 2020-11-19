@@ -56,13 +56,17 @@ class EndpointNodesGet
             $query = database_query($this->pdo, $sql);
 
             // Ensure each node has a currentProject attribute
-            if (isset($_GET["project"]) && $_GET["project"] === "true")
+            if (array_key_exists("project", $this->urlParams) &&
+                $this->urlParams["project"] === "true")
             {
                 for ($i = 0; $i < count($query); $i++)
                 {
                     // If inactive then there aren't any keys to move, so just set to null
-                    if (isset($_GET["inactive"]) && $_GET["inactive"] === "true")
+                    if (array_key_exists("inactive", $this->urlParams) &&
+                        $this->urlParams["inactive"] === "true")
+                    {
                         $query[$i]["currentProject"] = null;
+                    }
                     else
                     {
                         // Move the keys from the projectNodes table into a currentProject sub-object
