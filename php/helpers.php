@@ -2,8 +2,14 @@
 use Respect\Validation\Validator as V;
 use Respect\Validation\Exceptions\ValidationException;
 
+const SESSION_TOKEN_LENGTH = 64;
+const SESSION_EXPIRE_AFTER = 3600;
+const SESSION_COOKIE_NAME = "psn-token";
+const SESSION_COOKIE_PATH = "/psn-server";
+
 const MYSQL_MAX_INT = 2147483647;
 const MYSQL_MAX_TINYINT = 127;
+
 
 function load_configuration($file_path)
 {
@@ -110,21 +116,6 @@ function api_authenticate($pdo)
     }
 
     else api_respond(new Response(401));
-}
-
-function get_login_session($token, $pdo)
-{
-    try
-    {
-        $sql = "SELECT * FROM users WHERE userId = (SELECT userId FROM tokens WHERE token = ?)";
-        $query = database_query($pdo, $sql, [$token]);
-
-        return count($query) === 0 ? null : $query[0];
-    }
-    catch (PDOException $ex)
-    {
-        return false;
-    }
 }
 
 
@@ -287,4 +278,23 @@ function sql_insert_string($attributes)
         join(", ", $columns), join(", ", array_fill(0, count($columns), "?")));
 
     return $sql;
+}
+
+
+function error_page($statusCode)
+{
+    if ($statusCode === 500)
+    {
+        echo "<html>
+                  <head>
+                      <title>500 Internal Server Error</title>
+                  </head>
+                  <body>
+                      <h1>500 Internal Server Error</h1>
+                  </body
+              </html>";
+    }
+
+    http_response_code($statusCode);
+    exit();
 }

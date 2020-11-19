@@ -1,11 +1,11 @@
-<?php require_once "php/all-pages.php"; ?>
+<?php require_once "php/page-auth.php"; ?>
 
 <meta charset="UTF-8">
 <!DOCTYPE html>
 
 <html>
     <head>
-        <title>Phenotyping Sensor Network</title>
+        <title>Project - Phenotyping Sensor Network</title>
         <meta name="viewport" content="width=450px">
 
         <link href="resources/styles/reset.css" rel="stylesheet" type="text/css">
@@ -44,7 +44,7 @@
                         <i class="user__open-menu material-icons" id="user-menu-btn">settings</i>
 
                         <p class="user__name">
-                            <?php echo $session["username"]; ?>
+                            <?php echo $user["username"]; ?>
                         </p>
 
                         <div class="user__menu user__menu--hidden" id="user-menu">

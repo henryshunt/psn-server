@@ -1,7 +1,7 @@
 window.addEventListener("load", () =>
 {
     document.getElementById("log-out-btn").addEventListener("click",
-        () => window.location.href = "php/logout.php"
+        () => window.location.href = "auth/log-out.php"
     );
 
     document.getElementById("user-menu-btn").addEventListener("click",
