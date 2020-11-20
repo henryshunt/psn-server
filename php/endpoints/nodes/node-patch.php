@@ -6,10 +6,8 @@ class EndpointNodePatch extends Endpoint
 {
     private $jsonParams;
 
-    public function response(array $resParams) : Response
+    public function response() : Response
     {
-        $this->resParams = $resParams;
-
         if (!$this->user["privNodes"])
             return (new Response(403))->setBody("Only privileged users can update nodes");
 

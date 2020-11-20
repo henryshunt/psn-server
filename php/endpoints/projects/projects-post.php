@@ -6,10 +6,8 @@ class EndpointProjectsPost extends Endpoint
 {
     private $jsonParams;
 
-    public function response(array $resParams) : Response
+    public function response() : Response
     {
-        $this->resParams = $resParams;
-
         $loadJson = $this->loadJsonParams();
         if ($loadJson->getStatus() !== 200)
             return $loadJson;

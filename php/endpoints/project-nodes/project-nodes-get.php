@@ -4,13 +4,8 @@ use Respect\Validation\Exceptions\ValidationException;
 
 class EndpointProjectNodesGet extends Endpoint
 {
-    private $urlParams;
-
-    public function response(array $resParams) : Response
+    public function response() : Response
     {
-        $this->resParams = $resParams;
-        $this->urlParams = $_GET;
-
         $validation = $this->validateParams();
         if ($validation->getStatus() !== 200)
             return $validation;

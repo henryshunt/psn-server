@@ -1,10 +1,8 @@
 <?php
 class EndpointProjectNodeDelete
 {
-    public function response(array $resParams) : Response
+    public function response() : Response
     {
-        $this->resParams = $resParams;
-
         $validation = $this->validateObjects();
         if ($validation->getStatus() !== 200)
             return $validation;

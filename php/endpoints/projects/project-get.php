@@ -1,9 +1,8 @@
 <?php
 class EndpointProjectGet extends Endpoint
 {
-    public function response(array $resParams) : Response
+    public function response() : Response
     {
-        $this->resParams = $resParams;
         return $this->readProject($this->generateSql());
     }
 

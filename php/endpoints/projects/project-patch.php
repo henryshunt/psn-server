@@ -4,14 +4,10 @@ use Respect\Validation\Exceptions\ValidationException;
 
 class EndpointProjectPatch extends Endpoint
 {
-    private $urlParams;
     private $jsonParams;
 
-    public function response(array $resParams) : Response
+    public function response() : Response
     {
-        $this->resParams = $resParams;
-        $this->urlParams = $_GET;
-
         $validation = $this->validateUrlParams();
         if ($validation->getStatus() !== 200)
             return $validation;
