@@ -1,19 +1,6 @@
 <?php
-use Respect\Validation\Validator as V;
-use Respect\Validation\Exceptions\ValidationException;
-
-class EndpointProjectGet
+class EndpointProjectGet extends Endpoint
 {
-    private $pdo;
-    private $user;
-    private $resParams;
-
-    public function __construct(PDO $pdo, array $user)
-    {
-        $this->pdo = $pdo;
-        $this->user = $user;
-    }
-
     public function response(array $resParams) : Response
     {
         $this->resParams = $resParams;
@@ -55,13 +42,30 @@ class EndpointProjectGet
 
     private function generateSql() : array
     {
-        $sql = "SELECT *,
-                    (nodeCount IS NOT NULL AND (endAt IS NULL OR NOW() < endAt)) isActive
-                FROM projects
-                    LEFT JOIN
-                        (SELECT projectId, MIN(startAt) startAt, MAX(endAt) endAt, COUNT(*) nodeCount
-                            FROM projectNodes GROUP BY projectId) b
-                    ON b.projectId = projects.projectId WHERE projects.projectId = ?";
+        $sql = "SELECT
+                    p.projectId,
+                    p.userId,
+                    p.name,
+                    p.description,
+                    p.createdAt,
+                    pn.startAt,
+                    pn.endAt,
+                    pn.nodeCount,
+                    (pn.nodeCount IS NOT NULL AND (pn.endAt IS NULL OR NOW() < pn.endAt)) isActive
+
+                FROM projects p
+                    LEFT JOIN (
+                        SELECT
+                            projectId,
+                            MIN(startAt) startAt,
+                            MAX(endAt) endAt,
+                            COUNT(*) nodeCount
+
+                        FROM projectNodes
+                            GROUP BY projectId
+                    ) pn ON pn.projectId = p.projectId
+                    
+                WHERE p.projectId = ?";
 
         $values = [$this->resParams["projectId"]];
         return [$sql, $values];

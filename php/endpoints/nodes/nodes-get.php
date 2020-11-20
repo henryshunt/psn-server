@@ -2,18 +2,9 @@
 use Respect\Validation\Validator as V;
 use Respect\Validation\Exceptions\ValidationException;
 
-class EndpointNodesGet
+class EndpointNodesGet extends Endpoint
 {
-    private $pdo;
-    private $user;
-    private $resParams;
     private $urlParams;
-
-    public function __construct(PDO $pdo, array $user)
-    {
-        $this->pdo = $pdo;
-        $this->user = $user;
-    }
 
     public function response(array $resParams) : Response
     {
@@ -55,13 +46,12 @@ class EndpointNodesGet
         {
             $query = database_query($this->pdo, $sql);
 
-            // Ensure each node has a currentProject attribute
             if (array_key_exists("project", $this->urlParams) &&
                 $this->urlParams["project"] === "true")
             {
+                // Ensure each node has a currentProject attribute
                 for ($i = 0; $i < count($query); $i++)
                 {
-                    // If inactive then there aren't any keys to move, so just set to null
                     if (array_key_exists("inactive", $this->urlParams) &&
                         $this->urlParams["inactive"] === "true")
                     {
@@ -69,18 +59,15 @@ class EndpointNodesGet
                     }
                     else
                     {
-                        // Move the keys from the projectNodes table into a currentProject sub-object
-                        foreach ($query[$i] as $key => $value)
-                        {
-                            if (starts_with($key, "b_"))
-                            {
-                                $query[$i]["currentProject"][substr($key, 2)] = $value;
-                                unset($query[$i][$key]);
-                            }
-                        }
+                        move_prefixed_keys($query[$i], "pn_", "currentProject");
 
                         if ($query[$i]["currentProject"]["projectId"] === null)
                             $query[$i]["currentProject"] = null;
+
+                        move_prefixed_keys($query[$i], "r_", "latestReport");
+
+                        if ($query[$i]["latestReport"]["reportId"] === null)
+                            $query[$i]["latestReport"] = null;
                     }
                 }
             }
@@ -99,19 +86,50 @@ class EndpointNodesGet
         if (array_key_exists("inactive", $this->urlParams) &&
             $this->urlParams["inactive"] === "true")
         {
-            $sql = "SELECT * FROM nodes WHERE nodeId NOT IN
-                    (SELECT nodeId FROM projectNodes WHERE endAt IS NULL OR NOW() < endAt)";
+            $sql = "SELECT
+                        nodeId,
+                        macAddress,
+                        name,
+                        createdAt
+                    FROM nodes
+
+                    WHERE nodeId NOT IN
+                        (SELECT nodeId FROM projectNodes WHERE endAt IS NULL OR NOW() < endAt)";
         }
         else if (array_key_exists("project", $this->urlParams) &&
             $this->urlParams["project"] === "true")
         {
-            $sql = "SELECT nodes.*, projectId b_projectId, location b_location, startAt b_startAt, endAt b_endAt,
-                        `interval` b_interval, batchSize b_batchSize, latestReportId b_latestReportId
-                    FROM nodes
-                        LEFT JOIN (SELECT * FROM projectNodes WHERE endAt IS NULL OR NOW() < endAt) b
-                            ON b.nodeId = nodes.nodeId";
+            $sql = "SELECT
+                        n.nodeId,
+                        n.macAddress,
+                        n.name,
+                        n.createdAt,
+                        pn.projectId pn_projectId,
+                        pn.location pn_location,
+                        pn.startAt pn_startAt,
+                        pn.endAt pn_endAt,
+                        pn.interval pn_interval,
+                        pn.batchSize pn_batchSize,
+                        r.reportId r_reportId,
+                        r.time r_time,
+                        r.airt r_airt,
+                        r.relh r_relh,
+                        r.batv r_batv
+                    
+                    FROM nodes n
+                        LEFT JOIN (SELECT * FROM projectNodes WHERE endAt IS NULL OR NOW() < endAt) pn
+                            ON pn.nodeId = n.nodeId
+                        LEFT JOIN reports r ON r.reportId = pn.latestReportId";
         }
-        else $sql = "SELECT * FROM nodes";
+        else
+        {
+            $sql = "SELECT
+                        nodeId,
+                        macAddress,
+                        name,
+                        createdAt
+                    FROM nodes";
+        }
     
         $sql .= " ORDER BY macAddress";
         return $sql;

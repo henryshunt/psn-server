@@ -2,6 +2,7 @@
 require_once "vendor/autoload.php";
 require_once "php/helpers.php";
 require_once "php/response.php";
+require_once "php/endpoint.php";
 
 $config = load_configuration("config.json");
 if ($config === false)
@@ -26,7 +27,7 @@ $router->addMatchTypes(["mac" => "([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2}"]);
 
 $router->map("GET", "/nodes", "nodes/nodes-get.php+EndpointNodesGet");
 $router->map("POST", "/nodes", "nodes/nodes-post.php+EndpointNodesPost");
-$router->map("GET", "/nodes/[i:nodeId]", "nodes/node-get.php_+ndpointNodeGet");
+$router->map("GET", "/nodes/[i:nodeId]", "nodes/node-get.php+EndpointNodeGet");
 $router->map("GET", "/nodes/[mac:macAddress]", "nodes/node-get.php+EndpointNodeGet");
 $router->map("PATCH", "/nodes/[i:nodeId]", "nodes/node-patch.php+EndpointNodePatch");
 $router->map("DELETE", "/nodes/[i:nodeId]", "nodes/node-delete.php+EndpointNodeDelete");

@@ -2,18 +2,9 @@
 use Respect\Validation\Validator as V;
 use Respect\Validation\Exceptions\ValidationException;
 
-class EndpointProjectNodeGet
+class EndpointProjectNodeGet extends Endpoint
 {
-    private $pdo;
-    private $user;
     private $urlParams;
-    private $resParams;
-
-    public function __construct(PDO $pdo, array $user)
-    {
-        $this->pdo = $pdo;
-        $this->user = $user;
-    }
 
     public function response(array $resParams) : Response
     {
@@ -24,12 +15,30 @@ class EndpointProjectNodeGet
         if ($validation->getStatus() !== 200)
             return $validation;
 
+        $validation = $this->validateObjects();
+        if ($validation->getStatus() !== 200)
+            return $validation;
+
         return $this->readProjectNode($this->generateSql());
     }
 
     private function validateParams() : Response
     {
-        // Check the project exists and the user owns it
+        $validator = V
+            ::key("project", V::in(["true", "false"], true), false)
+            ->key("node", V::in(["true", "false"], true), false);
+
+        try { $validator->check($this->urlParams); }
+        catch (ValidationException $ex)
+        {
+            return (new Response(400))->setError($ex->getMessage());
+        }
+
+        return new Response(200);
+    }
+
+    private function validateObjects() : Response
+    {
         try
         {
             $project = api_get_project($this->pdo, $this->resParams["projectId"]);
@@ -57,23 +66,8 @@ class EndpointProjectNodeGet
                 return new Response(404);
 
             $query[0]["isActive"] = (bool)$query[0]["isActive"];
-            
-            if (array_key_exists("report", $this->urlParams) &&
-                $this->urlParams["report"] === "true")
-            {
-                // Move the keys from the reports table into a currentReport sub-object
-                foreach ($query[0] as $key => $value)
-                {
-                    if (starts_with($key, "b_"))
-                    {
-                        $query[0]["latestReport"][substr($key, 2)] = $value;
-                        unset($query[0][$key]);
-                    }
-                }
-
-                if ($query[0]["latestReport"]["reportId"] === null)
-                    $query[0]["latestReport"] = null;
-            }
+            move_prefixed_keys($query[0], "p_", "project");
+            move_prefixed_keys($query[0], "n_", "node");
 
             return (new Response(200))->setBody($query[0]);
         }
@@ -86,23 +80,27 @@ class EndpointProjectNodeGet
 
     private function generateSql() : array
     {
-        $sql = "SELECT projectNodes.*";
+        $sql = "SELECT
+                    pn.location,
+                    pn.startAt,
+                    pn.endAt,
+                    pn.interval,
+                    pn.batchSize,
+                    pn.latestReportId,
+                    (pn.endAt IS NULL OR NOW() < pn.endAt) isActive,
+                    p.projectId p_projectId,
+                    p.name p_name,
+                    p.description p_description,
+                    p.createdAt p_createdAt,
+                    n.nodeId n_nodeId,
+                    n.macAddress n_macAddress,
+                    n.name n_name,
+                    n.createdAt n_createdAt
 
-        if (array_key_exists("report", $this->urlParams) &&
-            $this->urlParams["report"] === "true")
-        {
-            $sql .= ", reportId b_reportId, time b_time, airt b_airt, relh b_relh, batv b_batv";
-        }
-
-        $sql .= ", (endAt IS NULL OR NOW() < endAt) isActive FROM projectNodes ";
-
-        if (array_key_exists("report", $this->urlParams) &&
-            $this->urlParams["report"] === "true")
-        {
-            $sql .= " LEFT JOIN (SELECT * FROM reports) b ON b.reportId = projectNodes.latestReportId";
-        }
-        
-        $sql .= " WHERE projectNodes.projectId = ? AND projectNodes.nodeId = ?";
+                FROM projectNodes pn
+                    LEFT JOIN projects p ON p.projectId = pn.projectId
+                    LEFT JOIN nodes n ON n.nodeId = pn.nodeId
+                WHERE pn.projectId = ? AND pn.nodeId = ?";
 
         $values = [$this->resParams["projectId"], $this->resParams["nodeId"]];
         return [$sql, $values];

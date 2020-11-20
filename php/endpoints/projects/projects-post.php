@@ -2,18 +2,9 @@
 use Respect\Validation\Validator as V;
 use Respect\Validation\Exceptions\ValidationException;
 
-class EndpointProjectsPost
+class EndpointProjectsPost extends Endpoint
 {
-    private $pdo;
-    private $user;
-    private $resParams;
     private $jsonParams;
-
-    public function __construct(PDO $pdo, array $user)
-    {
-        $this->pdo = $pdo;
-        $this->user = $user;
-    }
 
     public function response(array $resParams) : Response
     {
@@ -51,7 +42,8 @@ class EndpointProjectsPost
 
         $validator = V
             ::key("name", V::stringType()->length(1, 128))
-            ->key("description", V::anyOf(V::nullType(), V::stringType()->length(1, 255)), false);
+            ->key("description", V::anyOf(
+                V::nullType(), V::stringType()->length(1, 255)), false);
 
         try { $validator->check($this->jsonParams); }
         catch (ValidationException $ex)

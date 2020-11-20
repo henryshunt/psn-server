@@ -1,5 +1,4 @@
 <?php
-
 class Response
 {
     private $status;

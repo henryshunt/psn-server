@@ -2,19 +2,10 @@
 use Respect\Validation\Validator as V;
 use Respect\Validation\Exceptions\ValidationException;
 
-class EndpointProjectPatch
+class EndpointProjectPatch extends Endpoint
 {
-    private $pdo;
-    private $user;
-    private $resParams;
     private $urlParams;
     private $jsonParams;
-
-    public function __construct(PDO $pdo, array $user)
-    {
-        $this->pdo = $pdo;
-        $this->user = $user;
-    }
 
     public function response(array $resParams) : Response
     {
@@ -29,9 +20,9 @@ class EndpointProjectPatch
         if (array_key_exists("stop", $this->urlParams) &&
             $this->urlParams["stop"] === "true")
         {
-            $exists = $this->checkProjectExists();
-            if ($exists->getStatus() !== 200)
-                return $exists;
+            $validation = $this->validateObjects();
+            if ($validation->getStatus() !== 200)
+                return $validation;
 
             return $this->stopProject();
         }
@@ -44,10 +35,10 @@ class EndpointProjectPatch
         if ($validation->getStatus() !== 200)
             return $validation;
 
-        $exists = $this->checkProjectExists();
-        if ($exists->getStatus() !== 200)
-            return $exists;
-
+        $validation = $this->validateObjects();
+        if ($validation->getStatus() !== 200)
+            return $validation;
+            
         return $this->updateProject();
     }
 
@@ -85,7 +76,8 @@ class EndpointProjectPatch
 
         $validator = V
             ::key("name", V::stringType()->length(1, 128))
-            ->key("description", V::anyOf(V::nullType(), V::stringType()->length(1, 255)), false);
+            ->key("description", V::anyOf(
+                V::nullType(), V::stringType()->length(1, 255)), false);
 
         try { $validator->check($this->jsonParams); }
         catch (ValidationException $ex)
@@ -96,9 +88,8 @@ class EndpointProjectPatch
         return new Response(200);
     }
 
-    private function checkProjectExists() : Response
+    private function validateObjects() : Response
     {
-        // Check the project exists and the user owns it
         try
         {
             $project = api_get_project($this->pdo, $this->resParams["projectId"]);
@@ -134,7 +125,7 @@ class EndpointProjectPatch
             if ($ex->errorInfo[1] === 1062 &&
                 strpos($ex->errorInfo[2], "for key 'name'") !== false)
             {
-                return (new Response(400))->setError("name is not unique");
+                return (new Response(400))->setError("name is not unique within user");
             }
             else
             {

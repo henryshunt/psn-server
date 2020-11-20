@@ -4,17 +4,8 @@ use Respect\Validation\Exceptions\ValidationException;
 
 class EndpointProjectNodePatch
 {
-    private $pdo;
-    private $user;
-    private $resParams;
     private $urlParams;
     private $jsonParams;
-
-    public function __construct(PDO $pdo, array $user)
-    {
-        $this->pdo = $pdo;
-        $this->user = $user;
-    }
 
     public function response(array $resParams) : Response
     {
@@ -29,14 +20,14 @@ class EndpointProjectNodePatch
         if (array_key_exists("stop", $this->urlParams) &&
             $this->urlParams["stop"] === "true")
         {
-            $exists = $this->checkProjectNodeExists();
-            if ($exists->getStatus() !== 200)
-                return $exists;
+            $validation = $this->validateObjects();
+            if ($validation->getStatus() !== 200)
+                return $validation;
 
             return $this->stopProjectNode();
         }
 
-        return (new Response(400));
+        return new Response(400);
     }
 
     private function validateUrlParams() : Response
@@ -52,9 +43,8 @@ class EndpointProjectNodePatch
         return new Response(200);
     }
 
-    private function checkProjectNodeExists() : Response
+    private function validateObjects() : Response
     {
-        // Check the project exists and the user owns it
         try
         {
             $project = api_get_project($this->pdo, $this->resParams["projectId"]);
@@ -87,6 +77,7 @@ class EndpointProjectNodePatch
 
             $query = database_query($this->pdo, $sql,
                 [$this->resParams["projectId"], $this->resParams["nodeId"]]);
+                
             return new Response(200);
         }
         catch (PDOException $ex)

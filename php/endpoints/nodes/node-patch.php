@@ -2,18 +2,9 @@
 use Respect\Validation\Validator as V;
 use Respect\Validation\Exceptions\ValidationException;
 
-class EndpointNodePatch
+class EndpointNodePatch extends Endpoint
 {
-    private $pdo;
-    private $user;
-    private $resParams;
     private $jsonParams;
-
-    public function __construct(PDO $pdo, array $user)
-    {
-        $this->pdo = $pdo;
-        $this->user = $user;
-    }
 
     public function response(array $resParams) : Response
     {
@@ -27,6 +18,10 @@ class EndpointNodePatch
             return $loadJson;
 
         $validation = $this->validateParams();
+        if ($validation->getStatus() !== 200)
+            return $validation;
+
+        $validation = $this->validateObjects();
         if ($validation->getStatus() !== 200)
             return $validation;
 
@@ -53,7 +48,8 @@ class EndpointNodePatch
             return (new Response(400))->setError("No JSON attributes supplied");
 
         $validator = V
-            ::key("name", V::anyOf(V::nullType(), V::stringType()->length(1, 128)), false);
+            ::key("name", V::anyOf(
+                V::nullType(), V::stringType()->length(1, 128)), false);
 
         try { $validator->check($this->jsonParams); }
         catch (ValidationException $ex)
@@ -61,19 +57,22 @@ class EndpointNodePatch
             return (new Response(400))->setError($ex->getMessage());
         }
 
-        // Check the node exists
+        return new Response(200);
+    }
+
+    private function validateObjects() : Response
+    {
         try
         {
             if (api_get_node($this->pdo, $this->resParams["nodeId"]) === null)
                 return new Response(404);
+            else return new Response(200);
         }
         catch (PDOException $ex)
         {
             error_log($ex);
             return new Response(500);
         }
-
-        return new Response(200);
     }
 
     private function updateNode() : Response

@@ -2,18 +2,9 @@
 use Respect\Validation\Validator as V;
 use Respect\Validation\Exceptions\ValidationException;
 
-class EndpointNodeGet
+class EndpointNodeGet extends Endpoint
 {
-    private $pdo;
-    private $user;
-    private $resParams;
     private $urlParams;
-
-    public function __construct(PDO $pdo, array $user)
-    {
-        $this->pdo = $pdo;
-        $this->user = $user;
-    }
 
     public function response(array $resParams) : Response
     {
@@ -62,15 +53,7 @@ class EndpointNodeGet
             if (array_key_exists("project", $this->urlParams) &&
                 $this->urlParams["project"] === "true")
             {
-                // Move the keys from the projectNodes table into a project sub-object
-                foreach ($query[0] as $key => $value)
-                {
-                    if (starts_with($key, "b_"))
-                    {
-                        $query[0]["currentProject"][substr($key, 2)] = $value;
-                        unset($query[0][$key]);
-                    }
-                }
+                move_prefixed_keys($query[0], "pn_", "currentProject");
 
                 if ($query[0]["currentProject"]["projectId"] === null)
                     $query[0]["currentProject"] = null;
@@ -91,18 +74,39 @@ class EndpointNodeGet
             $idOrMac = "macAddress";
         else $idOrMac = "nodeId";
 
-        $sql = "SELECT nodes.*";
-
         if (array_key_exists("project", $this->urlParams) &&
             $this->urlParams["project"] === "true")
         {
-            $sql .= ", projectId b_projectId, location b_location, startAt b_startAt, endAt b_endAt,
-                        `interval` b_interval, batchSize b_batchSize, latestReportId b_latestReportId
-                    FROM nodes
-                        LEFT JOIN (SELECT * FROM projectNodes WHERE endAt IS NULL OR NOW() < endAt) b
-                            ON b.nodeId = nodes.nodeId WHERE nodes.$idOrMac = ?";
+            $sql = "SELECT
+                        n.nodeId,
+                        n.macAddress,
+                        n.name,
+                        n.createdAt,
+                        pn.projectId pn_projectId,
+                        pn.location pn_location,
+                        pn.startAt pn_startAt,
+                        pn.endAt pn_endAt,
+                        pn.interval pn_interval,
+                        pn.batchSize pn_batchSize,
+                        pn.latestReportId pn_latestReportId
+            
+                    FROM nodes n
+                        LEFT JOIN (SELECT * FROM projectNodes WHERE endAt IS NULL OR NOW() < endAt) pn
+                            ON pn.nodeId = n.nodeId
+                    
+                    WHERE n.$idOrMac = ?";
         }
-        else $sql .= " FROM nodes WHERE $idOrMac = ?";
+        else
+        {
+            $sql = "SELECT
+                        nodeId,
+                        macAddress,
+                        name,
+                        createdAt
+                    FROM nodes
+                    
+                    WHERE $idOrMac = ?";
+        }
 
         $values = [$this->resParams[$idOrMac]];
         return [$sql, $values];

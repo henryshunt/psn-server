@@ -2,18 +2,9 @@
 use Respect\Validation\Validator as V;
 use Respect\Validation\Exceptions\ValidationException;
 
-class EndpointProjectNodesPost
+class EndpointProjectNodesPost extends Endpoint
 {
-    private $pdo;
-    private $user;
-    private $resParams;
     private $jsonParams;
-
-    public function __construct(PDO $pdo, array $user)
-    {
-        $this->pdo = $pdo;
-        $this->user = $user;
-    }
 
     public function response(array $resParams) : Response
     {
@@ -24,6 +15,10 @@ class EndpointProjectNodesPost
             return $loadJson;
 
         $validation = $this->validateParams();
+        if ($validation->getStatus() !== 200)
+            return $validation;
+
+        $validation = $this->validateObjects();
         if ($validation->getStatus() !== 200)
             return $validation;
 
@@ -38,6 +33,7 @@ class EndpointProjectNodesPost
             return (new Response(400))->setError("Invalid JSON object supplied");
 
         $json = (array)$json;
+
         $json = filter_keys($json,
             ["nodeId", "location", "endAt", "interval", "batchSize"]);
 
@@ -53,7 +49,8 @@ class EndpointProjectNodesPost
         $validator = V
             ::key("nodeId", V::intType()->digit()->min(0)->max(MYSQL_MAX_INT))
             ->key("location", V::stringType()->length(1, 128))
-            ->key("endAt", V::stringType()->dateTime("Y-m-d H:i:s"))
+            ->key("endAt", V::anyOf(
+                V::nullType(), V::stringType()->dateTime("Y-m-d H:i:s")))
             ->key("interval", V::in([1, 2, 5, 10, 15, 20, 30], true))
             ->key("batchSize", V::intType()->digit()->min(0)->max(MYSQL_MAX_TINYINT));
 
@@ -63,7 +60,11 @@ class EndpointProjectNodesPost
             return (new Response(400))->setError($ex->getMessage());
         }
 
-        // Check the project exists and the user owns it, and check the node can be added
+        return new Response(200);
+    }
+
+    private function validateObjects() : Response
+    {
         try
         {
             $this->pdo->exec("LOCK TABLE projectNodes WRITE");
@@ -84,18 +85,19 @@ class EndpointProjectNodesPost
             // Make sure the node is not already active
             $sql = "SELECT 1 FROM projectNodes
                     WHERE nodeId = ? AND (endAt IS NULL OR NOW() < endAt)";
+
             $query = database_query($this->pdo, $sql, [$this->jsonParams["nodeId"]]);
 
             if (count($query) > 0)
                 return (new Response(400))->setError("nodeId is already active");
+
+            return new Response(200);
         }
         catch (PDOException $ex)
         {
             error_log($ex);
             return new Response(500);
         }
-
-        return new Response(200);
     }
 
     private function createProjectNode() : Response

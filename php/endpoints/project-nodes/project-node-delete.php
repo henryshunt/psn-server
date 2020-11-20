@@ -1,30 +1,19 @@
 <?php
 class EndpointProjectNodeDelete
 {
-    private $pdo;
-    private $user;
-    private $resParams;
-
-    public function __construct(PDO $pdo, array $user)
-    {
-        $this->pdo = $pdo;
-        $this->user = $user;
-    }
-
     public function response(array $resParams) : Response
     {
         $this->resParams = $resParams;
 
-        $validation = $this->validateParams();
+        $validation = $this->validateObjects();
         if ($validation->getStatus() !== 200)
             return $validation;
 
         return $this->deleteProjectNode();
     }
 
-    private function validateParams() : Response
+    private function validateObjects() : Response
     {
-        // Check the project exists and the user owns it
         try
         {
             $project = api_get_project($this->pdo, $this->resParams["projectId"]);
@@ -33,6 +22,7 @@ class EndpointProjectNodeDelete
                 return new Response(404);
             else if ($project["userId"] !== $this->user["userId"])
                 return new Response(403);
+            else return new Response(200);
         }
         catch (PDOException $ex)
         {
@@ -46,6 +36,7 @@ class EndpointProjectNodeDelete
         try
         {
             $sql = "DELETE FROM projectNodes WHERE projectId = ? AND nodeId = ?";
+            
             $affected = database_query_affected($this->pdo, $sql,
                 [$this->resParams["projectId"], $this->resParams["nodeId"]]);
 

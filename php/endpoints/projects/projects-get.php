@@ -2,18 +2,9 @@
 use Respect\Validation\Validator as V;
 use Respect\Validation\Exceptions\ValidationException;
 
-class EndpointProjectsGet
+class EndpointProjectsGet extends Endpoint
 {
-    private $pdo;
-    private $user;
-    private $resParams;
     private $urlParams;
-
-    public function __construct(PDO $pdo, array $user)
-    {
-        $this->pdo = $pdo;
-        $this->user = $user;
-    }
 
     public function response(array $resParams) : Response
     {
@@ -46,17 +37,11 @@ class EndpointProjectsGet
         {
             $query = database_query($this->pdo, $data[0], $data[1]);
 
-            // If we're not getting the active projects (which always have at least 1 node)
-            // then perform some cleanup of the data
             if (!array_key_exists("mode", $this->urlParams) ||
                 $this->urlParams["mode"] !== "active")
             {
                 for ($i = 0; $i < count($query); $i++)
                 {
-                    // If we're not also getting the completed projects...
-                    if (!array_key_exists("mode", $this->urlParams))
-                        $query[$i]["isActive"] = (bool)$query[$i]["isActive"];
-
                     if ($query[$i]["nodeCount"] === null)
                     {
                         $query[$i]["nodeCount"] = 0;
@@ -77,24 +62,37 @@ class EndpointProjectsGet
 
     private function generateSql() : array
     {
-        $sql = "SELECT projects.projectId, name, description, createdAt, startAt, endAt, nodeCount";
+        $sql = "SELECT
+                    p.projectId,
+                    p.name,
+                    p.description,
+                    p.createdAt,
+                    pn.startAt,
+                    pn.endAt,
+                    pn.nodeCount
+                
+                FROM projects p
+                    LEFT JOIN (
+                        SELECT
+                            projectId,
+                            MIN(startAt) startAt,
+                            MAX(endAt) endAt,
+                            COUNT(*) nodeCount
 
-        if (!isset($this->urlParams["mode"]))
-            $sql .= ", (nodeCount IS NOT NULL AND (endAt IS NULL OR NOW() < endAt)) isActive";
-
-        $sql .= " FROM projects
-                    LEFT JOIN (SELECT projectId, MIN(startAt) startAt, MAX(endAt) endAt, COUNT(*) nodeCount
-                        FROM projectNodes GROUP BY projectId) b
-                    ON b.projectId = projects.projectId WHERE userId = ?";
+                        FROM projectNodes
+                            GROUP BY projectId
+                    ) pn ON pn.projectId = p.projectId
+                
+                WHERE userId = ?";
 
         if (array_key_exists("mode", $this->urlParams))
         {
             if ($this->urlParams["mode"] === "active")
-                $sql .= " AND nodeCount IS NOT NULL AND (endAt IS NULL OR NOW() < endAt)";
-            else $sql .= " AND nodeCount IS NULL OR (endAt IS NOT NULL AND NOW() >= endAt)";
+                $sql .= " AND pn.nodeCount IS NOT NULL AND (pn.endAt IS NULL OR NOW() < pn.endAt)";
+            else $sql .= " AND pn.nodeCount IS NULL OR (pn.endAt IS NOT NULL AND NOW() >= pn.endAt)";
         }
         
-        $sql .= " ORDER BY name";
+        $sql .= " ORDER BY p.name";
 
         $values = [$this->user["userId"]];
         return [$sql, $values];

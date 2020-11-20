@@ -2,18 +2,9 @@
 use Respect\Validation\Validator as V;
 use Respect\Validation\Exceptions\ValidationException;
 
-class EndpointProjectNodesGet
+class EndpointProjectNodesGet extends Endpoint
 {
-    private $pdo;
-    private $user;
-    private $resParams;
     private $urlParams;
-
-    public function __construct(PDO $pdo, array $user)
-    {
-        $this->pdo = $pdo;
-        $this->user = $user;
-    }
 
     public function response(array $resParams) : Response
     {
@@ -24,14 +15,16 @@ class EndpointProjectNodesGet
         if ($validation->getStatus() !== 200)
             return $validation;
 
+        $validation = $this->validateObjects();
+        if ($validation->getStatus() !== 200)
+            return $validation;
+
         return $this->readProjectNodes($this->generateSql());
     }
 
     private function validateParams() : Response
     {
-        $validator = V
-            ::key("mode", V::in(["active", "completed"], true), false)
-            ->key("report", V::in(["true", "false"], true), false);
+        $validator = V::key("mode", V::in(["active", "completed"], true), false);
 
         try { $validator->check($this->urlParams); }
         catch (ValidationException $ex)
@@ -39,7 +32,11 @@ class EndpointProjectNodesGet
             return (new Response(400))->setError($ex->getMessage());
         }
 
-        // Check the project exists and the user owns it
+        return new Response(200);
+    }
+
+    private function validateObjects() : Response
+    {
         try
         {
             $project = api_get_project($this->pdo, $this->resParams["projectId"]);
@@ -48,14 +45,13 @@ class EndpointProjectNodesGet
                 return new Response(404);
             else if ($project["userId"] !== $this->user["userId"])
                 return new Response(403);
+            else return new Response(200);
         }
         catch (PDOException $ex)
         {
             error_log($ex);
             return new Response(500);
         }
-
-        return new Response(200);
     }
 
     private function readProjectNodes(array $data) : Response
@@ -64,31 +60,12 @@ class EndpointProjectNodesGet
         {
             $query = database_query($this->pdo, $data[0], $data[1]);
 
-            if (!array_key_exists("mode", $this->urlParams))
+            for ($i = 0; $i < count($query); $i++)
             {
-                for ($i = 0; $i < count($query); $i++)
-                    $query[$i]["isActive"] = (bool)$query[$i]["isActive"];
-            }
+                move_prefixed_keys($query[$i], "r_", "latestReport");
 
-            // Ensure each node has a currentReport attribute
-            if (array_key_exists("report", $this->urlParams) &&
-                $this->urlParams["report"] === "true")
-            {
-                for ($i = 0; $i < count($query); $i++)
-                {
-                    // Move the keys from the reports table into a currentReport sub-object
-                    foreach ($query[$i] as $key => $value)
-                    {
-                        if (starts_with($key, "b_"))
-                        {
-                            $query[$i]["latestReport"][substr($key, 2)] = $value;
-                            unset($query[$i][$key]);
-                        }
-                    }
-
-                    if ($query[$i]["latestReport"]["reportId"] === null)
-                        $query[$i]["latestReport"] = null;
-                }
+                if ($query[$i]["latestReport"]["reportId"] === null)
+                    $query[$i]["latestReport"] = null;
             }
 
             return (new Response(200))->setBody($query);
@@ -102,29 +79,24 @@ class EndpointProjectNodesGet
 
     private function generateSql() : array
     {
-        $sql = "SELECT projectNodes.nodeId,
-                    (SELECT macAddress FROM nodes WHERE nodeId = projectNodes.nodeId) macAddress,
-                    (SELECT name FROM nodes WHERE nodeId = projectNodes.nodeId) name,
-                    location, startAt, endAt, `interval`, batchSize";
-
-        if (array_key_exists("report", $this->urlParams) &&
-            $this->urlParams["report"] === "true")
-        {
-            $sql .= ", reportId b_reportId, time b_time, airt b_airt, relh b_relh, batv b_batv";
-        }
-
-        if (!array_key_exists("mode", $this->urlParams))
-            $sql .= ", (endAt IS NULL OR NOW() < endAt) isActive";
-
-        $sql .= " FROM projectNodes";
-
-        if (array_key_exists("report", $this->urlParams) &&
-            $this->urlParams["report"] === "true")
-        {
-            $sql .= " LEFT JOIN (SELECT * FROM reports) b ON b.reportId = projectNodes.latestReportId";
-        }
-
-        $sql .= " WHERE projectNodes.projectId = ?";
+        $sql = "SELECT
+                    pn.projectId,
+                    pn.nodeId,
+                    pn.location,
+                    pn.startAt,
+                    pn.endAt,
+                    pn.`interval`,
+                    pn.batchSize,
+                    r.reportId r_reportId,
+                    r.time r_time,
+                    r.airt r_airt,
+                    r.relh r_relh,
+                    r.batv r_batv
+                
+                FROM projectNodes pn
+                    LEFT JOIN reports r ON r.reportId = pn.latestReportId
+                    
+                WHERE pn.projectId = ?";
 
         if (array_key_exists("mode", $this->urlParams))
         {

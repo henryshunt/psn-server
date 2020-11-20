@@ -1,16 +1,6 @@
 <?php
-class EndpointNodeGet
+class EndpointNodeGet extends Endpoint
 {
-    private $pdo;
-    private $user;
-    private $resParams;
-
-    public function __construct(PDO $pdo, array $user)
-    {
-        $this->pdo = $pdo;
-        $this->user = $user;
-    }
-
     public function response(array $resParams) : Response
     {
         $this->resParams = $resParams;

@@ -298,3 +298,15 @@ function error_page($statusCode)
     http_response_code($statusCode);
     exit();
 }
+
+function move_prefixed_keys(&$object, $prefix, $target)
+{
+    foreach ($object as $key => $value)
+    {
+        if (starts_with($key, $prefix))
+        {
+            $object[$target][substr($key, strlen($prefix))] = $value;
+            unset($object[$key]);
+        }
+    }
+}
