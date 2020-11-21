@@ -59,7 +59,6 @@ class EndpointProjectNodesGet extends Endpoint
     private function generateSql() : array
     {
         $sql = "SELECT
-                    pn.projectId,
                     pn.nodeId,
                     pn.location,
                     pn.startAt,

@@ -67,11 +67,9 @@ class EndpointProjectNodeGet extends Endpoint
                     pn.batchSize,
                     pn.latestReportId,
                     (pn.endAt IS NULL OR NOW() < pn.endAt) isActive,
-                    p.projectId p_projectId,
                     p.name p_name,
                     p.description p_description,
                     p.createdAt p_createdAt,
-                    n.nodeId n_nodeId,
                     n.macAddress n_macAddress,
                     n.name n_name,
                     n.createdAt n_createdAt

@@ -65,14 +65,20 @@ class EndpointNodeGet extends Endpoint
     private function generateSql() : array
     {
         if (array_key_exists("macAddress", $this->resParams))
+        {
             $idOrMac = "macAddress";
-        else $idOrMac = "nodeId";
+            $selectIdOrMac = "nodeId";
+        }
+        else
+        {
+            $idOrMac = "nodeId";
+            $selectIdOrMac = "macAddress";
+        }
 
         if (keyExistsMatches("project", "true", $this->urlParams))
         {
             $sql = "SELECT
-                        n.nodeId,
-                        n.macAddress,
+                        n.$selectIdOrMac,
                         n.name,
                         n.createdAt,
                         pn.projectId pn_projectId,
@@ -92,8 +98,7 @@ class EndpointNodeGet extends Endpoint
         else
         {
             $sql = "SELECT
-                        nodeId,
-                        macAddress,
+                        $selectIdOrMac,
                         name,
                         createdAt
                     FROM nodes
