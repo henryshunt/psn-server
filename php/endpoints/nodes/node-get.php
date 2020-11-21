@@ -10,8 +10,8 @@ class EndpointNodeGet extends Endpoint
         if ($validation->getStatus() !== 200)
             return $validation;
 
-        if (array_key_exists("project", $this->urlParams) &&
-            $this->urlParams["project"] === "true" && !$this->user["privNodes"])
+        if (keyExistsMatches("project", "true", $this->urlParams) &&
+            !$this->user["privNodes"])
         {
             return (new Response(403))->setError(
                 "Only privileged users can read the project info for a node");
@@ -45,8 +45,7 @@ class EndpointNodeGet extends Endpoint
             if (count($query) === 0)
                 return new Response(404);
 
-            if (array_key_exists("project", $this->urlParams) &&
-                $this->urlParams["project"] === "true")
+            if (keyExistsMatches("project", "true", $this->urlParams))
             {
                 move_prefixed_keys($query[0], "pn_", "currentProject");
 
@@ -69,8 +68,7 @@ class EndpointNodeGet extends Endpoint
             $idOrMac = "macAddress";
         else $idOrMac = "nodeId";
 
-        if (array_key_exists("project", $this->urlParams) &&
-            $this->urlParams["project"] === "true")
+        if (keyExistsMatches("project", "true", $this->urlParams))
         {
             $sql = "SELECT
                         n.nodeId,

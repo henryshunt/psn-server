@@ -330,7 +330,7 @@ function checkProjectAccess($pdo, $projectId, $userId) : Response
     }
 }
 
-function keyExistsMatches($array, $key, $value)
+function keyExistsMatches($key, $value, $array)
 {
     return array_key_exists($key, $array) && $array[$key] === $value;
 }

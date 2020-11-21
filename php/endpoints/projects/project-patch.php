@@ -20,11 +20,9 @@ class EndpointProjectPatch extends Endpoint
             return $validation;
 
         // If stop=true then stop the project instead of updating attributes
-        if (array_key_exists("stop", $this->urlParams) &&
-            $this->urlParams["stop"] === "true")
-        {
+        if (keyExistsMatches("stop", "true", $this->urlParams))
             return $this->stopProject();
-        }
+            
 
         $loadJson = $this->loadJsonParams();
         if ($loadJson->getStatus() !== 200)

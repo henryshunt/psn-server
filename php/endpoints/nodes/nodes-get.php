@@ -10,8 +10,8 @@ class EndpointNodesGet extends Endpoint
         if ($validation->getStatus() !== 200)
             return $validation;
 
-        if (array_key_exists("project", $this->urlParams) &&
-            $this->urlParams["project"] === "true" && !$this->user["privNodes"])
+        if (keyExistsMatches("project", "true", $this->urlParams) &&
+            !$this->user["privNodes"])
         {
             return (new Response(403))->setError(
                 "Only privileged users can read the project info for nodes");
@@ -41,18 +41,12 @@ class EndpointNodesGet extends Endpoint
         {
             $query = database_query($this->pdo, $sql);
 
-            if (array_key_exists("project", $this->urlParams) &&
-                $this->urlParams["project"] === "true")
+            if (keyExistsMatches("project", "true", $this->urlParams))
             {
                 // Ensure each node has a currentProject attribute
                 for ($i = 0; $i < count($query); $i++)
                 {
-                    if (array_key_exists("inactive", $this->urlParams) &&
-                        $this->urlParams["inactive"] === "true")
-                    {
-                        $query[$i]["currentProject"] = null;
-                    }
-                    else
+                    if (!keyExistsMatches("inactive", "true", $this->urlParams))
                     {
                         move_prefixed_keys($query[$i], "pn_", "currentProject");
 
@@ -64,6 +58,7 @@ class EndpointNodesGet extends Endpoint
                         if ($query[$i]["latestReport"]["reportId"] === null)
                             $query[$i]["latestReport"] = null;
                     }
+                    else $query[$i]["currentProject"] = null;
                 }
             }
 
@@ -78,8 +73,7 @@ class EndpointNodesGet extends Endpoint
 
     private function generateSql() : string
     {
-        if (array_key_exists("inactive", $this->urlParams) &&
-            $this->urlParams["inactive"] === "true")
+        if (keyExistsMatches("inactive", "true", $this->urlParams))
         {
             $sql = "SELECT
                         nodeId,
@@ -91,8 +85,7 @@ class EndpointNodesGet extends Endpoint
                     WHERE nodeId NOT IN
                         (SELECT nodeId FROM projectNodes WHERE endAt IS NULL OR NOW() < endAt)";
         }
-        else if (array_key_exists("project", $this->urlParams) &&
-            $this->urlParams["project"] === "true")
+        else if (keyExistsMatches("project", "true", $this->urlParams))
         {
             $sql = "SELECT
                         n.nodeId,

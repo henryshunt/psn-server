@@ -20,8 +20,7 @@ class EndpointProjectNodePatch
             return $validation;
 
         // If stop=true then stop the projectNode instead of updating attributes
-        if (array_key_exists("stop", $this->urlParams) &&
-            $this->urlParams["stop"] === "true")
+        if (keyExistsMatches("stop", "true", $this->urlParams))
         {
             $validation = $this->validateObjects();
             if ($validation->getStatus() !== 200)

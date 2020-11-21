@@ -32,8 +32,7 @@ class EndpointProjectsGet extends Endpoint
         {
             $query = database_query($this->pdo, $data[0], $data[1]);
 
-            if (!array_key_exists("mode", $this->urlParams) ||
-                $this->urlParams["mode"] !== "active")
+            if (!keyExistsMatches("mode", "active", $this->urlParams))
             {
                 for ($i = 0; $i < count($query); $i++)
                 {
