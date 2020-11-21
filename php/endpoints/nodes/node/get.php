@@ -30,9 +30,6 @@ class EndpointNodeGet extends Endpoint
             return (new Response(400))->setError($ex->getMessage());
         }
 
-        if (array_key_exists("macAddress", $this->resParams))
-            $this->resParams["macAddress"] = strtolower($this->resParams["macAddress"]);
-
         return new Response(200);
     }
 
@@ -98,7 +95,7 @@ class EndpointNodeGet extends Endpoint
         {
             $sql = "SELECT
                         $selectIdOrMac,
-                        name,
+                        name
                     FROM nodes
                     
                     WHERE $idOrMac = ?";

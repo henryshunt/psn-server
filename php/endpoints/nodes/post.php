@@ -28,7 +28,7 @@ class EndpointNodesPost extends Endpoint
             return (new Response(400))->setError("No JSON attributes supplied");
 
         $validator = V
-            ::key("macAddress", V::stringType()->regex("/([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2}/"))
+            ::key("macAddress", V::stringType()->regex("/([a-f0-9]{2}:){5}[a-f0-9]{2}/"))
             ->key("name", V::anyOf(V::nullType(), V::stringType()->length(1, 128)), false);
 
         try { $validator->check($this->jsonParams); }
@@ -37,7 +37,6 @@ class EndpointNodesPost extends Endpoint
             return (new Response(400))->setError($ex->getMessage());
         }
 
-        $this->jsonParams["macAddress"] = strtolower($this->jsonParams["macAddress"]);
         return new Response(200);
     }
 
