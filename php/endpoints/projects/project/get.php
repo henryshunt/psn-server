@@ -24,7 +24,7 @@ class EndpointProjectGet extends Endpoint
                 if ($query[0]["nodeCount"] === null)
                 {
                     $query[0]["nodeCount"] = 0;
-                    unset($query[0]["startAt"]);
+                    unset($query[0]["startedAt"]);
                     unset($query[0]["endAt"]);
                 }
 
@@ -45,7 +45,7 @@ class EndpointProjectGet extends Endpoint
                     p.userId,
                     p.name,
                     p.description,
-                    pn.startAt,
+                    pn.startedAt,
                     pn.endAt,
                     pn.nodeCount,
                     (pn.nodeCount IS NOT NULL AND (pn.endAt IS NULL OR NOW() < pn.endAt)) isActive
@@ -54,7 +54,7 @@ class EndpointProjectGet extends Endpoint
                     LEFT JOIN (
                         SELECT
                             projectId,
-                            MIN(startAt) startAt,
+                            MIN(startedAt) startedAt,
                             MAX(endAt) endAt,
                             COUNT(*) nodeCount
 

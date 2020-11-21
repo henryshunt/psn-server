@@ -61,7 +61,7 @@ class EndpointProjectNodesGet extends Endpoint
         $sql = "SELECT
                     pn.nodeId,
                     pn.location,
-                    pn.startAt,
+                    pn.startedAt,
                     pn.endAt,
                     pn.`interval`,
                     pn.batchSize,

@@ -17,7 +17,7 @@ function api_project_node_reports_post($projectId, $macAddress)
 
     try
     {
-        $sql = "SELECT nodeId, startAt, endAt FROM projectNodes
+        $sql = "SELECT nodeId, startedAt, endAt FROM projectNodes
                     WHERE projectId = ? AND nodeId = (SELECT nodeId FROM nodes WHERE macAddress = ?)";
 
         $query = database_query($pdo, $sql, [$projectId, $macAddress]);
@@ -30,7 +30,7 @@ function api_project_node_reports_post($projectId, $macAddress)
         return new Response(500);
     }
 
-    $projectStart = date_create_from_format("Y-m-d H:i:s", $query[0]["startAt"]);
+    $projectStart = date_create_from_format("Y-m-d H:i:s", $query[0]["startedAt"]);
     $projectEnd = $query[0]["endAt"];
     if ($projectEnd !== null)
         date_create_from_format("Y-m-d H:i:s", $query[0]["endAt"]);

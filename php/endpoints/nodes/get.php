@@ -92,7 +92,7 @@ class EndpointNodesGet extends Endpoint
                         n.name,
                         pn.projectId pn_projectId,
                         pn.location pn_location,
-                        pn.startAt pn_startAt,
+                        pn.startedAt pn_startedAt,
                         pn.endAt pn_endAt,
                         pn.interval pn_interval,
                         pn.batchSize pn_batchSize,
