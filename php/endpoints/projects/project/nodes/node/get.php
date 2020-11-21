@@ -69,10 +69,8 @@ class EndpointProjectNodeGet extends Endpoint
                     (pn.endAt IS NULL OR NOW() < pn.endAt) isActive,
                     p.name p_name,
                     p.description p_description,
-                    p.createdAt p_createdAt,
                     n.macAddress n_macAddress,
-                    n.name n_name,
-                    n.createdAt n_createdAt
+                    n.name n_name
 
                 FROM projectNodes pn
                     LEFT JOIN projects p ON p.projectId = pn.projectId

@@ -80,7 +80,6 @@ class EndpointNodeGet extends Endpoint
             $sql = "SELECT
                         n.$selectIdOrMac,
                         n.name,
-                        n.createdAt,
                         pn.projectId pn_projectId,
                         pn.location pn_location,
                         pn.startAt pn_startAt,
@@ -100,7 +99,6 @@ class EndpointNodeGet extends Endpoint
             $sql = "SELECT
                         $selectIdOrMac,
                         name,
-                        createdAt
                     FROM nodes
                     
                     WHERE $idOrMac = ?";

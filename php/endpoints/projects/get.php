@@ -60,7 +60,6 @@ class EndpointProjectsGet extends Endpoint
                     p.projectId,
                     p.name,
                     p.description,
-                    p.createdAt,
                     pn.startAt,
                     pn.endAt,
                     pn.nodeCount

@@ -79,7 +79,6 @@ class EndpointNodesGet extends Endpoint
                         nodeId,
                         macAddress,
                         name,
-                        createdAt
                     FROM nodes
 
                     WHERE nodeId NOT IN
@@ -91,7 +90,6 @@ class EndpointNodesGet extends Endpoint
                         n.nodeId,
                         n.macAddress,
                         n.name,
-                        n.createdAt,
                         pn.projectId pn_projectId,
                         pn.location pn_location,
                         pn.startAt pn_startAt,
@@ -115,7 +113,6 @@ class EndpointNodesGet extends Endpoint
                         nodeId,
                         macAddress,
                         name,
-                        createdAt
                     FROM nodes";
         }
     
