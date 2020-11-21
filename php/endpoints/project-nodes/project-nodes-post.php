@@ -8,6 +8,13 @@ class EndpointProjectNodesPost extends Endpoint
 
     public function response() : Response
     {
+        $validation = checkProjectAccess($this->pdo,
+            $this->resParams["projectId"], $this->user["userId"]);
+
+        if ($validation->getStatus() !== 200)
+            return $validation;
+
+
         $loadJson = $this->loadJsonParams();
         if ($loadJson->getStatus() !== 200)
             return $loadJson;
@@ -66,13 +73,6 @@ class EndpointProjectNodesPost extends Endpoint
         try
         {
             $this->pdo->exec("LOCK TABLE projectNodes WRITE");
-
-            $project = api_get_project($this->pdo, $this->resParams["projectId"]);
-
-            if ($project === null)
-                return new Response(404);
-            else if ($project["userId"] !== $this->user["userId"])
-                return new Response(403);
 
             if (api_get_project_node($this->pdo, $this->resParams["projectId"],
                 $this->jsonParams["nodeId"]) !== null)

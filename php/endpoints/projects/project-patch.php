@@ -8,6 +8,13 @@ class EndpointProjectPatch extends Endpoint
 
     public function response() : Response
     {
+        $validation = checkProjectAccess($this->pdo,
+            $this->resParams["projectId"], $this->user["userId"]);
+
+        if ($validation->getStatus() !== 200)
+            return $validation;
+        
+
         $validation = $this->validateUrlParams();
         if ($validation->getStatus() !== 200)
             return $validation;
@@ -16,10 +23,6 @@ class EndpointProjectPatch extends Endpoint
         if (array_key_exists("stop", $this->urlParams) &&
             $this->urlParams["stop"] === "true")
         {
-            $validation = $this->validateObjects();
-            if ($validation->getStatus() !== 200)
-                return $validation;
-
             return $this->stopProject();
         }
 
@@ -31,10 +34,6 @@ class EndpointProjectPatch extends Endpoint
         if ($validation->getStatus() !== 200)
             return $validation;
 
-        $validation = $this->validateObjects();
-        if ($validation->getStatus() !== 200)
-            return $validation;
-            
         return $this->updateProject();
     }
 
@@ -82,25 +81,6 @@ class EndpointProjectPatch extends Endpoint
         }
 
         return new Response(200);
-    }
-
-    private function validateObjects() : Response
-    {
-        try
-        {
-            $project = api_get_project($this->pdo, $this->resParams["projectId"]);
-
-            if ($project === null)
-                return new Response(404);
-            else if ($project["userId"] !== $this->user["userId"])
-                return new Response(403);
-            else return new response(200);
-        }
-        catch (PDOException $ex)
-        {
-            error_log($ex);
-            return new Response(500);
-        }
     }
 
     private function updateProject() : Response

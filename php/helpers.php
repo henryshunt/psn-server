@@ -54,7 +54,7 @@ function api_respond($response)
 function api_authenticate($pdo)
 {
     // Authenticate via username and password in request
-    if (isset($_SERVER["PHP_AUTH_USER"]) === true)
+    if (array_key_exists("PHP_AUTH_USER", $_SERVER))
     {
         try
         {
@@ -80,15 +80,15 @@ function api_authenticate($pdo)
     }
 
     // Authenticate via session token in request or cookie
-    else if (isset(apache_request_headers()["Authorization"]) ||
-        isset($_COOKIE[SESSION_COOKIE_NAME]))
+    else if (array_key_exists("Authorization", apache_request_headers()) ||
+        array_key_exists(SESSION_COOKIE_NAME, $_COOKIE))
     {
-        if (isset(apache_request_headers()["Authorization"]) &&
+        if (array_key_exists("Authorization", apache_request_headers()) &&
             starts_with(apache_request_headers()["Authorization"], "Bearer "))
         {
             $token = substr(apache_request_headers()["Authorization"], 7);
         }
-        else if (isset($_COOKIE[SESSION_COOKIE_NAME]))
+        else if (array_key_exists(SESSION_COOKIE_NAME, $_COOKIE))
             $token = $_COOKIE[SESSION_COOKIE_NAME];
         else api_respond(new Response(401));
 
@@ -309,4 +309,28 @@ function move_prefixed_keys(&$object, $prefix, $target)
             unset($object[$key]);
         }
     }
+}
+
+function checkProjectAccess($pdo, $projectId, $userId) : Response
+{
+    try
+    {
+        $project = api_get_project($pdo, $projectId);
+
+        if ($project === null)
+            return new Response(404);
+        else if ($project["userId"] !== $userId)
+            return new Response(403);
+        else return new Response(200);
+    }
+    catch (PDOException $ex)
+    {
+        error_log($ex);
+        return new Response(500);
+    }
+}
+
+function keyExistsMatches($array, $key, $value)
+{
+    return array_key_exists($key, $array) && $array[$key] === $value;
 }

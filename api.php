@@ -63,7 +63,7 @@ if ($match)
     $target = explode("+", $match["target"]);
     require_once "php/endpoints/" . $target[0];
 
-    $endpoint = new $target[1]($pdo, $user);
-    api_respond($endpoint->response($match["params"]));
+    $endpoint = new $target[1]($pdo, $user, $match["params"]);
+    api_respond($endpoint->response());
 }
 else api_respond(new Response(404));

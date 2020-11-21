@@ -8,6 +8,13 @@ class EndpointProjectNodePatch
 
     public function response() : Response
     {
+        $validation = checkProjectAccess($this->pdo,
+            $this->resParams["projectId"], $this->user["userId"]);
+
+        if ($validation->getStatus() !== 200)
+            return $validation;
+
+
         $validation = $this->validateUrlParams();
         if ($validation->getStatus() !== 200)
             return $validation;
@@ -43,13 +50,6 @@ class EndpointProjectNodePatch
     {
         try
         {
-            $project = api_get_project($this->pdo, $this->resParams["projectId"]);
-
-            if ($project === null)
-                return new Response(404);
-            else if ($project["userId"] !== $this->user["userId"])
-                return new Response(403);
-
             $projectNode = api_get_project_node($this->pdo,
                 $this->resParams["projectId"], $this->resParams["nodeId"]);
 
