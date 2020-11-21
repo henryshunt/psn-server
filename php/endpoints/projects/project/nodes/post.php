@@ -19,7 +19,7 @@ class EndpointProjectNodesPost extends Endpoint
         if ($validation->getStatus() !== 200)
             return $validation;
 
-        $validation = $this->validateObjects();
+        $validation = $this->checkCanCreateProjectNode();
         if ($validation->getStatus() !== 200)
             return $validation;
 
@@ -47,6 +47,14 @@ class EndpointProjectNodesPost extends Endpoint
         catch (ValidationException $ex)
         {
             return (new Response(400))->setError($ex->getMessage());
+        }
+
+        if ($this->jsonParams["endAt"] !== null)
+        {
+            $endAt = DateTime::createFromFormat("Y-m-d H:i:s", $this->jsonParams["endAt"]);
+
+            if ($endAt <= new DateTime())
+                return (new response(400))->setBody("endAt must be in the future");
         }
 
         return new Response(200);

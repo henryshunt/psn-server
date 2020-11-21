@@ -79,7 +79,7 @@ class EndpointNodesGet extends Endpoint
             $sql = "SELECT
                         nodeId,
                         macAddress,
-                        name,
+                        name
                     FROM nodes
 
                     WHERE nodeId NOT IN
