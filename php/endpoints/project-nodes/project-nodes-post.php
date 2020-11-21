@@ -15,11 +15,7 @@ class EndpointProjectNodesPost extends Endpoint
             return $validation;
 
 
-        $loadJson = $this->loadJsonParams();
-        if ($loadJson->getStatus() !== 200)
-            return $loadJson;
-
-        $validation = $this->validateParams();
+        $validation = $this->validateJsonParams();
         if ($validation->getStatus() !== 200)
             return $validation;
 
@@ -30,24 +26,12 @@ class EndpointProjectNodesPost extends Endpoint
         return $this->createProjectNode();
     }
 
-    public function loadJsonParams() : Response
+    private function validateJsonParams() : Response
     {
-        $json = json_decode(file_get_contents("php://input"));
+        $loadJson = $this->loadJsonParams();
+        if ($loadJson->getStatus() !== 200)
+            return $loadJson;
 
-        if (gettype($json) !== "object")
-            return (new Response(400))->setError("Invalid JSON object supplied");
-
-        $json = (array)$json;
-
-        $json = filter_keys($json,
-            ["nodeId", "location", "endAt", "interval", "batchSize"]);
-
-        $this->jsonParams = $json;
-        return new Response(200);
-    }
-
-    private function validateParams() : Response
-    {
         if (count($this->jsonParams) === 0)
             return (new Response(400))->setError("No JSON attributes supplied");
 
@@ -68,7 +52,23 @@ class EndpointProjectNodesPost extends Endpoint
         return new Response(200);
     }
 
-    private function validateObjects() : Response
+    public function loadJsonParams() : Response
+    {
+        $json = json_decode(file_get_contents("php://input"));
+
+        if (gettype($json) !== "object")
+            return (new Response(400))->setError("Invalid JSON object supplied");
+
+        $json = (array)$json;
+
+        $json = filter_keys($json,
+            ["nodeId", "location", "endAt", "interval", "batchSize"]);
+
+        $this->jsonParams = $json;
+        return new Response(200);
+    }
+
+    private function checkCanCreateProjectNode() : Response
     {
         try
         {

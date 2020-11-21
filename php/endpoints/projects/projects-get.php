@@ -6,14 +6,14 @@ class EndpointProjectsGet extends Endpoint
 {
     public function response() : Response
     {
-        $validation = $this->validateParams();
+        $validation = $this->validateUrlParams();
         if ($validation->getStatus() !== 200)
             return $validation;
 
         return $this->readProjects($this->generateSql());
     }
 
-    private function validateParams() : Response
+    private function validateUrlParams() : Response
     {
         $validator = V::key("mode", V::in(["active", "completed"], true), false);
 

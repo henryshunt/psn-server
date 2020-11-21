@@ -24,10 +24,6 @@ class EndpointProjectPatch extends Endpoint
             return $this->stopProject();
             
 
-        $loadJson = $this->loadJsonParams();
-        if ($loadJson->getStatus() !== 200)
-            return $loadJson;
-
         $validation = $this->validateJsonParams();
         if ($validation->getStatus() !== 200)
             return $validation;
@@ -48,22 +44,12 @@ class EndpointProjectPatch extends Endpoint
         return new Response(200);
     }
 
-    public function loadJsonParams() : Response
-    {
-        $json = json_decode(file_get_contents("php://input"));
-
-        if (gettype($json) !== "object")
-            return (new Response(400))->setError("Invalid JSON object supplied");
-
-        $json = (array)$json;
-        $json = filter_keys($json, ["name", "description"]);
-
-        $this->jsonParams = $json;
-        return new Response(200);
-    }
-
     private function validateJsonParams() : Response
     {
+        $loadJson = $this->loadJsonParams();
+        if ($loadJson->getStatus() !== 200)
+            return $loadJson;
+
         if (count($this->jsonParams) === 0)
             return (new Response(400))->setError("No JSON attributes supplied");
 
@@ -78,6 +64,20 @@ class EndpointProjectPatch extends Endpoint
             return (new Response(400))->setError($ex->getMessage());
         }
 
+        return new Response(200);
+    }
+
+    public function loadJsonParams() : Response
+    {
+        $json = json_decode(file_get_contents("php://input"));
+
+        if (gettype($json) !== "object")
+            return (new Response(400))->setError("Invalid JSON object supplied");
+
+        $json = (array)$json;
+        $json = filter_keys($json, ["name", "description"]);
+
+        $this->jsonParams = $json;
         return new Response(200);
     }
 

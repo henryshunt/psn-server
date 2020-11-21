@@ -11,33 +11,19 @@ class EndpointNodesPost extends Endpoint
         if (!$this->user["privNodes"])
             return (new Response(403))->setBody("Only privileged users can create nodes");
 
-        $loadJson = $this->loadJsonParams();
-        if ($loadJson->getStatus() !== 200)
-            return $loadJson;
-
-        $validation = $this->validateParams();
+        $validation = $this->validateJsonParams();
         if ($validation->getStatus() !== 200)
             return $validation;
 
         return $this->createNode();
     }
 
-    public function loadJsonParams() : Response
+    private function validateJsonParams() : Response
     {
-        $json = json_decode(file_get_contents("php://input"));
+        $loadJson = $this->loadJsonParams();
+        if ($loadJson->getStatus() !== 200)
+            return $loadJson;
 
-        if (gettype($json) !== "object")
-            return (new Response(400))->setError("Invalid JSON object supplied");
-
-        $json = (array)$json;
-        $json = filter_keys($json, ["macAddress", "name"]);
-
-        $this->jsonParams = $json;
-        return new Response(200);
-    }
-
-    private function validateParams() : Response
-    {
         if (count($this->jsonParams) === 0)
             return (new Response(400))->setError("No JSON attributes supplied");
 
@@ -55,13 +41,26 @@ class EndpointNodesPost extends Endpoint
         return new Response(200);
     }
 
+    public function loadJsonParams() : Response
+    {
+        $json = json_decode(file_get_contents("php://input"));
+
+        if (gettype($json) !== "object")
+            return (new Response(400))->setError("Invalid JSON object supplied");
+
+        $json = (array)$json;
+        $json = filter_keys($json, ["macAddress", "name"]);
+
+        $this->jsonParams = $json;
+        return new Response(200);
+    }
+
     private function createNode() : Response
     {
         try
         {
             $sql = "INSERT INTO nodes " . sql_insert_string($this->jsonParams);
             database_query($this->pdo, $sql, array_values($this->jsonParams));
-            
             return (new Response(200))->setBody(["nodeId" => $this->pdo->lastInsertId()]);
         }
         catch (PDOException $ex)

@@ -11,19 +11,36 @@ class EndpointNodePatch extends Endpoint
         if (!$this->user["privNodes"])
             return (new Response(403))->setBody("Only privileged users can update nodes");
 
-        $loadJson = $this->loadJsonParams();
-        if ($loadJson->getStatus() !== 200)
-            return $loadJson;
-
-        $validation = $this->validateParams();
+        $validation = $this->validateJsonParams();
         if ($validation->getStatus() !== 200)
             return $validation;
 
-        $validation = $this->validateObjects();
+        $validation = $this->checkNodeExists();
         if ($validation->getStatus() !== 200)
             return $validation;
 
         return $this->updateNode();
+    }
+
+    private function validateJsonParams() : Response
+    {
+        $loadJson = $this->loadJsonParams();
+        if ($loadJson->getStatus() !== 200)
+            return $loadJson;
+
+        if (count($this->jsonParams) === 0)
+            return (new Response(400))->setError("No JSON attributes supplied");
+
+        $validator = V
+            ::key("name", V::anyOf(V::nullType(), V::stringType()->length(1, 128)), false);
+
+        try { $validator->check($this->jsonParams); }
+        catch (ValidationException $ex)
+        {
+            return (new Response(400))->setError($ex->getMessage());
+        }
+
+        return new Response(200);
     }
 
     public function loadJsonParams() : Response
@@ -40,25 +57,7 @@ class EndpointNodePatch extends Endpoint
         return new Response(200);
     }
 
-    private function validateParams() : Response
-    {
-        if (count($this->jsonParams) === 0)
-            return (new Response(400))->setError("No JSON attributes supplied");
-
-        $validator = V
-            ::key("name", V::anyOf(
-                V::nullType(), V::stringType()->length(1, 128)), false);
-
-        try { $validator->check($this->jsonParams); }
-        catch (ValidationException $ex)
-        {
-            return (new Response(400))->setError($ex->getMessage());
-        }
-
-        return new Response(200);
-    }
-
-    private function validateObjects() : Response
+    private function checkNodeExists() : Response
     {
         try
         {

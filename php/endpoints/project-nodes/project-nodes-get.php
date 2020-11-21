@@ -13,14 +13,14 @@ class EndpointProjectNodesGet extends Endpoint
             return $validation;
 
 
-        $validation = $this->validateParams();
+        $validation = $this->validateUrlParams();
         if ($validation->getStatus() !== 200)
             return $validation;
 
         return $this->readProjectNodes($this->generateSql());
     }
 
-    private function validateParams() : Response
+    private function validateUrlParams() : Response
     {
         $validator = V::key("mode", V::in(["active", "completed"], true), false);
 

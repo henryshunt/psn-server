@@ -6,7 +6,7 @@ class EndpointNodesGet extends Endpoint
 {
     public function response() : Response
     {
-        $validation = $this->validateParams();
+        $validation = $this->validateUrlParams();
         if ($validation->getStatus() !== 200)
             return $validation;
 
@@ -20,7 +20,7 @@ class EndpointNodesGet extends Endpoint
         return $this->readNodes($this->generateSql());
     }
 
-    private function validateParams() : Response
+    private function validateUrlParams() : Response
     {
         $validator = V
             ::key("project", V::in(["true", "false"], true), false)
