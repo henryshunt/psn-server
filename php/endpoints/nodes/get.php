@@ -49,14 +49,15 @@ class EndpointNodesGet extends Endpoint
                     if (!keyExistsMatches("inactive", "true", $this->urlParams))
                     {
                         move_prefixed_keys($query[$i], "pn_", "currentProject");
+                        move_prefixed_keys($query[$i], "r_", "latestReport");
+
+                        $query[$i]["currentProject"]["latestReport"] = $query[$i]["latestReport"];
+                        unset($query[$i]["latestReport"]);
 
                         if ($query[$i]["currentProject"]["projectId"] === null)
                             $query[$i]["currentProject"] = null;
-
-                        move_prefixed_keys($query[$i], "r_", "latestReport");
-
-                        if ($query[$i]["latestReport"]["reportId"] === null)
-                            $query[$i]["latestReport"] = null;
+                        else if ($query[$i]["currentProject"]["latestReport"]["reportId"] === null)
+                            $query[$i]["currentProject"]["latestReport"] = null;
                     }
                     else $query[$i]["currentProject"] = null;
                 }
