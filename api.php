@@ -23,7 +23,7 @@ $user = api_authenticate($pdo);
 
 $router = new AltoRouter();
 $router->setBasePath($_SERVER["SCRIPT_NAME"]);
-$router->addMatchTypes(["mac" => "([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2}"]);
+$router->addMatchTypes(["mac" => "([a-f0-9]{2}:){5}[a-f0-9]{2}"]);
 
 $router->map("GET", "/nodes", "nodes/get.php+EndpointNodesGet");
 $router->map("POST", "/nodes", "nodes/post.php+EndpointNodesPost");
