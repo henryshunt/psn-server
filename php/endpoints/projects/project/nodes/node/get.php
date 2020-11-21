@@ -12,27 +12,7 @@ class EndpointProjectNodeGet extends Endpoint
         if ($validation->getStatus() !== 200)
             return $validation;
 
-
-        $validation = $this->validateUrlParams();
-        if ($validation->getStatus() !== 200)
-            return $validation;
-
         return $this->readProjectNode($this->generateSql());
-    }
-
-    private function validateUrlParams() : Response
-    {
-        $validator = V
-            ::key("project", V::in(["true", "false"], true), false)
-            ->key("node", V::in(["true", "false"], true), false);
-
-        try { $validator->check($this->urlParams); }
-        catch (ValidationException $ex)
-        {
-            return (new Response(400))->setError($ex->getMessage());
-        }
-
-        return new Response(200);
     }
 
     private function readProjectNode(array $data) : Response
@@ -65,7 +45,6 @@ class EndpointProjectNodeGet extends Endpoint
                     pn.endAt,
                     pn.interval,
                     pn.batchSize,
-                    pn.latestReportId,
                     (pn.endAt IS NULL OR NOW() < pn.endAt) isActive,
                     p.name p_name,
                     p.description p_description,
