@@ -53,7 +53,7 @@ $router->map("DELETE", "/projects/[i:projectId]/nodes/[i:nodeId]",
     "projects/project/nodes/node/delete.php+EndpointProjectNodeDelete");
 
 $router->map("POST", "/projects/[i:projectId]/nodes/[mac:macAddress]/reports",
-    "project-node-reports.php/api_project_node_reports_post");
+    "projects/project/nodes/node/reports/post.php+EndpointProjectNodeReportsPost");
 
 
 $match = $router->match();
