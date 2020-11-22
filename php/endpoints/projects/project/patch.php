@@ -67,7 +67,7 @@ class EndpointProjectPatch extends Endpoint
         return new Response(200);
     }
 
-    public function loadJsonParams() : Response
+    private function loadJsonParams() : Response
     {
         $json = json_decode(file_get_contents("php://input"));
 
