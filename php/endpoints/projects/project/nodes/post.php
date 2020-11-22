@@ -8,12 +8,11 @@ class EndpointProjectNodesPost extends Endpoint
 
     public function response() : Response
     {
-        $validation = checkProjectAccess($this->pdo,
-            $this->resParams["projectId"], $this->user["userId"]);
+        $validation = checkProjectAccess(
+            $this->pdo, $this->resParams["projectId"], $this->user["userId"]);
 
         if ($validation->getStatus() !== 200)
             return $validation;
-
 
         $validation = $this->validateJsonParams();
         if ($validation->getStatus() !== 200)
@@ -86,8 +85,7 @@ class EndpointProjectNodesPost extends Endpoint
 
             if (count($query) > 0)
                 return (new Response(400))->setError("nodeId is already active");
-
-            return new Response(200);
+            else return new Response(200);
         }
         catch (PDOException $ex)
         {

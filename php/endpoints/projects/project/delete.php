@@ -3,8 +3,8 @@ class EndpointProjectDelete extends Endpoint
 {
     public function response() : Response
     {
-        $validation = checkProjectAccess($this->pdo,
-            $this->resParams["projectId"], $this->user["userId"]);
+        $validation = checkProjectAccess(
+            $this->pdo, $this->resParams["projectId"], $this->user["userId"]);
 
         if ($validation->getStatus() !== 200)
             return $validation;

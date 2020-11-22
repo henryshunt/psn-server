@@ -8,13 +8,12 @@ class EndpointProjectPatch extends Endpoint
 
     public function response() : Response
     {
-        $validation = checkProjectAccess($this->pdo,
-            $this->resParams["projectId"], $this->user["userId"]);
+        $validation = checkProjectAccess(
+            $this->pdo, $this->resParams["projectId"], $this->user["userId"]);
 
         if ($validation->getStatus() !== 200)
             return $validation;
         
-
         $validation = $this->validateUrlParams();
         if ($validation->getStatus() !== 200)
             return $validation;
@@ -22,7 +21,6 @@ class EndpointProjectPatch extends Endpoint
         // If stop=true then stop the project instead of updating attributes
         if (keyExistsMatches("stop", "true", $this->urlParams))
             return $this->stopProject();
-            
 
         $validation = $this->validateJsonParams();
         if ($validation->getStatus() !== 200)
