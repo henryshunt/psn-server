@@ -28,11 +28,15 @@ class EndpointProjectNodesPost extends Endpoint
 
     private function validateJsonParams() : Response
     {
-        $loadJson = $this->loadJsonParams();
-        if ($loadJson->getStatus() !== 200)
-            return $loadJson;
+        $json = json_decode(file_get_contents("php://input"));
 
-        if (count($this->jsonParams) === 0)
+        if (gettype($json) !== "object")
+            return (new Response(400))->setError("Invalid JSON object supplied");
+
+        $json = filter_keys((array)$json,
+            ["nodeId", "location", "endAt", "interval", "batchSize"]);
+
+        if (count($json) === 0)
             return (new Response(400))->setError("No JSON attributes supplied");
 
         $validator = V
@@ -43,34 +47,20 @@ class EndpointProjectNodesPost extends Endpoint
             ->key("interval", V::in([1, 2, 5, 10, 15, 20, 30], true))
             ->key("batchSize", V::intType()->digit()->min(0)->max(MYSQL_MAX_TINYINT));
 
-        try { $validator->check($this->jsonParams); }
+        try { $validator->check($json); }
         catch (ValidationException $ex)
         {
             return (new Response(400))->setError($ex->getMessage());
         }
 
-        if ($this->jsonParams["endAt"] !== null)
+        // Check endAt is in the future
+        if ($json["endAt"] !== null)
         {
-            $endAt = DateTime::createFromFormat("Y-m-d H:i:s", $this->jsonParams["endAt"]);
+            $endAt = DateTime::createFromFormat("Y-m-d H:i:s", $json["endAt"]);
 
             if ($endAt <= new DateTime())
                 return (new response(400))->setBody("endAt must be in the future");
         }
-
-        return new Response(200);
-    }
-
-    private function loadJsonParams() : Response
-    {
-        $json = json_decode(file_get_contents("php://input"));
-
-        if (gettype($json) !== "object")
-            return (new Response(400))->setError("Invalid JSON object supplied");
-
-        $json = (array)$json;
-
-        $json = filter_keys($json,
-            ["nodeId", "location", "endAt", "interval", "batchSize"]);
 
         $this->jsonParams = $json;
         return new Response(200);

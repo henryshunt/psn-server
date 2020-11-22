@@ -52,11 +52,14 @@ class EndpointProjectNodeReportsPost extends Endpoint
 
     private function validateJsonParams() : Response
     {
-        $loadJson = $this->loadJsonParams();
-        if ($loadJson->getStatus() !== 200)
-            return $loadJson;
+        $json = json_decode(file_get_contents("php://input"));
 
-        if (count($this->jsonParams) === 0)
+        if (gettype($json) !== "object")
+            return (new Response(400))->setError("Invalid JSON object supplied");
+
+        $json = filter_keys((array)$json, ["time", "airt", "relh", "batv"]);
+
+        if (count($json) === 0)
             return (new Response(400))->setError("No JSON attributes supplied");
 
         $validator = V
@@ -65,27 +68,14 @@ class EndpointProjectNodeReportsPost extends Endpoint
             ->key("relh", V::anyOf(V::nullType(), V::floatType()))
             ->key("batv", V::anyOf(V::nullType(), V::floatType()));
 
-        try { $validator->check($this->jsonParams); }
+        try { $validator->check($json); }
         catch (ValidationException $ex)
         {
             return (new Response(400))->setError($ex->getMessage());
         }
 
-        return $this->checkReportTimeInRange();
-    }
-
-    private function loadJsonParams() : Response
-    {
-        $json = json_decode(file_get_contents("php://input"));
-
-        if (gettype($json) !== "object")
-            return (new Response(400))->setError("Invalid JSON object supplied");
-
-        $json = (array)$json;
-        $json = filter_keys($json, ["time", "airt", "relh", "batv"]);
-
         $this->jsonParams = $json;
-        return new Response(200);
+        return $this->checkReportTimeInRange();
     }
 
     private function checkReportTimeInRange() : Response
