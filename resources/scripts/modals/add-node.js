@@ -98,13 +98,15 @@ var addNodeModal = (function ()
             document.getElementById("m-addnode-cancel").disabled = false;
         };
 
+        if (document.getElementById("m-addnode-end").value.length === 0)
+            var endAt = null;
+        else var endAt = document.getElementById("m-addnode-end").value.replaceAll("/", "-") + ":00";
 
         let projectNode =
         {
             nodeId: parseInt(document.getElementById("m-addnode-node").value),
             interval: parseInt(document.getElementById("m-addnode-interval").value),
-            endAt: document.getElementById(
-                "m-addnode-end").value.replaceAll("/", "-") + ":00",
+            endAt: endAt,
             batchSize: parseInt(document.getElementById("m-addnode-batch").value)
         };
 
