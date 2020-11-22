@@ -118,8 +118,16 @@ class EndpointProjectNodeReportsPost extends Endpoint
         }
         catch (PDOException $ex)
         {
-            error_log($ex);
-            return new Response(500);
+            if ($ex->errorInfo[1] === 1062 &&
+                strpos($ex->errorInfo[2], "for key 'nodeId'") !== false)
+            {
+                return (new Response(400))->setError("time is not unique within node");
+            }
+            else
+            {
+                error_log($ex);
+                return new Response(500);
+            }
         }
     }
 }

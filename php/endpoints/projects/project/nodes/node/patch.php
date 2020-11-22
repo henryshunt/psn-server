@@ -49,7 +49,7 @@ class EndpointProjectNodePatch
             $projectNode = api_get_project_node($this->pdo,
                 $this->resParams["projectId"], $this->resParams["nodeId"]);
 
-            if ($project === null)
+            if ($projectNode === null)
                 return new Response(404);
             else return new response(200);
         }
