@@ -52,6 +52,8 @@ $router->map("PATCH", "/projects/[i:projectId]/nodes/[i:nodeId]",
 $router->map("DELETE", "/projects/[i:projectId]/nodes/[i:nodeId]",
     "projects/project/nodes/node/delete.php+EndpointProjectNodeDelete");
 
+$router->map("GET", "/projects/[i:projectId]/nodes/[i:nodeId]/reports",
+    "projects/project/nodes/node/reports/get.php+EndpointProjectNodeReportsGet");
 $router->map("POST", "/projects/[i:projectId]/nodes/[mac:macAddress]/reports",
     "projects/project/nodes/node/reports/post.php+EndpointProjectNodeReportsPost");
 
