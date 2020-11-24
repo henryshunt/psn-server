@@ -27,7 +27,8 @@ if (array_key_exists(SESSION_COOKIE_NAME, $_COOKIE))
     try
     {
         $sql = "SELECT * FROM users WHERE userId = 
-                    (SELECT userId FROM tokens WHERE token = ? AND NOW() < expiresAt)";
+                    (SELECT userId FROM tokens WHERE token = ? AND NOW() < expiresAt)
+                LIMIT 1";
 
         $user = database_query($pdo, $sql, [$_COOKIE[SESSION_COOKIE_NAME]]);
 

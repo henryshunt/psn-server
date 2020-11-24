@@ -74,7 +74,7 @@ class EndpointProjectPatch extends Endpoint
         try
         {
             $sql = "UPDATE projects SET %s WHERE projectId = ?";
-            $sql = sprintf($sql, sql_update_string($this->jsonParams));
+            $sql = sprintf($sql, sql_update_string(array_keys($this->jsonParams)));
 
             $values = array_values($this->jsonParams);
             array_push($values, $this->resParams["projectId"]);

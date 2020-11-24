@@ -39,14 +39,14 @@ catch (Exception $ex)
 
 try
 {
-    $sql = "SELECT userId, password FROM users WHERE username = ?";
+    $sql = "SELECT userId, password FROM users WHERE username = ? LIMIT 1";
     $query = database_query($pdo, $sql, [$_POST["username"]]);
 
     if (count($query) > 0)
     {
         if ($_POST["password"] === $query[0]["password"])
         {
-            $token = get_random_string(SESSION_TOKEN_LENGTH);
+            $token = random_string(SESSION_TOKEN_LENGTH);
             $expiresAt = time() + SESSION_EXPIRE_AFTER;
             $expiresAtString = date("Y-m-d H:i:s", $expiresAt);
 

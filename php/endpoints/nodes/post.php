@@ -48,7 +48,7 @@ class EndpointNodesPost extends Endpoint
     {
         try
         {
-            $sql = "INSERT INTO nodes " . sql_insert_string($this->jsonParams);
+            $sql = "INSERT INTO nodes " . sql_insert_string(array_keys($this->jsonParams));
             database_query($this->pdo, $sql, array_values($this->jsonParams));
             return (new Response(200))->setBody(["nodeId" => $this->pdo->lastInsertId()]);
         }

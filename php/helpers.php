@@ -28,10 +28,11 @@ function load_configuration($file_path)
 /**
  * Finalises the response to an API request. Outputs the body, sets the headers and status code,
  * and terminates the script.
- * @param object $response - The Response object to use to finalise the response.
+ * @param object $response - A Response object, which contains the information needed to finalise
+ * the response.
  * @return void
  */
-function api_respond($response)
+function api_respond(Response $response) : void
 {
     header("Content-Type: application/json");
 
@@ -51,71 +52,69 @@ function api_respond($response)
     exit();
 }
 
-function api_authenticate($pdo)
+/**
+ * Checks whether the request is authenticated. If it is then the authenticated user's information
+ * is returned in the Response object.
+ * @param object $pdo - The PDO object to access the database with.
+ * @return object A Response object indicating the result of the authentication check. If the
+ * request is authenticated then the Response body will contain the authenticated user's
+ * information in the form of an associative array.
+ */
+function api_authenticate(PDO $pdo) : Response
 {
     // Authenticate via username and password in request
     if (array_key_exists("PHP_AUTH_USER", $_SERVER))
     {
         try
         {
-            // Need to lock the selected user so it can't be deleted
-            $sql = "SELECT * FROM users WHERE username = ? AND password = ?";
-            
+            $sql = "SELECT * FROM users WHERE username = ? AND password = ? LIMIT 1";
+
             $query = database_query($pdo, $sql,
                 [$_SERVER["PHP_AUTH_USER"], $_SERVER["PHP_AUTH_PW"]]);
-
-            if (count($query) > 0)
-            {
-                $query[0]["privNodes"] = (bool)$query[0]["privNodes"];
-                $query[0]["privUsers"] = (bool)$query[0]["privUsers"];
-                return $query[0];
-            }
-            else api_respond(new Response(403));
         }
         catch (PDOException $ex)
         {
             error_log($ex);
-            api_respond(new Response(500));
+            return new Response(500);
         }
     }
 
-    // Authenticate via session token in request or cookie
-    else if (array_key_exists("Authorization", apache_request_headers()) ||
+    // Authenticate via token in request or cookie
+    else if (array_key_exists("HTTP_AUTHORIZATION", $_SERVER) ||
         array_key_exists(SESSION_COOKIE_NAME, $_COOKIE))
     {
-        if (array_key_exists("Authorization", apache_request_headers()) &&
-            starts_with(apache_request_headers()["Authorization"], "Bearer "))
+        if (array_key_exists("HTTP_AUTHORIZATION", $_SERVER) &&
+            starts_with($_SERVER["HTTP_AUTHORIZATION"], "Bearer "))
         {
-            $token = substr(apache_request_headers()["Authorization"], 7);
+            $token = substr($_SERVER["HTTP_AUTHORIZATION"], 7);
         }
         else if (array_key_exists(SESSION_COOKIE_NAME, $_COOKIE))
             $token = $_COOKIE[SESSION_COOKIE_NAME];
-        else api_respond(new Response(401));
+        else return new Response(401);
 
         try
         {
-            // Need to lock the selected user so it can't be deleted
             $sql = "SELECT * FROM users WHERE userId =
-                        (SELECT userId FROM tokens WHERE token = ?)";
+                        (SELECT userId FROM tokens WHERE token = ?) LIMIT 1";
 
             $query = database_query($pdo, $sql, [$token]);
-
-            if (count($query) > 0)
-            {
-                $query[0]["privNodes"] = (bool)$query[0]["privNodes"];
-                $query[0]["privUsers"] = (bool)$query[0]["privUsers"];
-                return $query[0];
-            }
-            else api_respond(new Response(403));
         }
         catch (PDOException $ex)
         {
             error_log($ex);
-            api_respond(new Response(500));
+            return new Response(500);
         }
     }
+    else return new Response(401);
 
-    else api_respond(new Response(401));
+    
+    if (count($query) > 0)
+    {
+        $query[0]["privNodes"] = (bool)$query[0]["privNodes"];
+        $query[0]["privUsers"] = (bool)$query[0]["privUsers"];
+        return (new Response(200))->setBody($query[0]);
+    }
+    else return new Response(401);
 }
 
 
@@ -126,9 +125,9 @@ function api_authenticate($pdo)
  * @param string $username - The username to connect to the database with.
  * @param string $password - The password to connect to the database with.
  * @throws PDOException if there is any error.
- * @return object The PDO connection object.
+ * @return object The resulting PDO object.
  */
-function database_connect($host, $database, $username, $password)
+function database_connect(string $host, string $database, string $username, string $password) : PDO
 {
     $options =
     [
@@ -143,7 +142,7 @@ function database_connect($host, $database, $username, $password)
 
 /**
  * Queries a database and returns the results.
- * @param object $pdo - The PDO connection object.
+ * @param object $pdo - The PDO object to access the database with.
  * @param string $sql - The SQL query to run. Any values should be replaced with question marks.
  * @param array|null $values (optional) - The values to put into the SQL query. There should be the
  * same number of values as there are question marks in the SQL query.
@@ -151,7 +150,7 @@ function database_connect($host, $database, $username, $password)
  * @return array|boolean The records selected by the query, or true if the query is not a SELECT
  * query.
  */
-function database_query($pdo, $sql, $values = null)
+function database_query(PDO $pdo, string $sql, array $values = null)
 {
     $query = $pdo->prepare($sql);
     $query->execute($values);
@@ -164,14 +163,14 @@ function database_query($pdo, $sql, $values = null)
 
 /**
  * Queries a database and returns the number of affected records.
- * @param object $pdo - The PDO connection object.
+ * @param object $pdo - The PDO object to access the database with.
  * @param string $sql - The SQL query to run. Any values should be replaced with question marks.
  * @param array|null $values (optional) - The values to put into the SQL query. There should be the
  * same number of values as there are question marks in the SQL query.
  * @throws PDOException if there is any error.
  * @return integer The number of records affected by the query.
  */
-function database_query_affected($pdo, $sql, $values = null)
+function database_query_affected(PDO $pdo, string $sql, array $values = null)
 {
     $query = $pdo->prepare($sql);
     $query->execute($values);
@@ -185,7 +184,7 @@ function database_query_affected($pdo, $sql, $values = null)
  * @param array $whitelist - The whitelist of allowed keys.
  * @return array The original $array but with all non-whitelisted keys removed.
  */
-function filter_keys($array, $whitelist)
+function filter_keys(array $array, array $whitelist) : array
 {
     $finalArray = $array;
 
@@ -198,24 +197,13 @@ function filter_keys($array, $whitelist)
     return $finalArray;
 }
 
-
-function get_random_string($length)
-{
-    $characters = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    $string = "";
-
-    for ($i = 0; $i < $length; $i++)
-        $string .= $characters[mt_rand(0, strlen($characters) - 1)];
-    return $string;
-}
-
 /**
  * Determines whether a string starts with another string.
  * @param string $string - The string to check inside of.
  * @param string $start - The string to check for at the start.
  * @return boolean true if the string starts with the start string, otherwise false.
  */
-function starts_with($string, $start)
+function starts_with(string $string, string $start) : bool
 {
     return substr($string, 0, strlen($start)) === $start;
 }
@@ -226,32 +214,47 @@ function starts_with($string, $start)
  * @param string $end - The string to check for at the end.
  * @return boolean true if the string ends with the start string, otherwise false.
  */
-function ends_with($string, $end)
+function ends_with(string $string, string $end) : bool
 {
     if (strlen($end) > 0)
         return substr($string, -strlen($end)) === $end;
     else return true;
 }
 
+/**
+ * Generates a random alphanumeric (including both letter cases) string of a specific length.
+ * @param integer $length - The number of characters in the random string.
+ * @return string The generated random string.
+ */
+function random_string(int $length) : string
+{
+    $characters = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    $string = "";
+
+    for ($i = 0; $i < $length; $i++)
+        $string .= $characters[mt_rand(0, strlen($characters) - 1)];
+    return $string;
+}
+
 
 
 function api_get_node($pdo, $nodeId)
 {
-    $sql = "SELECT * FROM nodes WHERE nodeId = ?";
+    $sql = "SELECT * FROM nodes WHERE nodeId = ? LIMIT 1";
     $query = database_query($pdo, $sql, [$nodeId]);
     return count($query) > 0 ? $query[0] : null;
 }
 
 function api_get_project($pdo, $projectId)
 {
-    $sql = "SELECT * FROM projects WHERE projectId = ?";
+    $sql = "SELECT * FROM projects WHERE projectId = ? LIMIT 1";
     $query = database_query($pdo, $sql, [$projectId]);
     return count($query) > 0 ? $query[0] : null;
 }
 
 function api_get_project_node($pdo, $projectId, $nodeId)
 {
-    $sql = "SELECT * FROM projectNodes WHERE projectId = ? AND nodeId = ?";
+    $sql = "SELECT * FROM projectNodes WHERE projectId = ? AND nodeId = ? LIMIT 1";
     $query = database_query($pdo, $sql, [$projectId, $nodeId]);
     return count($query) > 0 ? $query[0] : null;
 }

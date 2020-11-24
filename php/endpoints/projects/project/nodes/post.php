@@ -102,7 +102,7 @@ class EndpointProjectNodesPost extends Endpoint
             $values["projectId"] = $this->resParams["projectId"];
             $values["nodeId"] = $this->jsonParams["nodeId"];
             
-            $sql = "INSERT INTO projectNodes " . sql_insert_string($values);
+            $sql = "INSERT INTO projectNodes " . sql_insert_string(array_keys($values));
             database_query($this->pdo, $sql, array_values($values));
 
             return new Response(200);

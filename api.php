@@ -15,10 +15,13 @@ try
 }
 catch (Exception $ex)
 {
+    error_log($ex);
     api_respond(new Response(500));
 }
 
-$user = api_authenticate($pdo);
+$auth = api_authenticate($pdo);
+if ($auth->getStatus() !== 200)
+    api_respond($auth);
 
 
 $router = new AltoRouter();
@@ -65,7 +68,7 @@ if ($match)
     $target = explode("+", $match["target"]);
     require_once "php/endpoints/" . $target[0];
 
-    $endpoint = new $target[1]($pdo, $user, $match["params"]);
+    $endpoint = new $target[1]($pdo, $auth->getBody(), $match["params"]);
     api_respond($endpoint->response());
 }
 else api_respond(new Response(404));

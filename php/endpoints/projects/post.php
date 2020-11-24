@@ -49,7 +49,7 @@ class EndpointProjectsPost extends Endpoint
             $values = $this->jsonParams;
             $values["userId"] = $this->user["userId"];
 
-            $sql = "INSERT INTO projects " . sql_insert_string($values);
+            $sql = "INSERT INTO projects " . sql_insert_string(array_keys($values));
             database_query($this->pdo, $sql, array_values($values));
             return (new Response(200))->setBody(["projectId" => $this->pdo->lastInsertId()]);
         }

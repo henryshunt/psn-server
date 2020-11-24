@@ -67,7 +67,7 @@ class EndpointNodePatch extends Endpoint
         try
         {
             $sql = "UPDATE nodes SET %s WHERE nodeId = ?";
-            $sql = sprintf($sql, sql_update_string($this->jsonParams));
+            $sql = sprintf($sql, sql_update_string(array_keys($this->jsonParams)));
 
             $values = array_values($this->jsonParams);
             array_push($values, $this->resParams["nodeId"]);

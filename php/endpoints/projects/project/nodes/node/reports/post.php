@@ -104,7 +104,7 @@ class EndpointProjectNodeReportsPost extends Endpoint
             $values["projectId"] = $this->resParams["projectId"];
             $values["nodeId"] = $this->projectNode["nodeId"];
 
-            $sql = "INSERT INTO reports " . sql_insert_string($values);
+            $sql = "INSERT INTO reports " . sql_insert_string(array_keys($values));
             database_query($this->pdo, $sql, array_values($values));
             
             $sql = "UPDATE projectNodes SET latestReportId = ? WHERE projectId = ? AND nodeId = ?";
