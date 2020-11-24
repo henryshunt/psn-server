@@ -117,6 +117,72 @@ function api_authenticate(PDO $pdo) : Response
     else return new Response(401);
 }
 
+/**
+ * Gets a single node from the database.
+ * @param object $pdo - The PDO object to access the database with.
+ * @param int|string $nodeId - The ID of the node to get.
+ * @return array|null The node if it exists, otherwise null.
+ */
+function api_get_node(PDO $pdo, $nodeId) : array
+{
+    $sql = "SELECT * FROM nodes WHERE nodeId = ? LIMIT 1";
+    $query = database_query($pdo, $sql, [$nodeId]);
+    return count($query) > 0 ? $query[0] : null;
+}
+
+/**
+ * Gets a single project from the database.
+ * @param object $pdo - The PDO object to access the database with.
+ * @param int|string $projectId - The ID of the project to get.
+ * @return array|null The project if it exists, otherwise null.
+ */
+function api_get_project(PDO $pdo, $projectId) : array
+{
+    $sql = "SELECT * FROM projects WHERE projectId = ? LIMIT 1";
+    $query = database_query($pdo, $sql, [$projectId]);
+    return count($query) > 0 ? $query[0] : null;
+}
+
+/**
+ * Gets a single projectNode from the database.
+ * @param object $pdo - The PDO object to access the database with.
+ * @param int|string $projectId - The ID of the project to get the projectNode for.
+ * @param int|string $nodeId - The ID of the node to get the projectNode for.
+ * @return array|null The projectNode if it exists, otherwise null.
+ */
+function api_get_project_node(PDO $pdo, $projectId, $nodeId) : array
+{
+    $sql = "SELECT * FROM projectNodes WHERE projectId = ? AND nodeId = ? LIMIT 1";
+    $query = database_query($pdo, $sql, [$projectId, $nodeId]);
+    return count($query) > 0 ? $query[0] : null;
+}
+
+/**
+ * Checks whether a project exists and whether a user can access it.
+ * @param object $pdo - The PDO object to access the database with.
+ * @param int|string $projectId - The ID of the project to check.
+ * @param int $userId - The ID of the user you want to check can access the project.
+ * @return object A Response object indicating the result of the check.
+ */
+function checkProjectAccess(PDO $pdo, $projectId, $userId) : Response
+{
+    try
+    {
+        $project = api_get_project($pdo, $projectId);
+
+        if ($project === null)
+            return new Response(404);
+        else if ($project["userId"] !== $userId)
+            return new Response(403);
+        else return new Response(200);
+    }
+    catch (PDOException $ex)
+    {
+        error_log($ex);
+        return new Response(500);
+    }
+}
+
 
 /**
  * Opens a connection to a MySQL database using the provided credentials.
@@ -236,51 +302,68 @@ function random_string(int $length) : string
     return $string;
 }
 
-
-
-function api_get_node($pdo, $nodeId)
+/**
+ * Generates the "(cols,) VALUES (vals,)" part of an SQL insert query.
+ * @param array $array - The columns to include in the SQL query.
+ * @return string The generated "(cols,) VALUES (vals,)" part of an SQL insert query, using the
+ * columns specified in $array. The values will be relaced with question mark placeholders (for
+ * secure insertion using PDO). If $array is empty then an empty string is returned.
+ */
+function sql_insert_string(array $array) : string
 {
-    $sql = "SELECT * FROM nodes WHERE nodeId = ? LIMIT 1";
-    $query = database_query($pdo, $sql, [$nodeId]);
-    return count($query) > 0 ? $query[0] : null;
-}
+    if (count($array) === 0)
+        return "";
 
-function api_get_project($pdo, $projectId)
-{
-    $sql = "SELECT * FROM projects WHERE projectId = ? LIMIT 1";
-    $query = database_query($pdo, $sql, [$projectId]);
-    return count($query) > 0 ? $query[0] : null;
-}
-
-function api_get_project_node($pdo, $projectId, $nodeId)
-{
-    $sql = "SELECT * FROM projectNodes WHERE projectId = ? AND nodeId = ? LIMIT 1";
-    $query = database_query($pdo, $sql, [$projectId, $nodeId]);
-    return count($query) > 0 ? $query[0] : null;
-}
-
-
-function sql_update_string($attributes)
-{
     $columns = [];
 
-    foreach (array_keys($attributes) as $key)
-        array_push($columns, sprintf("`%s` = ?", $key));
-
-    return join(", ", $columns);
-}
-
-function sql_insert_string($attributes)
-{
-    $columns = [];
-
-    foreach (array_keys($attributes) as $key)
+    foreach ($array as $key)
         array_push($columns, sprintf("`%s`", $key));
 
     $sql = sprintf("(%s) VALUES (%s)",
         join(", ", $columns), join(", ", array_fill(0, count($columns), "?")));
 
     return $sql;
+}
+
+/**
+ * Generates the "col = val," part of an SQL update query.
+ * @param array $array - The columns to include in the SQL query.
+ * @return string The generated "col = val," part of an SQL insert query, using the columns
+ * specified in $array. The values will be relaced with question mark placeholders (for secure
+ * insertion using PDO). If $array is empty then an empty string is returned.
+ */
+function sql_update_string(array $array) : string
+{
+    if (count($array) === 0)
+        return "";
+
+    $columns = [];
+
+    foreach ($array as $key)
+        array_push($columns, sprintf("`%s` = ?", $key));
+
+    return join(", ", $columns);
+}
+
+/**
+ * Moves all associative array keys that begin with a specific string into a separate array within
+ * the main array. The start string is also removed from the moved keys.
+ */
+function move_prefixed_keys(&$object, $prefix, $target)
+{
+    foreach ($object as $key => $value)
+    {
+        if (starts_with($key, $prefix))
+        {
+            $object[$target][substr($key, strlen($prefix))] = $value;
+            unset($object[$key]);
+        }
+    }
+}
+
+function keyExistsMatches($key, $value, $array)
+{
+    return array_key_exists($key, $array) && $array[$key] === $value;
 }
 
 
@@ -300,40 +383,4 @@ function error_page($statusCode)
 
     http_response_code($statusCode);
     exit();
-}
-
-function move_prefixed_keys(&$object, $prefix, $target)
-{
-    foreach ($object as $key => $value)
-    {
-        if (starts_with($key, $prefix))
-        {
-            $object[$target][substr($key, strlen($prefix))] = $value;
-            unset($object[$key]);
-        }
-    }
-}
-
-function checkProjectAccess($pdo, $projectId, $userId) : Response
-{
-    try
-    {
-        $project = api_get_project($pdo, $projectId);
-
-        if ($project === null)
-            return new Response(404);
-        else if ($project["userId"] !== $userId)
-            return new Response(403);
-        else return new Response(200);
-    }
-    catch (PDOException $ex)
-    {
-        error_log($ex);
-        return new Response(500);
-    }
-}
-
-function keyExistsMatches($key, $value, $array)
-{
-    return array_key_exists($key, $array) && $array[$key] === $value;
 }

@@ -1,0 +1,44 @@
+table {
+    width: 100%;
+}
+thead {
+    border-bottom: 2px solid rgb(200, 200, 200);
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+thead td {
+    padding-bottom: 2px;
+}
+thead > tr > :first-child {
+    width: 185px;
+}
+
+.node {
+    margin-bottom: 10px;
+    border-bottom: 1px solid rgb(200, 200, 200);
+}
+.node td {
+    padding-top: 15px;
+    padding-bottom: 4px;
+}
+
+.circle {
+    width: 12px;
+    height: 12px;
+    border-radius: 6px;
+    float: right;
+    margin-right: 8px;
+}
+.circle--inactive {
+    background-color: rgb(200, 200, 200);
+}
+.circle--active {
+    background-color: green;
+}
+
+.node > :first-child {
+    font-family: "Courier New";
+}
+.node--inactive > td:not(:first-child) {
+    color: rgb(200, 200, 200);
+}

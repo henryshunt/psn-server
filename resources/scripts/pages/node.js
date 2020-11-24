@@ -5,74 +5,166 @@ let dataTime = null;
 let temperatureGraph = null;
 let humidityGraph = null;
 
-$(window).on("load", () =>
+window.addEventListener("load", () =>
 {
-    loadNodeInfo(() =>
-    {
-        loadNodeAlarms();
-        temperatureGraph = initialiseGraph("temperature-graph");
-        $("#temperature-graph-group").css("display", "block");
-        humidityGraph = initialiseGraph("humidity-graph");
-        $("#humidity-graph-group").css("display", "block");
+    let url = "api.php/projects/{0}/nodes/{1}".format(
+        getQueryStringValue("project"), getQueryStringValue("id"));
 
-        if (sessionIsActive)
-            dataTime = moment.utc().millisecond(0).second(0);
-        else dataTime = dbTimeToUtc(sessionEndTime);
-        loadData();
-    });
+    getJson(url).then((data) => loadNodeInfoSuccess(data)).catch();
+
+    // loadNodeInfo(() =>
+    // {
+    //     loadNodeAlarms();
+    //     temperatureGraph = initialiseGraph("temperature-graph");
+    //     $("#temperature-graph-group").css("display", "block");
+    //     humidityGraph = initialiseGraph("humidity-graph");
+    //     $("#humidity-graph-group").css("display", "block");
+
+    //     if (sessionIsActive)
+    //         dataTime = moment.utc().millisecond(0).second(0);
+    //     else dataTime = dbTimeToUtc(sessionEndTime);
+    //     loadData();
+    // });
+
+    url += "/reports?mode=chart";
+
+    getJson(url + "&columns=airt")
+        .then((data) =>
+        {
+            new Chart(document.getElementById("temperature-graph").getContext("2d"),
+            {
+                type: "scatter",
+
+                data:
+                {
+                    datasets:
+                    [{
+                        borderColor: 'rgb(255, 99, 132)',
+                        data: data,
+                        showLine: true,
+                        pointRadius: 0,
+                        pointHitRadius: 30,
+                        pointHoverBackgroundColor: "rgba(0,0,0,0)",
+                        pointHoverBorderColor: "rgba(0,0,0,0)",
+                        borderColor: "rgb(195, 39, 40)",
+                        borderWidth: 2
+                    }]
+                },
+
+                options:
+                {
+                    legend: { display: false },
+                    animation: { duration: 0 },
+                    responsive: true,
+
+                    scales:
+                    {
+                        xAxes: [{ type: "time" }],
+                    }
+                }
+            });
+        })
+
+        .catch(() => console.log("error"));
+
+    getJson(url + "&columns=relh")
+        .then((data) =>
+        {
+            new Chart(document.getElementById("humidity-graph").getContext("2d"),
+            {
+                type: "scatter",
+
+                data:
+                {
+                    datasets:
+                    [{
+                        borderColor: 'rgb(255, 99, 132)',
+                        data: data,
+                        showLine: true,
+                        pointRadius: 0,
+                        pointHitRadius: 30,
+                        pointHoverBackgroundColor: "rgba(0,0,0,0)",
+                        pointHoverBorderColor: "rgba(0,0,0,0)",
+                        borderColor: "rgb(195, 39, 40)",
+                        borderWidth: 2
+                    }]
+                },
+
+                options:
+                {
+                    legend: { display: false },
+                    animation: { duration: 0 },
+                    responsive: true,
+
+                    scales:
+                    {
+                        xAxes: [{ type: "time" }],
+                    }
+                }
+            });
+        })
+
+        .catch(() => console.log("error"));
 });
 
 
-function loadNodeInfo(onSuccess)
+function loadNodeInfoSuccess(data)
 {
-    loadingCount++;
-    let url = "data/get-node-info.php?nodeId={0}&sessionId={1}".format(
-        getQueryStringValue("id"), getQueryStringValue("session"));
+    document.getElementById("node-location").innerText = data["location"];
+    document.getElementById("node-session").innerText =
+        "Part of the '" + data["project"]["name"] + "' session.";
 
-    $.getJSON(url, (data) =>
+    let optionsString = "From {0}{1}. Reporting every {2} minutes.";
+
+    let startTime = dbTimeToLocal(data["startedAt"]).format("DD/MM/YYYY HH:mm");
+
+    if (data["endAt"] !== null)
+        var endTime = " to " + dbTimeToLocal(data["endAt"]).format("DD/MM/YYYY HH:mm");
+    else var endTime = ", indefinitely";
+
+    document.getElementById("node-options").innerText = 
+        optionsString.format(startTime, endTime, data["interval"], data["batchSize"]);
+
+    if (data["isActive"])
     {
-        if (data !== false && data !== null)
-        {
-            sessionIsActive = data["is_active"];
-            sessionEndTime = data["end_time"];
+        document.getElementById(
+            "stop-node-btn").classList.remove("info-group__action--hidden");
+    }
 
-            $("#node-location").html(data["location"]);
-            $("#node-session").html("Part of the '" + data["session_name"] + "' session");
+    document.getElementById(
+        "node-info-group").classList.remove("info-group--hidden");
 
-            let optionsString = "From {0}{1} (reporting every {2} minutes in batches of {3})";
-
-            let startTime = dbTimeToLocal(data["start_time"]).format("DD/MM/YYYY HH:mm");
-            let endTime = "";
-            if (data["end_time"] !== null)
-                endTime = " to " + dbTimeToLocal(data["end_time"]).format("DD/MM/YYYY HH:mm");
-            else endTime = ", indefinitely";
-
-            $("#node-options").html(optionsString.format(startTime, endTime, data["interval"],
-                data["batch_size"]));
-
-            // Disable stop session and new alarm buttons if the session has already ended
-            if (!data["is_active"])
-            {
-                $("#button-stop").attr("disabled", true);
-                $("#new-alarm-button").attr("disabled", true);
-            }
-
-            $("#node-info-group").css("display", "block");
-            loadingCount--;
-            onSuccess();
-        }
-        else
-        {
-            $("#main").prepend(ERROR_HTML);
-            loadingCount--;
-        }
-        
-    }).fail(() =>
-    {
-        $("#main").prepend(ERROR_HTML);
-        loadingCount--;
-    });
+    loadReports();
 }
+
+
+// function loadNodeInfoSuccess()
+// {
+//     $("#node-location").html(data["location"]);
+//     $("#node-session").html("Part of the '" + data["session_name"] + "' session");
+
+//     let optionsString = "From {0}{1} (reporting every {2} minutes in batches of {3})";
+
+//     let startTime = dbTimeToLocal(data["start_time"]).format("DD/MM/YYYY HH:mm");
+//     let endTime = "";
+//     if (data["end_time"] !== null)
+//         endTime = " to " + dbTimeToLocal(data["end_time"]).format("DD/MM/YYYY HH:mm");
+//     else endTime = ", indefinitely";
+
+//     $("#node-options").html(optionsString.format(startTime, endTime, data["interval"],
+//         data["batch_size"]));
+
+//     // Disable stop session and new alarm buttons if the session has already ended
+//     if (!data["is_active"])
+//     {
+//         $("#button-stop").attr("disabled", true);
+//         $("#new-alarm-button").attr("disabled", true);
+//     }
+
+//     $("#node-info-group").css("display", "block");
+//     loadingCount--;
+//     onSuccess();
+// }
 
 function loadNodeAlarms()
 {
@@ -168,10 +260,12 @@ function loadData()
 
 function loadReports()
 {
-    loadingCount++;
-    let url = "data/get-reports.php?nodeId={0}&sessionId={1}&time={2}&amount={3}".format(
-        getQueryStringValue("id"), getQueryStringValue("session"),
-        dataTime.format("YYYY-MM-DD[T]HH:mm:ss[Z]"), 6);
+    let url = "api.php/projects/{0}/nodes/{1}/reports?mode=latest&limit=6".format(
+        getQueryStringValue("project"), getQueryStringValue("id"));
+
+    // let url = "data/get-reports.php?nodeId={0}&sessionId={1}&time={2}&amount={3}".format(
+    //     getQueryStringValue("id"), getQueryStringValue("session"),
+    //     dataTime.format("YYYY-MM-DD[T]HH:mm:ss[Z]"), 6);
 
     $.getJSON(url, (data) =>
     {

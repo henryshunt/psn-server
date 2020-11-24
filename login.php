@@ -1,6 +1,6 @@
 <?php
-$loginPage = true;
-require_once "php/all-pages.php";
+const LOGIN_PAGE = true;
+require_once "php/page-auth.php";
 ?>
 
 <meta charset="UTF-8">
@@ -14,11 +14,6 @@ require_once "php/all-pages.php";
         <link href="resources/styles/reset.css" rel="stylesheet" type="text/css">
         <link href="resources/styles/globals.css" rel="stylesheet" type="text/css">
         <link href="https://fonts.googleapis.com/css?family=Istok+Web:400,400i,700&display=swap" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/icon?family=Material+Icons&display=block" rel="stylesheet">
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js" type="text/javascript"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js" type="text/javascript"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.27/moment-timezone-with-data-10-year-range.min.js" type="text/javascript"></script>
-        <link href="resources/styles/external/bootstrap.css" rel="stylesheet" type="text/css">
         <script src="resources/scripts/config.js.php" type="text/javascript"></script>
         <script src="resources/scripts/helpers.js" type="text/javascript"></script>
 
@@ -29,22 +24,33 @@ require_once "php/all-pages.php";
     </head>
 
     <body>
-    <header>
-            <div>
+        <header class="header">
+            <div class="header__first-row">
                 <div class="main">
-                    <h1><a href=".">Phenotyping Sensor Network</a></h1>
+                    <h1 class="header__title">
+                        <a href=".">Phenotyping Sensor Network</a>
+                    </h1>
                 </div>
             </div>
         </header>
 
         <main>
-            <form id="login-form" method="post" action="login/internal.php">
-                <input id="username" name="username" type="text" class="form-control" placeholder="Username"/>
-                <input id="password" name="password" type="password" class="form-control" placeholder="Password"/>
-                <button type="submit">Log In</button>
+            <div>
+                <form class="form" id="login-form" method="post" action="auth/internal.php">
+                    <input class="form__username" id="username" name="username" type="text" placeholder="Username"/>
+                    <input class="form__password" id="password" name="password" type="password" placeholder="Password"/>
+                    <button class="form__log-in" type="submit">Log In</button>
+                </form>
 
-                <a href="resources/routines/login.php?type=oauth">Log in with Microsoft Azure</button>
-            </form>
+                <div class="or">
+                    <div class="or__line"></div>
+                    <div class="or__text">or</div>
+                </div>
+
+                <form action="login/oauth.php">
+                    <button class="form__log-in" type="submit">Log in with University Credentials</button>
+                </form>
+            </div>
         </main>
     </body>
 </html>

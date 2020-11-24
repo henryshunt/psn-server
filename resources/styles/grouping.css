@@ -118,12 +118,13 @@
     font-size: 15px;
 }
 
-.item-graph {
-    margin: 0;
+/* .item-graph { */
+    /* margin: 0;
     width: calc(100% - 22px);
     padding: 10px;
-    height: unset;
-}
+    height: unset; */
+    /* height: 350px; */
+/* } */
 
 .status-message {
     width: calc(100% - 2px);

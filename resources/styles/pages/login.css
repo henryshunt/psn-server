@@ -1,23 +1,44 @@
+body {
+    min-height: 162px;
+}
 main {
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    height: calc(100vh - 110px);
+    height: calc(100vh - 90px);
+    min-height: 186px;
 }
-form {
+
+.form {
     width: 300px;
 }
-form > button {
-    width: 100%;
-    margin-bottom: 20px;
-}
-
-input {
+.form__username {
     margin-bottom: 5px;
 }
+.form__password {
+    margin-bottom: 5px;
+}
+.form__log-in {
+    width: 100%;
+}
 
-main > form > a {
-    text-decoration: underline;
-    font-size: 12px;
+.or {
+    display: flex;
+    justify-content: center;
+    position: relative;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+.or__line {
+    position: absolute;
+    top: 7px;
+    border: 1px solid rgb(200, 200, 200);
+    width: 100%;
+}
+.or__text {
+    background-color: rgb(240, 240, 240);
+    width: 80px;
+    z-index: 1;
+    text-align: center;
 }

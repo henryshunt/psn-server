@@ -78,7 +78,7 @@
                 </div>
             
                 <div class="info-group__right">
-                    <button class="info-group__action" id="edit-project-btn">Edit Project Info</button>
+                    <button class="info-group__action" id="edit-project-btn">View/Edit Info</button>
                     <button class="info-group__action" id="download-data-btn">Download All Data</button>
                     <button class="info-group__action info-group__action--hidden" id="stop-project-btn">Stop Project</button>
                     <button class="info-group__action info-group__action--last" id="delete-project-btn">Delete Project</button>

@@ -10,7 +10,7 @@
         <p>Enter the MAC address of the sensor node exactly as displayed at the top of the node administrator program.</p>
 
         <form>
-            <input id="new-node-address" type="text" class="form-control" placeholder="Sensor Node MAC Address"/>
+            <input id="new-node-address" type="text" placeholder="Sensor Node MAC Address"/>
         </form>
     </div>
 
