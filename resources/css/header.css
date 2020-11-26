@@ -62,6 +62,16 @@
     margin-top: 20px;
     line-height: 20px;
 }
+.actions__item {
+    display: inline;
+}
+.actions__item::after {
+    content: " •";
+    font-weight: bold;
+}
+.actions__item:last-child::after {
+    content: none;
+}
 .actions__anchor {
     text-decoration: underline;
 }

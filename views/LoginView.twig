@@ -1,0 +1,43 @@
+<meta charset="UTF-8">
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Log In - Phenotyping Sensor Network</title>
+        <meta name="viewport" content="width=450px">
+
+        <link href="{{ assets }}/css/reset.css" rel="stylesheet">
+        <link href="{{ assets }}/css/globals.css" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=Istok+Web:400,400i,700&display=swap" rel="stylesheet">
+        <script src="{{ assets }}/js/config.js.php"></script>
+        <script src="{{ assets }}/js/helpers.js"></script>
+
+        <link href="{{ assets }}/css/header.css" rel="stylesheet">
+        <script src="{{ assets }}/js/header.js"></script>
+        <link href="{{ assets }}/css/pages/login.css" rel="stylesheet">
+        <script src="{{ assets }}/js/pages/login.js"></script>
+    </head>
+
+    <body>
+        {% include "partials/header.twig" with {"loggedIn": false} %}
+
+        <main>
+            <div>
+                <form class="form" id="login-form" method="post" action="login/internal">
+                    <input class="form__username" id="username" name="username" type="text" placeholder="Username"/>
+                    <input class="form__password" id="password" name="password" type="password" placeholder="Password"/>
+                    <button class="form__log-in" type="submit">Log In</button>
+                </form>
+
+                <div class="or">
+                    <div class="or__line"></div>
+                    <div class="or__text">or</div>
+                </div>
+
+                <form action="login/oauth.php">
+                    <button class="form__log-in" type="submit">Log in with University Credentials</button>
+                </form>
+            </div>
+        </main>
+    </body>
+</html>

@@ -1,0 +1,107 @@
+<meta charset="UTF-8">
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Project - Phenotyping Sensor Network</title>
+        <meta name="viewport" content="width=450px">
+
+        <link href="{{ assets }}/css/reset.css" rel="stylesheet">
+        <link href="{{ assets }}/css/globals.css" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=Istok+Web:400,400i,700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons&display=block" rel="stylesheet">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.27/moment-timezone-with-data-10-year-range.min.js"></script>
+        <link href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.3/dist/flatpickr.min.css" rel="stylesheet" type="text/css">
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.3/dist/flatpickr.min.js" type="text/javascript"></script>
+        <script src="{{ assets }}/js/config.js.php"></script>
+        <script src="{{ assets }}/js/helpers.js"></script>
+
+        <link href="{{ assets }}/css/header.css" rel="stylesheet">
+        <script src="{{ assets }}/js/header.js"></script>
+        <link href="{{ assets }}/css/grouping.css" rel="stylesheet">
+        <link href="{{ assets }}/css/pages/project.css" rel="stylesheet">
+        <script src="{{ assets }}/js/pages/project.js"></script>
+
+        <link href="{{ assets }}/css/modal.css" rel="stylesheet">
+        <link href="{{ assets }}/css/modals/edit-project.css" rel="stylesheet">
+        <script src="{{ assets }}/js/modals/edit-project.js"></script>
+        <link href="{{ assets }}/css/modals/add-node.css" rel="stylesheet">
+        <script src="{{ assets }}/js/modals/add-node.js"></script>
+    </head>
+
+    <body>
+        {% include "partials/header.twig" with {"loggedIn": true} %}
+
+        <main id="main">
+            <div class="info-group" id="project-info-group">
+                <div class="info-group__left">
+                    <p class="info-group__header">
+                        <span class="info-group__title">Project View: </span>
+                        <span class="info-group__sub-title" id="project-name">{{ project.name }}</span>
+                    </p>
+
+                    <p class="info-group__body" id="project-desc">{{ project.description }}</p>
+                </div>
+            
+                <div class="info-group__right">
+                    <button class="info-group__action" id="edit-project-btn">View/Edit Info</button>
+                    <button class="info-group__action" id="download-data-btn">Download All Data</button>
+
+                    {% if project.isActive %}
+                        <button class="info-group__action" id="stop-project-btn">Stop Project</button>
+                    {% endif %}
+
+                    <button class="info-group__action info-group__action--last" id="delete-project-btn">Delete Project</button>
+                </div>
+            </div>
+
+            <div class="titled-group" id="active-nodes-group">
+                <div class="titled-group__header">
+                    <h2 class="titled-group__title">Active Sensor Nodes</h2>
+                    <button class="titled-group__action" id="add-node-btn">Add Node</button>
+                    <div class="titled-group__separator"></div>
+                </div>
+
+                <div class="items-block" id="active-nodes">
+                    {% for node in activeNodes %}
+                        <div class="items-block__item">
+                            <a class="item__anchor" href="projects/{{ projectId }}/nodes/{{ node.nodeId }}">
+                                <p class="item__title">{{ node.location }}</p>
+                                <p class="item__sub-title">{{ node.reportTime }}</p>
+
+                                {% if node.latestReport != null %}
+                                    <div class="item__corner item__corner--node">
+                                        <div><p>Temp.</p><p>{{ node.latestReport.airt }}</p></div>
+                                        <div><p>Humid.</p><p>{{ node.latestReport.relh }}</p></div>
+                                    </div>
+                                {% endif %}
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="titled-group" id="completed-nodes-group">
+                <div class="titled-group__header">
+                    <h2 class="titled-group__title">Completed Sensor Nodes</h2>
+                    <div class="titled-group__separator"></div>
+                </div>
+
+                <div class="items-block" id="completed-nodes">
+                    {% for node in completedNodes %}
+                        <div class="items-block__item items-block__item--thin">
+                            <a class="item__anchor" href="projects/{{ projectId }}/nodes/{{ node.nodeId }}">
+                                <p class="item__title">{{ node.location }}</p>
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </main>
+
+        <div class="modal__shade modal__shade--hidden" id="modal-shade"></div>
+        {# <?php include_once "resources/modals/edit-project.inc"; ?>
+        <?php include_once "resources/modals/add-node.inc"; ?> #}
+    </body>
+</html>

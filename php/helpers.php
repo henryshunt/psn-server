@@ -5,7 +5,7 @@ use Respect\Validation\Exceptions\ValidationException;
 const SESSION_TOKEN_LENGTH = 64;
 const SESSION_EXPIRE_AFTER = 3600;
 const SESSION_COOKIE_NAME = "psn-token";
-const SESSION_COOKIE_PATH = "/psn-server";
+const SESSION_COOKIE_PATH = "/";
 
 const MYSQL_MAX_INT = 2147483647;
 const MYSQL_MAX_TINYINT = 127;
@@ -381,6 +381,25 @@ function error_page($statusCode)
               </html>";
     }
 
+    if ($statusCode === 404)
+    {
+        echo "<html>
+                  <head>
+                      <title>404 Not Found</title>
+                  </head>
+                  <body>
+                      <h1>404 Not Found</h1>
+                  </body
+              </html>";
+    }
+
     http_response_code($statusCode);
     exit();
+}
+
+function log2($text)
+{
+    $myfile = fopen("log.txt", "w");
+    fwrite($myfile, $text);
+    fclose($myfile);
 }

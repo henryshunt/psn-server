@@ -1,0 +1,73 @@
+<meta charset="UTF-8">
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Projects - Phenotyping Sensor Network</title>
+        <meta name="viewport" content="width=450px">
+
+        <link href="{{ assets }}/css/reset.css" rel="stylesheet">
+        <link href="{{ assets }}/css/globals.css" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=Istok+Web:400,400i,700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons&display=block" rel="stylesheet">
+        <script src="{{ assets }}/js/config.js.php"></script>
+        <script src="{{ assets }}/js/helpers.js"></script>
+
+        <link href="{{ assets }}/css/header.css" rel="stylesheet">
+        <script src="{{ assets }}/js/header.js"></script>
+        <link href="{{ assets }}/css/grouping.css" rel="stylesheet">
+        <script src="{{ assets }}/js/pages/index.js"></script>
+
+        <link href="{{ assets }}/css/modal.css" rel="stylesheet">
+        <link href="{{ assets }}/css/modals/new-project.css" rel="stylesheet">
+        <script src="{{ assets }}/js/modals/new-project.js"></script>
+    </head>
+
+    <body>
+        {% include "partials/header.twig" with {"loggedIn": true} %}
+
+        <main>
+            <div class="titled-group" id="active-projects-group">
+                <div class="titled-group__header">
+                    <h2 class="titled-group__title">Active Projects</h2>
+                    <button class="titled-group__action" id="new-project-btn">New Project</button>
+                    <div class="titled-group__separator"></div>
+                </div>
+
+                <div class="items-block" id="active-projects">
+                    {% for project in activeProjects %}
+                        <div class="items-block__item">
+                            <a class="item__anchor" href="{{ url_for("project", {"projectId": project.projectId }) }}">
+                                <p class="item__title">{{ project.name }}</p>
+                                <p class="item__sub-title">{{ project.dateRange }}</p>
+                                <p class="item__corner">{{ project.nodeCount }}</p>
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        
+            <div class="titled-group" id="completed-projects-group">
+                <div class="titled-group__header">
+                    <h2 class="titled-group__title">Completed Projects</h2>
+                    <div class="titled-group__separator"></div>
+                </div>
+
+                <div class="items-block" id="completed-projects">
+                    {% for project in completedProjects %}
+                        <div class="items-block__item">
+                            <a class="item__anchor" href="projects/{{ project.projectId }}">
+                                <p class="item__title">{{ project.name }}</p>
+                                <p class="item__sub-title">{{ project.dateRange }}</p>
+                                <p class="item__corner">{{ project.nodeCount }}</p>
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </main>
+
+        <div class="modal__shade modal__shade--hidden" id="modal-shade"></div>
+        {# <!-- <?php include_once "resources/modals/new-project.inc"; ?> --> #}
+    </body>
+</html>

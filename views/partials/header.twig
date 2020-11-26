@@ -1,0 +1,42 @@
+<header class="header">
+    <div class="header__first-row">
+        <div class="main">
+            <h1 class="header__title">
+                <a href="{{ url_for("projects") }}">Phenotyping Sensor Network</a>
+            </h1>
+
+            {% if loggedIn %}
+                <div class="user">
+                    <i class="user__open-menu material-icons" id="user-menu-btn">settings</i>
+                    <p class="user__name">{{ user.username }}</p>
+
+                    <div class="user__menu user__menu--hidden" id="user-menu">
+                        <button class="user__log-out" id="log-out-btn">Log Out</button>
+                        <p class="user__attribution">Created by Henry Hunt at the University of Nottingham.</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if loggedIn and (user.privNodes or user.privUsers) %}
+        <div class="header__second-row main">
+            <div class="actions">
+                {% if user.privNodes %}
+                    <div class="actions__item">
+                        <a class="actions__anchor" href="special/network.php">Sensor Network Overview</a>
+                    </div>
+                    <div class="actions__item">
+                        <a class="actions__anchor" href="special/nodes.php">Manage Sensor Nodes</a>
+                    </div>
+                {% endif %}
+
+                {% if user.privUsers %}
+                    <div class="actions__item">
+                        <a class="actions__anchor" href="special/users.php">Manage Users</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+</header>
