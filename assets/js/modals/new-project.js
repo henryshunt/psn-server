@@ -5,7 +5,8 @@ window.addEventListener("load", () =>
     document.getElementById(
         "m-newproj-cancel").addEventListener("click", newProjectModal._onCancelClick);
 });
-    
+
+
 var newProjectModal = (function ()
 {
     function open()
@@ -24,39 +25,36 @@ var newProjectModal = (function ()
         // Prevent form submission from reloading the page
         event.preventDefault();
 
+        _disableForm();
+
         if (document.getElementById("m-newproj-name").value.length === 0)
         {
             document.getElementById("m-newproj-status").innerText =
                 "Name cannot be empty";
+
+            _enableForm();
+            document.getElementById("m-newproj-name").focus();
             return;
         }
 
-        document.getElementById("m-newproj-name").disabled = true;
-        document.getElementById("m-newproj-desc").disabled = true;
-        document.getElementById("m-newproj-submit").disabled = true;
-        document.getElementById("m-newproj-cancel").disabled = true;
         document.getElementById("m-newproj-status").innerText = "";
-
-        const reEnableForm = () => 
-        {
-            document.getElementById("m-newproj-name").disabled = false;
-            document.getElementById("m-newproj-desc").disabled = false;
-            document.getElementById("m-newproj-submit").disabled = false;
-            document.getElementById("m-newproj-cancel").disabled = false;
-        }
-
 
         let project = { name: document.getElementById("m-newproj-name").value };
 
         if (document.getElementById("m-newproj-desc").value.length > 0)
             project.description = document.getElementById("m-newproj-desc").value;
 
-        postJson("api.php/projects", JSON.stringify(project))
-            .then((data) => window.location.href = "project.php?id=" + data["projectId"])
+            _makeTheRequest(project);
+    }
+
+    function _makeTheRequest(project)
+    {
+        postJson("", JSON.stringify(project))
+            .then((data) => window.location.href = "projects/" + data["projectId"])
 
             .catch((data) =>
             {
-                reEnableForm();
+                _enableForm();
 
                 if (data !== null && "error" in data &&
                     data["error"] === "name is not unique within user")
@@ -71,6 +69,22 @@ var newProjectModal = (function ()
                         "Error creating project";
                 }
             });
+    }
+
+    function _disableForm()
+    {
+        document.getElementById("m-newproj-name").disabled = true;
+        document.getElementById("m-newproj-desc").disabled = true;
+        document.getElementById("m-newproj-submit").disabled = true;
+        document.getElementById("m-newproj-cancel").disabled = true;
+    }
+
+    function _enableForm()
+    {
+        document.getElementById("m-newproj-name").disabled = false;
+        document.getElementById("m-newproj-desc").disabled = false;
+        document.getElementById("m-newproj-submit").disabled = false;
+        document.getElementById("m-newproj-cancel").disabled = false;
     }
 
     function _onCancelClick()

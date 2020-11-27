@@ -94,12 +94,17 @@ function postJson(url, json)
     {
         var request = new XMLHttpRequest();
         request.open("POST", url, true);
+        request.setRequestHeader("Content-Type", "application/json");
 
         request.onload = () =>
         {
-            if (request.status >= 200 && request.status < 400)
-                resolve(JSON.parse(request.responseText), request.status);
-            else reject(JSON.parse(request.responseText), request.status);
+            if (request.getResponseHeader("Content-Type") === "application/json")
+                var data = JSON.parse(request.responseText);
+            else var data = null;
+
+            if (request.status >= 200 && request.status < 300)
+                resolve(data);
+            else reject(data);
         };
 
         request.onerror = () => reject(null, null);

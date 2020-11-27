@@ -399,7 +399,22 @@ function error_page($statusCode)
 
 function log2($text)
 {
-    $myfile = fopen("log.txt", "w");
+    $myfile = fopen("/mnt/c/users/henry/log.txt", "w");
     fwrite($myfile, $text);
     fclose($myfile);
+}
+
+use Slim\Psr7\Response as Response;
+
+function withJson($status, $data = null) : Response
+{
+    $response = new Response();
+
+    if ($data !== null)
+    {
+        $response->getBody()->write(json_encode($data));
+        $response = $response->withHeader("Content-Type", "application/json");
+    }
+
+    return $response->withStatus($status);
 }

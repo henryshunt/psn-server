@@ -1,82 +1,50 @@
 <?php
 require_once "vendor/autoload.php";
+require_once "controllers/autoload.php";
 require_once "php/helpers.php";
 require_once "php/PreMiddleware.php";
 require_once "php/AuthMiddleware.php";
 
-use Slim\Factory\AppFactory;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Slim\Psr7\Response;
-use Slim\Views\Twig;
-use Slim\Views\TwigMiddleware;
-use Slim\Routing\RouteCollectorProxy;
+
+$app = \Slim\Factory\AppFactory::create();
+
+$twig = Slim\Views\Twig::create(__DIR__ . "/views", ["cache" => false]);
+$twig->getEnvironment()->addGlobal("assets", "/assets");
+$app->add(Slim\Views\TwigMiddleware::create($app, $twig));
 
 
-$app = AppFactory::create();
-$app->setBasePath($_SERVER["SCRIPT_NAME"]);
-
-$twig = Twig::create(__DIR__ . "/views", ["cache" => false]);
-$basePath = rtrim(str_ireplace('index.php', '', $_SERVER["SCRIPT_NAME"]), '/');
-$twig->getEnvironment()->addGlobal("assets", $basePath . "/resources");
-$app->add(TwigMiddleware::create($app, $twig));
-
-
-$app->group("", function (RouteCollectorProxy $base)
+$app->group("", function ($base)
 {
-    $base->group("/projects", function (RouteCollectorProxy $projects)
+    $base->group("/projects", function ($projects)
     {
-        $projects->group("/{projectId}", function (RouteCollectorProxy $project)
+        $projects->group("/{projectId}", function ($project)
         {
-            $project->get("", function ($request, $response, $args)
+            $project->group("/nodes/{nodeId}", function ($node)
             {
-                include_once "controllers/Pages/ProjectController.php";
-                return (new \App\Controllers\Pages\ProjectPage())
-                    ($request, $response, $args);
-            })->setName("project");
+                $node->get("", App\Controllers\Pages\NodePage::class)->setName("node");
+            });
+
+            $project->get("", App\Controllers\Pages\ProjectPage::class)->setName("project");
         });
         
-        $projects->get("", function ($request, $response, $args)
-        {
-            include_once "controllers/Pages/ProjectsController.php";
-            return (new \App\Controllers\Pages\ProjectsPage())
-                ($request, $response, $args);
-        })->setName("projects");
-
-        $projects->post("", function ($request, $response, $args)
-        {
-            
-        });
+        $projects->get("", App\Controllers\Pages\ProjectsPage::class)->setName("projects");
+        $projects->post("", App\Controllers\Pages\ProjectsPage::class);
     });
 
 })->add(new AuthMiddleware());
 
 
-$app->group("/auth", function (RouteCollectorProxy $auth)
+$app->group("/auth", function ($auth)
 {
-    $auth->group("/login", function (RouteCollectorProxy $login)
+    $auth->group("/login", function ($login)
     {
-        $login->get("", function ($request, $response, $args)
-        {
-            include_once "controllers/pages/LoginController.php";
-            return (new \App\Controllers\Pages\LoginPage())
-                ($request, $response, $args);
-        })->setName("login");
-
-        $login->post("/internal", function ($request, $response, $args)
-        {
-            include_once "controllers/actions/InternalLoginAction.php";
-            return (new \App\Controllers\Actions\InternalLoginAction())
-                ($request, $response, $args);
-        });
+        $login->get("", App\Controllers\Pages\LoginPage::class)->setName("login");
+        $login->post("/internal", App\Controllers\Actions\InternalLoginAction::class);
     });
 
-    $auth->get("/logout", function ($request, $response, $args)
-    {
-        include_once "controllers/Actions/LogoutAction.php";
-        return (new \App\Controllers\Actions\LogoutAction())
-            ($request, $response, $args);
-    })->setName("logout");
+    $auth->get("/logout", App\Controllers\Actions\LogoutAction::class)->setName("logout");
 });
+
 
 $app->add(new PreMiddleware());
 $app->addErrorMiddleware(true, true, true);
