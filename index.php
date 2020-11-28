@@ -13,25 +13,26 @@ $twig->getEnvironment()->addGlobal("assets", "/assets");
 $app->add(Slim\Views\TwigMiddleware::create($app, $twig));
 
 
-$app->group("", function ($base)
+$app->group("/projects", function ($projects)
 {
-    $base->group("/projects", function ($projects)
+    $projects->group("/{projectId}", function ($project)
     {
-        $projects->group("/{projectId}", function ($project)
+        $project->group("/nodes/{nodeId}", function ($node)
         {
-            $project->group("/nodes/{nodeId}", function ($node)
-            {
-                $node->get("", App\Controllers\Pages\NodePage::class)->setName("node");
-            });
-
-            $project->get("", App\Controllers\Pages\ProjectPage::class)->setName("project");
+            $node->get("", App\Controllers\Pages\NodePage::class)
+                ->setName("node")->add(new AuthMiddleware(true));
         });
-        
-        $projects->get("", App\Controllers\Pages\ProjectsPage::class)->setName("projects");
-        $projects->post("", App\Controllers\Pages\ProjectsPage::class);
-    });
 
-})->add(new AuthMiddleware());
+        $project->get("", App\Controllers\Pages\ProjectPage::class)
+            ->setName("project")->add(new AuthMiddleware(true));
+    });
+    
+    $projects->get("", App\Controllers\Pages\ProjectsPage::class)
+        ->setName("projects")->add(new AuthMiddleware(true));
+
+    $projects->post("", App\Controllers\Pages\ProjectsPage::class)
+        ->add(new AuthMiddleware(false));
+});
 
 
 $app->group("/auth", function ($auth)

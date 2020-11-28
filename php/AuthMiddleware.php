@@ -5,17 +5,33 @@ use Slim\Psr7\Response;
 use Slim\Routing\RouteContext;
 use Dflydev\FigCookies\FigRequestCookies;
 use Dflydev\FigCookies\FigResponseCookies;
+use Slim\Exception\HttpInternalServerErrorException;
 
 class AuthMiddleware
 {
+    private $redirects;
+
+    public function __construct(bool $redirects)
+    {
+        $this->redirects = $redirects;
+    }
+
     public function __invoke(Request $request, RequestHandler $handler) : Response
     {
         $cookie = FigRequestCookies::get($request, SESSION_COOKIE_NAME);
 
-        if ($cookie === null)
+        if ($cookie->getValue() === null)
         {
-            $url = RouteContext::fromRequest($request)->getRouteParser()->urlFor("login");
-            return (new Response())->withHeader("Location", $url)->withStatus(302);
+            if ($this->redirects)
+            {
+                $url = RouteContext::fromRequest($request)->getRouteParser()->urlFor("login");
+                return (new Response())->withHeader("Location", $url)->withStatus(302);
+            }
+            else
+            {
+                return (new Response())->withHeader("Content-Type", "application/json")
+                    ->getBody()->write(json_encode(["status" => 401]))->withStatus(401);
+            }
         }
 
         // Check whether the token in the cookie is valid
@@ -29,8 +45,16 @@ class AuthMiddleware
     
             if (count($user) === 0)
             {
-                $url = RouteContext::fromRequest($request)->getRouteParser()->urlFor("login");
-                $response = (new Response())->withHeader("Location", $url)->withStatus(302);
+                if ($this->redirects)
+                {
+                    $url = RouteContext::fromRequest($request)->getRouteParser()->urlFor("login");
+                    $response = (new Response())->withHeader("Location", $url)->withStatus(302);
+                }
+                else
+                {
+                    $response = (new Response())->withHeader("Content-Type", "application/json")
+                        ->getBody()->write(json_encode(["status" => 401]))->withStatus(401);
+                }
 
                 // Remove the cookie to prevent unnecessary checks down the line
                 $response = FigResponseCookies::expire($response, SESSION_COOKIE_NAME);
@@ -45,9 +69,14 @@ class AuthMiddleware
                 return $handler->handle($request->withAttribute("user", $user[0]));
             }
         }
-        catch (PDOException $ex)
+        catch (\PDOException $ex)
         {
-            return (new Response())->withStatus(500);
+            if (!$this->redirects)
+            {
+                return (new Response())->withHeader("Content-Type", "application/json")
+                    ->getBody()->write(json_encode(["status" => 500]))->withStatus(500);
+            }
+            else throw new HttpInternalServerErrorException($request, null, $ex);
         }
-    }
+    } 
 }
