@@ -15,6 +15,7 @@ class LoginPage
         $this->request = $request;
         $this->response = $response;
         
-        return Twig::fromRequest($request)->render($response, "LoginView.twig");
+        return Twig::fromRequest($request)
+            ->render($response, "pages/login.twig");
     }
 }

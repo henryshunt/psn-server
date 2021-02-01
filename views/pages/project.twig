@@ -14,7 +14,6 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.27/moment-timezone-with-data-10-year-range.min.js"></script>
         <link href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.3/dist/flatpickr.min.css" rel="stylesheet" type="text/css">
         <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.3/dist/flatpickr.min.js" type="text/javascript"></script>
-        <script src="{{ assets }}/js/config.js.php"></script>
         <script src="{{ assets }}/js/helpers.js"></script>
 
         <link href="{{ assets }}/css/header.css" rel="stylesheet">
@@ -31,7 +30,7 @@
     </head>
 
     <body>
-        {% include "partials/header.twig" with {"loggedIn": true} %}
+        {% include "partials/header.twig" with { "loggedIn": true } %}
 
         <main id="main">
             <div class="info-group" id="project-info-group">
@@ -45,7 +44,7 @@
                 </div>
             
                 <div class="info-group__right">
-                    <button class="info-group__action" id="edit-project-btn">View/Edit Info</button>
+                    <button class="info-group__action" id="edit-project-btn">Edit Project</button>
                     <button class="info-group__action" id="download-data-btn">Download All Data</button>
 
                     {% if project.isActive %}
@@ -66,7 +65,9 @@
                 <div class="items-block" id="active-nodes">
                     {% for node in activeNodes %}
                         <div class="items-block__item">
-                            <a class="item__anchor" href="projects/{{ projectId }}/nodes/{{ node.nodeId }}">
+                            <a class="item__anchor"
+                                href="{{ url_for("node", {"projectId": project.projectId, "nodeId": node.nodeId }) }}">
+
                                 <p class="item__title">{{ node.location }}</p>
                                 <p class="item__sub-title">{{ node.reportTime }}</p>
 
@@ -91,7 +92,9 @@
                 <div class="items-block" id="completed-nodes">
                     {% for node in completedNodes %}
                         <div class="items-block__item items-block__item--thin">
-                            <a class="item__anchor" href="projects/{{ projectId }}/nodes/{{ node.nodeId }}">
+                            <a class="item__anchor"
+                                href="{{ url_for("node", {"projectId": project.projectId, "nodeId": node.nodeId }) }}">
+                                
                                 <p class="item__title">{{ node.location }}</p>
                             </a>
                         </div>
@@ -101,7 +104,7 @@
         </main>
 
         <div class="modal__shade modal__shade--hidden" id="modal-shade"></div>
-        {# <?php include_once "resources/modals/edit-project.inc"; ?>
-        <?php include_once "resources/modals/add-node.inc"; ?> #}
+        {% include "partials/modals/editProject.twig" %}
+        {% include "partials/modals/addNode.twig" %}
     </body>
 </html>
