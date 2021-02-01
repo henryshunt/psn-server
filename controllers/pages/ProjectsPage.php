@@ -1,12 +1,15 @@
 <?php
 namespace App\Controllers\Pages;
 
-use Psr\Http\Message\ServerRequestInterface as IRequest;
-use Psr\Http\Message\ResponseInterface as IResponse;
-use Slim\Psr7\Response as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Message\ResponseInterface as Response;
 use Slim\Views\Twig;
 use Respect\Validation\Validator as V;
 use Respect\Validation\Exceptions\ValidationException;
+use Slim\Exception\HttpMethodNotAllowedException;
+use Slim\Exception\HttpInternalServerErrorException;
+use Slim\Exception\HttpBadRequestException;
+use Slim\Exception\HttpUnauthorizedException;
 
 
 class ProjectsPage
@@ -20,7 +23,7 @@ class ProjectsPage
     private $completedProjects = [];
     private $json;
 
-    public function __invoke(IRequest $request, IResponse $response, array $args) : IResponse
+    public function __invoke(Request $request, Response $response, array $args) : Response
     {
         $this->request = $request;
         $this->response = $response;
@@ -31,17 +34,15 @@ class ProjectsPage
             return $this->get();
         else if ($request->getMethod() === "POST")
             return $this->post();
-        else return (new Response())->withStatus(404);
+        else throw new HttpMethodNotAllowedException($request);
     }
 
 
     private function get() : Response
     {
-        $response = $this->readProjects();
-        if ($response->getStatusCode() !== 200)
-            return $response;
+        $this->readProjects();
 
-        $data =
+        $viewData =
         [
             "user" => $this->user,
             "activeProjects" => $this->activeProjects,
@@ -49,10 +50,10 @@ class ProjectsPage
         ];
         
         return Twig::fromRequest($this->request)
-            ->render($this->response, "pages/projects.twig", $data);
+            ->render($this->response, "pages/projects.twig", $viewData);
     }
 
-    private function readProjects() : Response
+    private function readProjects() : void
     {
         try
         {
@@ -61,7 +62,7 @@ class ProjectsPage
 
             foreach ($query as $project)
             {
-                $newProject;
+                $newProject = [];
                 $newProject["projectId"] = $project["projectId"];
                 $newProject["name"] = $project["name"];
 
@@ -89,12 +90,10 @@ class ProjectsPage
                     array_push($this->activeProjects, $newProject);
                 else array_push($this->completedProjects, $newProject);
             }
-
-            return (new Response())->withStatus(200);
         }
         catch (\PDOException $ex)
         {
-            return (new Response())->withStatus(500);
+            throw new HttpInternalServerErrorException($this->request, null, $ex);
         }
     }
 
@@ -125,70 +124,5 @@ class ProjectsPage
 
         $values = [$this->user["userId"]];
         return [$sql, $values];
-    }
-
-
-    private function post() : Response
-    {
-        $response = $this->loadJson();
-        if ($response->getStatusCode() !== 200)
-            return $response;
-
-        return $this->createProject();
-    }
-
-    private function loadJson() : Response
-    {
-        $json = json_decode(file_get_contents("php://input"));
-
-        if (gettype($json) !== "object")
-            return withJson(400, ["error" => "Invalid JSON object supplied"]);
-
-        $json = filter_keys((array)$json, ["name", "description"]);
-
-        if (count($json) === 0)
-            return withJson(400, ["error" => "No JSON attributes supplied"]);
-
-        $validator = V
-            ::key("name", V::stringType()->length(1, 128))
-            ->key("description", V::anyOf(
-                V::nullType(), V::stringType()->length(1, 255)), false);
-
-        try { $validator->check($json); }
-        catch (ValidationException $ex)
-        {
-            return withJson(400, ["error" => $ex->getMessage()]);
-        }
-
-        $this->json = $json;
-        return new Response(200);
-    }
-
-    private function createProject() : Response
-    {
-        try
-        {
-            $values = $this->json;
-            $values["userId"] = $this->user["userId"];
-
-            $sql = "INSERT INTO projects " . sql_insert_string(array_keys($values));
-            database_query($this->pdo, $sql, array_values($values));
-
-            return withJson(200, ["projectId" => $this->pdo->lastInsertId()]);
-        }
-        catch (\PDOException $ex)
-        {
-            if ($ex->errorInfo[1] === 1452 &&
-                strpos($ex->errorInfo[2], "FOREIGN KEY (`userId`)") !== false)
-            {
-                return withJson(401);
-            }
-            else if ($ex->errorInfo[1] === 1062 &&
-                strpos($ex->errorInfo[2], "for key 'name'") !== false)
-            {
-                return withJson(400, ["error" => "name is not unique within user"]);
-            }
-            else return withJson(500);
-        }
     }
 }

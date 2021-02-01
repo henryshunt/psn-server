@@ -110,21 +110,6 @@ window.addEventListener("load", () =>
 
 function loadNodeInfoSuccess(data)
 {
-    document.getElementById("node-location").innerText = data["location"];
-    document.getElementById("node-session").innerText =
-        "Part of the '" + data["project"]["name"] + "' session.";
-
-    let optionsString = "From {0}{1}. Reporting every {2} minutes.";
-
-    let startTime = dbTimeToLocal(data["startedAt"]).format("DD/MM/YYYY HH:mm");
-
-    if (data["endAt"] !== null)
-        var endTime = " to " + dbTimeToLocal(data["endAt"]).format("DD/MM/YYYY HH:mm");
-    else var endTime = ", indefinitely";
-
-    document.getElementById("node-options").innerText = 
-        optionsString.format(startTime, endTime, data["interval"], data["batchSize"]);
-
     if (data["isActive"])
     {
         document.getElementById(
@@ -136,35 +121,6 @@ function loadNodeInfoSuccess(data)
 
     loadReports();
 }
-
-
-// function loadNodeInfoSuccess()
-// {
-//     $("#node-location").html(data["location"]);
-//     $("#node-session").html("Part of the '" + data["session_name"] + "' session");
-
-//     let optionsString = "From {0}{1} (reporting every {2} minutes in batches of {3})";
-
-//     let startTime = dbTimeToLocal(data["start_time"]).format("DD/MM/YYYY HH:mm");
-//     let endTime = "";
-//     if (data["end_time"] !== null)
-//         endTime = " to " + dbTimeToLocal(data["end_time"]).format("DD/MM/YYYY HH:mm");
-//     else endTime = ", indefinitely";
-
-//     $("#node-options").html(optionsString.format(startTime, endTime, data["interval"],
-//         data["batch_size"]));
-
-//     // Disable stop session and new alarm buttons if the session has already ended
-//     if (!data["is_active"])
-//     {
-//         $("#button-stop").attr("disabled", true);
-//         $("#new-alarm-button").attr("disabled", true);
-//     }
-
-//     $("#node-info-group").css("display", "block");
-//     loadingCount--;
-//     onSuccess();
-// }
 
 function loadNodeAlarms()
 {

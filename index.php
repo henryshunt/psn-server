@@ -4,6 +4,7 @@ require_once "controllers/autoload.php";
 require_once "php/helpers.php";
 require_once "php/PreMiddleware.php";
 require_once "php/AuthMiddleware.php";
+require_once "php/ActionErrorMiddleware.php";
 
 
 $app = \Slim\Factory\AppFactory::create();
@@ -13,28 +14,33 @@ $twig->getEnvironment()->addGlobal("assets", "/assets");
 $app->add(Slim\Views\TwigMiddleware::create($app, $twig));
 
 
+// These routes resolve to views (i.e. they are "pages")
 $app->group("/projects", function ($projects)
 {
     $projects->group("/{projectId}", function ($project)
     {
         $project->group("/nodes/{nodeId}", function ($node)
         {
-            $node->get("", App\Controllers\Pages\NodePage::class)
-                ->setName("node")->add(new AuthMiddleware(true));
+            $node->get("", App\Controllers\Pages\NodePage::class)->setName("node");
         });
 
-        $project->get("", App\Controllers\Pages\ProjectPage::class)
-            ->setName("project")->add(new AuthMiddleware(true));
+        $project->get("", App\Controllers\Pages\ProjectPage::class)->setName("project");
     });
     
-    $projects->get("", App\Controllers\Pages\ProjectsPage::class)
-        ->setName("projects")->add(new AuthMiddleware(true));
+    $projects->get("", App\Controllers\Pages\ProjectsPage::class)->setName("projects");
 
-    $projects->post("", App\Controllers\Pages\ProjectsPage::class)
-        ->add(new AuthMiddleware(false));
-});
+})->add(new AuthMiddleware(true));
 
 
+// These routes resolve to actions (API-like, JSON response)
+$app->group("/projects", function ($projects)
+{
+    $projects->post("", App\Controllers\Pages\ProjectsPage::class);
+
+})->add(new AuthMiddleware(false))->add(new ActionErrorMiddleware());
+
+
+// These routes provide the authentication system
 $app->group("/auth", function ($auth)
 {
     $auth->group("/login", function ($login)

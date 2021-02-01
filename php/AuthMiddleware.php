@@ -25,12 +25,13 @@ class AuthMiddleware
             if ($this->redirects)
             {
                 $url = RouteContext::fromRequest($request)->getRouteParser()->urlFor("login");
-                return (new Response())->withHeader("Location", $url)->withStatus(302);
+                return (new Response(302))->withHeader("Location", $url);
             }
             else
             {
-                return (new Response())->withHeader("Content-Type", "application/json")
-                    ->getBody()->write(json_encode(["status" => 401]))->withStatus(401);
+                $response = (new Response(401))->withHeader("Content-Type", "application/json");
+                $response->getBody()->write(json_encode(["status" => 401]));
+                return $response;
             }
         }
 
@@ -48,12 +49,13 @@ class AuthMiddleware
                 if ($this->redirects)
                 {
                     $url = RouteContext::fromRequest($request)->getRouteParser()->urlFor("login");
-                    $response = (new Response())->withHeader("Location", $url)->withStatus(302);
+                    $response = (new Response(302))->withHeader("Location", $url);
                 }
                 else
                 {
-                    $response = (new Response())->withHeader("Content-Type", "application/json")
-                        ->getBody()->write(json_encode(["status" => 401]))->withStatus(401);
+                    $response = (new Response(401))->withHeader("Content-Type", "application/json");
+                    $response->getBody()->write(json_encode(["status" => 401]));
+                    return $response;
                 }
 
                 // Remove the cookie to prevent unnecessary checks down the line
@@ -73,8 +75,9 @@ class AuthMiddleware
         {
             if (!$this->redirects)
             {
-                return (new Response())->withHeader("Content-Type", "application/json")
-                    ->getBody()->write(json_encode(["status" => 500]))->withStatus(500);
+                $response = (new Response(500))->withHeader("Content-Type", "application/json");
+                $response->getBody()->write(json_encode(["status" => 500]));
+                return $response;
             }
             else throw new HttpInternalServerErrorException($request, null, $ex);
         }

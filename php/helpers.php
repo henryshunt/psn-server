@@ -367,54 +367,9 @@ function keyExistsMatches($key, $value, $array)
 }
 
 
-function error_page($statusCode)
-{
-    if ($statusCode === 500)
-    {
-        echo "<html>
-                  <head>
-                      <title>500 Internal Server Error</title>
-                  </head>
-                  <body>
-                      <h1>500 Internal Server Error</h1>
-                  </body
-              </html>";
-    }
-
-    if ($statusCode === 404)
-    {
-        echo "<html>
-                  <head>
-                      <title>404 Not Found</title>
-                  </head>
-                  <body>
-                      <h1>404 Not Found</h1>
-                  </body
-              </html>";
-    }
-
-    http_response_code($statusCode);
-    exit();
-}
-
 function log2($text)
 {
     $myfile = fopen("/mnt/c/users/henry/log.txt", "w");
     fwrite($myfile, $text);
     fclose($myfile);
-}
-
-use Slim\Psr7\Response as Response;
-
-function withJson($status, $data = null) : Response
-{
-    $response = new Response();
-
-    if ($data !== null)
-    {
-        $response->getBody()->write(json_encode($data));
-        $response = $response->withHeader("Content-Type", "application/json");
-    }
-
-    return $response->withStatus($status);
 }
