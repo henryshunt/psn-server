@@ -5,7 +5,6 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Slim\Views\Twig;
 use Slim\Exception\HttpNotFoundException;
-use Slim\Exception\HttpForbiddenException;
 use Slim\Exception\HttpInternalServerErrorException;
 
 
@@ -54,9 +53,6 @@ class ProjectPage
             if (count($query) === 0)
                 throw new HttpNotFoundException($this->request, $ex);
 
-            if ($query[0]["userId"] !== $this->user["userId"])
-                throw new HttpForbiddenException($this->$request, $ex);
-
             $this->project["projectId"] = $this->resParams["projectId"];
             $this->project["name"] = $query[0]["name"];
 
@@ -96,9 +92,10 @@ class ProjectPage
                     ) pn ON pn.projectId = p.projectId
                     
                 WHERE p.projectId = ?
+                    AND userId = ?
                 LIMIT 1";
 
-        $values = [$this->resParams["projectId"]];
+        $values = [$this->resParams["projectId"], $this->user["userId"]];
         return [$sql, $values];
     }
 

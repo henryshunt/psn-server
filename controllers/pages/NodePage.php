@@ -89,9 +89,12 @@ class NodePage
                 FROM projectNodes pn
                     LEFT JOIN projects p ON p.projectId = pn.projectId
                     LEFT JOIN nodes n ON n.nodeId = pn.nodeId
-                WHERE pn.projectId = ? AND pn.nodeId = ?";
 
-        $values = [$this->args["projectId"], $this->args["nodeId"]];
+                WHERE pn.projectId = ?
+                    AND pn.nodeId = ?
+                    AND p.userId = ?";
+
+        $values = [$this->args["projectId"], $this->args["nodeId"], $this->user["userId"]];
         return [$sql, $values];
     }
 }
