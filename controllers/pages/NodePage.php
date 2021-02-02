@@ -1,9 +1,8 @@
 <?php
 namespace App\Controllers\Pages;
 
-use Psr\Http\Message\ServerRequestInterface as IRequest;
-use Psr\Http\Message\ResponseInterface as IResponse;
-use Slim\Psr7\Response as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Message\ResponseInterface as Response;
 use Slim\Views\Twig;
 
 class NodePage
@@ -17,7 +16,7 @@ class NodePage
     private $project;
     private $node;
 
-    public function __invoke(IRequest $request, IResponse $response, array $args) : IResponse
+    public function __invoke(Request $request, Response $response, array $args) : Response
     {
         $this->request = $request;
         $this->response = $response;
@@ -25,11 +24,9 @@ class NodePage
         $this->pdo = $this->request->getAttribute("pdo");
         $this->user = $this->request->getAttribute("user");
 
-        $projectNode = $this->readProjectNode();
-        if ($projectNode->getStatusCode() !== 200)
-            return $projectNode;
+        $this->readProjectNode();
 
-        $data =
+        $viewData =
         [
             "user" => $this->user,
             "project" => $this->project,
@@ -37,10 +34,10 @@ class NodePage
         ];
         
         return Twig::fromRequest($request)
-            ->render($response, "pages/node.twig", $data);
+            ->render($response, "pages/node.twig", $viewData);
     }
 
-    private function readProjectNode() : Response
+    private function readProjectNode(): void
     {
         try
         {
@@ -48,7 +45,7 @@ class NodePage
             $query = database_query($this->pdo, $sql[0], $sql[1]);
 
             if (count($query) === 0)
-                return (new Response())->withStatus(404);
+                throw new HttpNotFoundException($this->request, $ex);
 
             $this->project["name"] = "Part of the '" . $query[0]["p_name"] . "' session.";
             $this->node["location"] = $query[0]["location"];
@@ -68,15 +65,14 @@ class NodePage
             $this->node["options"] = $options;
 
             $this->node["isActive"] = (bool)$query[0]["isActive"];
-            return (new Response())->withStatus(200);
         }
         catch (PDOException $ex)
         {
-            return (new Response())->withStatus(500);
+            throw new HttpInternalServerErrorException($this->request, null, $ex);
         }
     }
 
-    private function readProjectNodeSql() : array
+    private function readProjectNodeSql(): array
     {
         $sql = "SELECT
                     pn.location,

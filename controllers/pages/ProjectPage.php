@@ -1,16 +1,19 @@
 <?php
 namespace App\Controllers\Pages;
 
-use Psr\Http\Message\ServerRequestInterface as IRequest;
-use Psr\Http\Message\ResponseInterface as IResponse;
-use Slim\Psr7\Response as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Message\ResponseInterface as Response;
 use Slim\Views\Twig;
+use Slim\Exception\HttpNotFoundException;
+use Slim\Exception\HttpForbiddenException;
+use Slim\Exception\HttpInternalServerErrorException;
+
 
 class ProjectPage
 {
     private $request;
     private $response;
-    private $args;
+    private $resParams;
     private $pdo;
     private $user;
 
@@ -18,31 +21,18 @@ class ProjectPage
     private $activeNodes = [];
     private $completedNodes = [];
 
-    public function __invoke(IRequest $request, IResponse $response, array $args) : IResponse
+    public function __invoke(Request $request, Response $response, array $args): Response
     {
         $this->request = $request;
         $this->response = $response;
-        $this->args = $args;
+        $this->resParams = $args;
         $this->pdo = $this->request->getAttribute("pdo");
         $this->user = $this->request->getAttribute("user");
 
-        if ($request->getMethod() === "GET")
-            return $this->get();
-        else return $response->withStatus(404);
-    }
+        $this->readProject();
+        $this->readProjectNodes();
 
-
-    private function get() : Response
-    {
-        $response = $this->readProject();
-        if ($response->getStatusCode() !== 200)
-            return $response;
-
-        $response = $this->readProjectNodes();
-        if ($response->getStatusCode() !== 200)
-            return $response;
-
-        $data =
+        $viewData =
         [
             "user" => $this->user,
             "project" => $this->project,
@@ -51,10 +41,10 @@ class ProjectPage
         ];
         
         return Twig::fromRequest($this->request)
-            ->render($this->response, "pages/project.twig", $data);
+            ->render($this->response, "pages/project.twig", $viewData);
     }
 
-    private function readProject() : Response
+    private function readProject(): void
     {
         try
         {
@@ -62,12 +52,12 @@ class ProjectPage
             $query = database_query($this->pdo, $sql[0], $sql[1]);
 
             if (count($query) === 0)
-                return $this->response->withStatus(404);
+                throw new HttpNotFoundException($this->request, $ex);
 
             if ($query[0]["userId"] !== $this->user["userId"])
-                return $this->response->withStatus(403);
+                throw new HttpForbiddenException($this->$request, $ex);
 
-            $this->project["projectId"] = $this->args["projectId"];
+            $this->project["projectId"] = $this->resParams["projectId"];
             $this->project["name"] = $query[0]["name"];
 
             if ($query[0]["description"] === null)
@@ -75,11 +65,10 @@ class ProjectPage
             else $this->project["description"] = $query[0]["description"];
 
             $this->project["isActive"] = (bool)$query[0]["isActive"];
-            return $this->response->withStatus(200);
         }
         catch (\PDOException $ex)
         {
-            return $this->response->withStatus(500);
+            throw new HttpInternalServerErrorException($this->request, null, $ex);
         }
     }
 
@@ -109,11 +98,11 @@ class ProjectPage
                 WHERE p.projectId = ?
                 LIMIT 1";
 
-        $values = [$this->args["projectId"]];
+        $values = [$this->resParams["projectId"]];
         return [$sql, $values];
     }
 
-    private function readProjectNodes() : Response
+    private function readProjectNodes(): void
     {
         try
         {
@@ -152,16 +141,14 @@ class ProjectPage
                 }
                 else array_push($this->completedNodes, $newNode);
             }
-
-            return $this->response->withStatus(200);
         }
         catch (\PDOException $ex)
         {
-            return $this->response->withStatus(500);
+            throw new HttpInternalServerErrorException($this->request, null, $ex);
         }
     }
 
-    private function readProjectNodesSql() : array
+    private function readProjectNodesSql(): array
     {
         $sql = "SELECT
                     pn.nodeId,
@@ -182,7 +169,7 @@ class ProjectPage
                 WHERE pn.projectId = ?
                 ORDER BY location";
 
-        $values = [$this->args["projectId"]];
+        $values = [$this->resParams["projectId"]];
         return [$sql, $values];
     }
 }

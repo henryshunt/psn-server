@@ -35,7 +35,7 @@ $app->group("/projects", function ($projects)
 // These routes resolve to actions (API-like, JSON response)
 $app->group("/projects", function ($projects)
 {
-    $projects->post("", App\Controllers\Pages\ProjectsPage::class);
+    $projects->post("", App\Controllers\Actions\ProjectsPostAction::class);
 
 })->add(new AuthMiddleware(false))->add(new ActionErrorMiddleware());
 

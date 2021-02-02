@@ -4,12 +4,7 @@ namespace App\Controllers\Pages;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Slim\Views\Twig;
-use Respect\Validation\Validator as V;
-use Respect\Validation\Exceptions\ValidationException;
-use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpInternalServerErrorException;
-use Slim\Exception\HttpBadRequestException;
-use Slim\Exception\HttpUnauthorizedException;
 
 
 class ProjectsPage
@@ -23,23 +18,13 @@ class ProjectsPage
     private $completedProjects = [];
     private $json;
 
-    public function __invoke(Request $request, Response $response, array $args) : Response
+    public function __invoke(Request $request, Response $response, array $args): Response
     {
         $this->request = $request;
         $this->response = $response;
         $this->pdo = $this->request->getAttribute("pdo");
         $this->user = $this->request->getAttribute("user");
 
-        if ($request->getMethod() === "GET")
-            return $this->get();
-        else if ($request->getMethod() === "POST")
-            return $this->post();
-        else throw new HttpMethodNotAllowedException($request);
-    }
-
-
-    private function get() : Response
-    {
         $this->readProjects();
 
         $viewData =
@@ -53,7 +38,7 @@ class ProjectsPage
             ->render($this->response, "pages/projects.twig", $viewData);
     }
 
-    private function readProjects() : void
+    private function readProjects(): void
     {
         try
         {
@@ -97,7 +82,7 @@ class ProjectsPage
         }
     }
 
-    private function readProjectsSql() : array
+    private function readProjectsSql(): array
     {
         $sql = "SELECT
                     p.projectId,

@@ -6,41 +6,32 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Slim\Views\Twig;
 use Respect\Validation\Validator as V;
 use Respect\Validation\Exceptions\ValidationException;
-use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpInternalServerErrorException;
 use Slim\Exception\HttpBadRequestException;
 use Slim\Exception\HttpUnauthorizedException;
 
 
-class ProjectsAction
+class ProjectsPostAction
 {
     private $request;
     private $response;
     private $pdo;
     private $user;
 
-    private $json;
+    private $jsonParams;
 
-    public function __invoke(Request $request, Response $response, array $args) : Response
+    public function __invoke(Request $request, Response $response, array $args): Response
     {
         $this->request = $request;
         $this->response = $response;
         $this->pdo = $this->request->getAttribute("pdo");
         $this->user = $this->request->getAttribute("user");
 
-        if ($request->getMethod() === "POST")
-            return $this->post();
-        else throw new HttpMethodNotAllowedException($request);
-    }
-
-
-    private function post() : Response
-    {
-        $this->loadJson();
+        $this->validateJsonParams();
         return $this->createProject();
     }
 
-    private function loadJson()
+    private function validateJsonParams(): void
     {
         $json = json_decode(file_get_contents("php://input"));
 
@@ -57,29 +48,29 @@ class ProjectsAction
             ->key("description", V::anyOf(
                 V::nullType(), V::stringType()->length(1, 255)), false);
 
-        try { $validator->check($json); }
+        try
+        {
+            $validator->check($json);
+            $this->jsonParams = $json;
+        }
         catch (ValidationException $ex)
         {
             throw new HttpBadRequestException($this->request, $ex->getMessage());
         }
-
-        $this->json = $json;
     }
 
-    private function createProject() : Response
+    private function createProject(): Response
     {
         try
         {
-            $values = $this->json;
+            $values = $this->jsonParams;
             $values["userId"] = $this->user["userId"];
-
             $sql = "INSERT INTO projects " . sql_insert_string(array_keys($values));
             database_query($this->pdo, $sql, array_values($values));
 
             $response = $this->response->withHeader("Content-Type", "application/json");
             $response->getBody()->write(
                 json_encode(["projectId" => $this->pdo->lastInsertId()]));
-
             return $response;
         }
         catch (\PDOException $ex)
