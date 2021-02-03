@@ -1,11 +1,12 @@
 <?php
-namespace App\Controllers\Actions;
+namespace Psn\Controllers\Actions;
 
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Slim\Routing\RouteContext;
 use Dflydev\FigCookies\FigRequestCookies;
 use Dflydev\FigCookies\FigResponseCookies;
+
 
 class LogoutAction
 {

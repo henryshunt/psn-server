@@ -1,4 +1,6 @@
 <?php
+namespace Psn\Middleware;
+
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Slim\Psr7\Response;
@@ -6,6 +8,7 @@ use Slim\Routing\RouteContext;
 use Dflydev\FigCookies\FigRequestCookies;
 use Dflydev\FigCookies\FigResponseCookies;
 use Slim\Exception\HttpInternalServerErrorException;
+
 
 class AuthMiddleware
 {

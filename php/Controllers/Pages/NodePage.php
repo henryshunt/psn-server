@@ -1,11 +1,12 @@
 <?php
-namespace App\Controllers\Pages;
+namespace Psn\Controllers\Pages;
 
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Slim\Views\Twig;
 use Slim\Exception\HttpInternalServerErrorException;
 use Slim\Exception\HttpNotFoundException;
+
 
 class NodePage
 {

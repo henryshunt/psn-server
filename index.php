@@ -1,15 +1,16 @@
 <?php
 require_once "vendor/autoload.php";
-require_once "controllers/autoload.php";
+require_once "php/autoload.php";
 require_once "php/helpers.php";
-require_once "php/PreMiddleware.php";
-require_once "php/AuthMiddleware.php";
-require_once "php/ActionErrorMiddleware.php";
+
+use Psn\Middleware\PreMiddleware;
+use Psn\Middleware\AuthMiddleware;
+use Psn\Middleware\ActionErrorMiddleware;
 
 
 $app = \Slim\Factory\AppFactory::create();
 
-$twig = Slim\Views\Twig::create(__DIR__ . "/views", ["cache" => false]);
+$twig = Slim\Views\Twig::create(__DIR__ . "/assets/views", ["cache" => false]);
 $twig->getEnvironment()->addGlobal("assets", "/assets");
 $app->add(Slim\Views\TwigMiddleware::create($app, $twig));
 
@@ -21,13 +22,13 @@ $app->group("/projects", function ($projects)
     {
         $project->group("/nodes/{nodeId}", function ($node)
         {
-            $node->get("", App\Controllers\Pages\NodePage::class)->setName("node");
+            $node->get("", Psn\Controllers\Pages\NodePage::class)->setName("node");
         });
 
-        $project->get("", App\Controllers\Pages\ProjectPage::class)->setName("project");
+        $project->get("", Psn\Controllers\Pages\ProjectPage::class)->setName("project");
     });
     
-    $projects->get("", App\Controllers\Pages\ProjectsPage::class)->setName("projects");
+    $projects->get("", Psn\Controllers\Pages\ProjectsPage::class)->setName("projects");
 
 })->add(new AuthMiddleware(true));
 
@@ -35,7 +36,7 @@ $app->group("/projects", function ($projects)
 // These routes resolve to actions (API-like, JSON response)
 $app->group("/projects", function ($projects)
 {
-    $projects->post("", App\Controllers\Actions\ProjectsPostAction::class);
+    $projects->post("", Psn\Controllers\Actions\ProjectsPostAction::class);
 
 })->add(new AuthMiddleware(false))->add(new ActionErrorMiddleware());
 
@@ -45,11 +46,11 @@ $app->group("/auth", function ($auth)
 {
     $auth->group("/login", function ($login)
     {
-        $login->get("", App\Controllers\Pages\LoginPage::class)->setName("login");
-        $login->post("/internal", App\Controllers\Actions\InternalLoginAction::class);
+        $login->get("", Psn\Controllers\Pages\LoginPage::class)->setName("login");
+        $login->post("/internal", Psn\Controllers\Actions\InternalLoginAction::class);
     });
 
-    $auth->get("/logout", App\Controllers\Actions\LogoutAction::class)->setName("logout");
+    $auth->get("/logout", Psn\Controllers\Actions\LogoutAction::class)->setName("logout");
 });
 
 
