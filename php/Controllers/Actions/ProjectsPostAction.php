@@ -3,7 +3,6 @@ namespace Psn\Controllers\Actions;
 
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
-use Slim\Views\Twig;
 use Respect\Validation\Validator as V;
 use Respect\Validation\Exceptions\ValidationException;
 use Slim\Exception\HttpBadRequestException;
