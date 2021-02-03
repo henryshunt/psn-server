@@ -11,7 +11,6 @@ class ProjectDeleteAction
     private $request;
     private $pdo;
     private $user;
-    private $response;
     private $resArgs;
 
     public function __invoke(Request $request, Response $response, array $args): Response
@@ -19,13 +18,13 @@ class ProjectDeleteAction
         $this->request = $request;
         $this->pdo = $request->getAttribute("pdo");
         $this->user = $request->getAttribute("user");
-        $this->response = $response;
         $this->resArgs = $args;
 
-        return $this->deleteProject();
+        $this->deleteProject();
+        return $response;
     }
 
-    private function deleteProject(): Response
+    private function deleteProject(): void
     {
         try
         {
@@ -35,9 +34,6 @@ class ProjectDeleteAction
 
             if ($affected === 0)
                 throw new HttpNotFoundException($this->request);
-
-            $this->response->getBody()->write(json_encode(["status" => 200]));
-            return $this->response->withHeader("Content-Type", "application/json");
         }
         catch (\PDOException $ex)
         {

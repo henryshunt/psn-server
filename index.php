@@ -5,7 +5,7 @@ require_once "php/helpers.php";
 
 use Psn\Middleware\PreMiddleware;
 use Psn\Middleware\AuthMiddleware;
-use Psn\Middleware\ActionErrorMiddleware;
+use Psn\Middleware\ActionMiddleware;
 
 
 $app = \Slim\Factory\AppFactory::create();
@@ -43,7 +43,7 @@ $app->group("/projects", function ($projects)
 
     $projects->post("", Psn\Controllers\Actions\ProjectsPostAction::class);
 
-})->add(new AuthMiddleware(false))->add(new ActionErrorMiddleware());
+})->add(new AuthMiddleware(false))->add(new ActionMiddleware());
 
 
 // These routes provide the authentication system

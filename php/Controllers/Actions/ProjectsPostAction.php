@@ -26,7 +26,8 @@ class ProjectsPostAction
         $this->response = $response;
 
         $this->validateJsonArgs();
-        return $this->createProject();
+        $this->createProject();
+        return $this->response;
     }
 
     private function validateJsonArgs(): void
@@ -55,7 +56,7 @@ class ProjectsPostAction
         }
     }
 
-    private function createProject(): Response
+    private function createProject(): void
     {
         try
         {
@@ -66,7 +67,6 @@ class ProjectsPostAction
 
             $this->response->getBody()->write(
                 json_encode(["projectId" => $this->pdo->lastInsertId()]));
-            return $this->response->withHeader("Content-Type", "application/json");
         }
         catch (\PDOException $ex)
         {
