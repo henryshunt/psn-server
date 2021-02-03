@@ -4,17 +4,16 @@ namespace App\Controllers\Pages;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Slim\Views\Twig;
-use Slim\Exception\HttpNotFoundException;
 use Slim\Exception\HttpInternalServerErrorException;
+use Slim\Exception\HttpNotFoundException;
 
 
 class ProjectPage
 {
     private $request;
-    private $response;
-    private $resParams;
     private $pdo;
     private $user;
+    private $resArgs;
 
     private $project = [];
     private $activeNodes = [];
@@ -23,15 +22,14 @@ class ProjectPage
     public function __invoke(Request $request, Response $response, array $args): Response
     {
         $this->request = $request;
-        $this->response = $response;
-        $this->resParams = $args;
-        $this->pdo = $this->request->getAttribute("pdo");
-        $this->user = $this->request->getAttribute("user");
+        $this->pdo = $request->getAttribute("pdo");
+        $this->user = $request->getAttribute("user");
+        $this->resArgs = $args;
 
         $this->readProject();
         $this->readProjectNodes();
 
-        $viewData =
+        $viewArgs =
         [
             "user" => $this->user,
             "project" => $this->project,
@@ -39,8 +37,8 @@ class ProjectPage
             "inactiveNodes" => $this->inactiveNodes
         ];
         
-        return Twig::fromRequest($this->request)
-            ->render($this->response, "pages/project.twig", $viewData);
+        return Twig::fromRequest($request)
+            ->render($response, "pages/project.twig", $viewArgs);
     }
 
     private function readProject(): void
@@ -51,9 +49,9 @@ class ProjectPage
             $query = database_query($this->pdo, $sql[0], $sql[1]);
 
             if (count($query) === 0)
-                throw new HttpNotFoundException($this->request, $ex);
+                throw new HttpNotFoundException($this->request, null, $ex);
 
-            $this->project["projectId"] = $this->resParams["projectId"];
+            $this->project["projectId"] = $this->resArgs["projectId"];
             $this->project["name"] = $query[0]["name"];
 
             if ($query[0]["description"] === null)
@@ -68,7 +66,7 @@ class ProjectPage
         }
     }
 
-    private function readProjectSql() : array
+    private function readProjectSql(): array
     {
         $sql = "SELECT
                     p.userId,
@@ -95,7 +93,12 @@ class ProjectPage
                     AND userId = ?
                 LIMIT 1";
 
-        $values = [$this->resParams["projectId"], $this->user["userId"]];
+        $values =
+        [
+            $this->resArgs["projectId"],
+            $this->user["userId"]
+        ];
+
         return [$sql, $values];
     }
 
@@ -108,7 +111,7 @@ class ProjectPage
 
             foreach ($query as $node)
             {
-                $newNode;
+                $newNode = [];
                 $newNode["nodeId"] = $node["nodeId"];
                 $newNode["location"] = $node["location"];
 
@@ -166,7 +169,6 @@ class ProjectPage
                 WHERE pn.projectId = ?
                 ORDER BY location";
 
-        $values = [$this->resParams["projectId"]];
-        return [$sql, $values];
+        return [$sql, [$this->resArgs["projectId"]]];
     }
 }

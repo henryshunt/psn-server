@@ -6,40 +6,37 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Slim\Views\Twig;
 use Respect\Validation\Validator as V;
 use Respect\Validation\Exceptions\ValidationException;
-use Slim\Exception\HttpInternalServerErrorException;
 use Slim\Exception\HttpBadRequestException;
+use Slim\Exception\HttpInternalServerErrorException;
 use Slim\Exception\HttpUnauthorizedException;
 
 
 class ProjectsPostAction
 {
     private $request;
-    private $response;
     private $pdo;
     private $user;
-
-    private $jsonParams;
+    private $response;
+    private $jsonArgs;
 
     public function __invoke(Request $request, Response $response, array $args): Response
     {
         $this->request = $request;
+        $this->pdo = $request->getAttribute("pdo");
+        $this->user = $request->getAttribute("user");
         $this->response = $response;
-        $this->pdo = $this->request->getAttribute("pdo");
-        $this->user = $this->request->getAttribute("user");
 
-        $this->validateJsonParams();
+        $this->validateJsonArgs();
         return $this->createProject();
     }
 
-    private function validateJsonParams(): void
+    private function validateJsonArgs(): void
     {
         $json = json_decode(file_get_contents("php://input"));
-
         if (gettype($json) !== "object")
             throw new HttpBadRequestException($this->request, "Invalid JSON object supplied");
 
         $json = filter_keys((array)$json, ["name", "description"]);
-
         if (count($json) === 0)
             throw new HttpBadRequestException($this->request, "No JSON attributes supplied");
 
@@ -51,11 +48,11 @@ class ProjectsPostAction
         try
         {
             $validator->check($json);
-            $this->jsonParams = $json;
+            $this->jsonArgs = $json;
         }
         catch (ValidationException $ex)
         {
-            throw new HttpBadRequestException($this->request, $ex->getMessage());
+            throw new HttpBadRequestException($this->request, $ex->getMessage(), $ex);
         }
     }
 
@@ -63,28 +60,28 @@ class ProjectsPostAction
     {
         try
         {
-            $values = $this->jsonParams;
+            $values = $this->jsonArgs;
             $values["userId"] = $this->user["userId"];
             $sql = "INSERT INTO projects " . sql_insert_string(array_keys($values));
             database_query($this->pdo, $sql, array_values($values));
 
-            $response = $this->response->withHeader("Content-Type", "application/json");
-            $response->getBody()->write(
+            $this->response->getBody()->write(
                 json_encode(["projectId" => $this->pdo->lastInsertId()]));
-            return $response;
+            return $this->response->withHeader("Content-Type", "application/json");
         }
         catch (\PDOException $ex)
         {
             if ($ex->errorInfo[1] === 1452 &&
                 strpos($ex->errorInfo[2], "FOREIGN KEY (`userId`)") !== false)
             {
-                throw new HttpUnauthorizedException($this->$request, $ex);
+                throw new HttpUnauthorizedException($this->$request, 
+                    "user does not exist", $ex);
             }
             else if ($ex->errorInfo[1] === 1062 &&
-                strpos($ex->errorInfo[2], "for key 'name'") !== false)
+                strpos($ex->errorInfo[2], "for key 'userId_name'") !== false)
             {
-                throw new HttpBadRequestException(
-                    $this->request, "name is not unique within user");
+                throw new HttpBadRequestException($this->request,
+                    "'name' is not unique within user");
             }
             else throw new HttpInternalServerErrorException($this->request, null, $ex);
         }

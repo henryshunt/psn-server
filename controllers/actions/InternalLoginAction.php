@@ -11,11 +11,10 @@ use Dflydev\FigCookies\SetCookie;
 class InternalLoginAction
 {
     private $request;
+    private $pdo;
     private $response;
 
-    private $pdo;
-
-    public function __invoke(Request $request, Response $response, array $args) : Response
+    public function __invoke(Request $request, Response $response, array $args): Response
     {
         $this->request = $request;
         $this->response = $response;

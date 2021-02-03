@@ -7,15 +7,8 @@ use Slim\Views\Twig;
 
 class LoginPage
 {
-    private $request;
-    private $response;
-
-    public function __invoke(Request $request, Response $response, array $args) : Response
+    public function __invoke(Request $request, Response $response, array $args): Response
     {
-        $this->request = $request;
-        $this->response = $response;
-        
-        return Twig::fromRequest($request)
-            ->render($response, "pages/login.twig");
+        return Twig::fromRequest($request)->render($response, "pages/login.twig");
     }
 }
