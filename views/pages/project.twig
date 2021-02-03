@@ -90,7 +90,7 @@
                 </div>
 
                 <div class="items-block" id="completed-nodes">
-                    {% for node in completedNodes %}
+                    {% for node in inactiveNodes %}
                         <div class="items-block__item items-block__item--thin">
                             <a class="item__anchor"
                                 href="{{ url_for("node", {"projectId": project.projectId, "nodeId": node.nodeId }) }}">

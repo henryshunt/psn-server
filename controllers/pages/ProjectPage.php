@@ -18,7 +18,7 @@ class ProjectPage
 
     private $project = [];
     private $activeNodes = [];
-    private $completedNodes = [];
+    private $inactiveNodes = [];
 
     public function __invoke(Request $request, Response $response, array $args): Response
     {
@@ -36,7 +36,7 @@ class ProjectPage
             "user" => $this->user,
             "project" => $this->project,
             "activeNodes" => $this->activeNodes,
-            "completedNodes" => $this->completedNodes
+            "inactiveNodes" => $this->inactiveNodes
         ];
         
         return Twig::fromRequest($this->request)
@@ -136,7 +136,7 @@ class ProjectPage
                     
                     array_push($this->activeNodes, $newNode);
                 }
-                else array_push($this->completedNodes, $newNode);
+                else array_push($this->inactiveNodes, $newNode);
             }
         }
         catch (\PDOException $ex)

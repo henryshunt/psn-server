@@ -15,7 +15,7 @@ class ProjectsPage
     private $user;
 
     private $activeProjects = [];
-    private $completedProjects = [];
+    private $inactiveProjects = [];
     private $json;
 
     public function __invoke(Request $request, Response $response, array $args): Response
@@ -31,7 +31,7 @@ class ProjectsPage
         [
             "user" => $this->user,
             "activeProjects" => $this->activeProjects,
-            "completedProjects" => $this->completedProjects
+            "inactiveProjects" => $this->inactiveProjects
         ];
         
         return Twig::fromRequest($this->request)
@@ -73,7 +73,7 @@ class ProjectsPage
 
                 if ($project["isActive"] === 1)
                     array_push($this->activeProjects, $newProject);
-                else array_push($this->completedProjects, $newProject);
+                else array_push($this->inactiveProjects, $newProject);
             }
         }
         catch (\PDOException $ex)

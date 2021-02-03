@@ -59,7 +59,7 @@
                 </div>
 
                 <div class="items-block">
-                    {% for project in completedProjects %}
+                    {% for project in inactiveProjects %}
                         <div class="items-block__item">
                             <a class="item__anchor"
                                 href="{{ url_for("project", {"projectId": project.projectId }) }}">
@@ -71,7 +71,7 @@
                         </div>
                     {% endfor %}
 
-                    {% if completedProjects|length == 0 %}
+                    {% if inactiveProjects|length == 0 %}
                         {% include "partials/noDataStatus.twig" %}
                     {% endif %}
                 </div>
