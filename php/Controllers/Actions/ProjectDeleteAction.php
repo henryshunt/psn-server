@@ -4,6 +4,7 @@ namespace Psn\Controllers\Actions;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Slim\Exception\HttpInternalServerErrorException;
+use Slim\Exception\HttpNotFoundException;
 
 
 class ProjectDeleteAction
@@ -37,7 +38,7 @@ class ProjectDeleteAction
         }
         catch (\PDOException $ex)
         {
-            throw new HttpInternalServerErrorException($this->request, null, $ex);
+            throw new HttpInternalServerErrorException($this->request, $ex->getMessage(), $ex);
         }
     }
 }

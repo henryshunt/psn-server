@@ -12,13 +12,14 @@ use Dflydev\FigCookies\SetCookie;
 class LoginInternalPage
 {
     private $request;
-    private $pdo;
     private $response;
+    private $pdo;
 
     public function __invoke(Request $request, Response $response, array $args): Response
     {
         $this->request = $request;
         $this->response = $response;
+        $this->pdo = $request->getAttribute("pdo");
         
         return $this->logIn();
     }
@@ -33,8 +34,7 @@ class LoginInternalPage
         try
         {
             $sql = "SELECT userId, password FROM users WHERE username = ? LIMIT 1";
-            $query = database_query(
-                $this->request->getAttribute("pdo"), $sql, [$params["username"]]);
+            $query = database_query($this->pdo, $sql, [$params["username"]]);
 
             if (count($query) > 0)
             {
@@ -45,7 +45,7 @@ class LoginInternalPage
                     $expiresAtString = date("Y-m-d H:i:s", $expiresAt);
 
                     $sql = "INSERT INTO tokens (userId, token, expiresAt) VALUES (?, ?, ?)";
-                    $query = database_query($this->request->getAttribute("pdo"), $sql,
+                    $query = database_query($this->pdo, $sql,
                         [$query[0]["userId"], $token, $expiresAtString]);
 
 
@@ -60,7 +60,7 @@ class LoginInternalPage
             }
             else return $this->redirectToLogin("username");
         }
-        catch (PDOException $ex)
+        catch (\PDOException $ex)
         {
             return $this->redirectToLogin("internal");
         }

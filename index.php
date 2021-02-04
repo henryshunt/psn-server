@@ -38,6 +38,7 @@ $app->group("/projects", function ($projects)
 {
     $projects->group("/{projectId}", function ($project)
     {
+        $project->patch("", Psn\Controllers\Actions\ProjectPatchAction::class);
         $project->delete("", Psn\Controllers\Actions\ProjectDeleteAction::class);
     });
 
