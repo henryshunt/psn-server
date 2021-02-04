@@ -30,7 +30,7 @@ $app->group("/projects", function ($projects)
     
     $projects->get("", Psn\Controllers\Pages\ProjectsPage::class)->setName("projects");
 
-})->add(new AuthMiddleware(true));
+})->add(new AuthMiddleware("AUTH_CONT_NAUTH_LOGIN"));
 
 
 // These routes resolve to actions (API-like, JSON response)
@@ -43,7 +43,7 @@ $app->group("/projects", function ($projects)
 
     $projects->post("", Psn\Controllers\Actions\ProjectsPostAction::class);
 
-})->add(new AuthMiddleware(false))->add(new ActionMiddleware());
+})->add(new AuthMiddleware("AUTH_CONT_NAUTH_RETURN"))->add(new ActionMiddleware());
 
 
 // These routes provide the authentication system
@@ -53,9 +53,10 @@ $app->group("/auth", function ($auth)
     {
         $login->get("", Psn\Controllers\Pages\LoginPage::class)->setName("login");
         $login->post("/internal", Psn\Controllers\Actions\InternalLoginAction::class);
-    });
+    })->add(new AuthMiddleware("AUTH_INDEX_NAUTH_CONT"));
 
-    $auth->get("/logout", Psn\Controllers\Actions\LogoutAction::class)->setName("logout");
+    $auth->get("/logout", Psn\Controllers\Actions\LogoutAction::class)->setName("logout")
+        ->add(new AuthMiddleware("AUTH_CONT_NAUTH_LOGIN"));
 });
 
 
