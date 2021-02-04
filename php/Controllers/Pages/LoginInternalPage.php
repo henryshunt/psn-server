@@ -1,5 +1,5 @@
 <?php
-namespace Psn\Controllers\Actions;
+namespace Psn\Controllers\Pages;
 
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -9,7 +9,7 @@ use Dflydev\FigCookies\FigResponseCookies;
 use Dflydev\FigCookies\SetCookie;
 
 
-class InternalLoginAction
+class LoginInternalPage
 {
     private $request;
     private $pdo;
@@ -23,13 +23,8 @@ class InternalLoginAction
         return $this->logIn();
     }
 
-    private function logIn()
+    private function logIn(): Response
     {
-        $cookie = FigRequestCookies::get($this->request, SESSION_COOKIE_NAME);
-
-        // if ($cookie !== null)
-        //     return $this->redirectToProjects();
-
         $params = (array)$this->request->getParsedBody();
 
         if (!array_key_exists("username", $params) || !array_key_exists("password", $params))
@@ -71,13 +66,13 @@ class InternalLoginAction
         }
     }
 
-    private function redirectToProjects() : Response
+    private function redirectToProjects(): Response
     {
         $url = RouteContext::fromRequest($this->request)->getRouteParser()->urlFor("projects");
         return $this->response->withHeader("Location", $url)->withStatus(302);
     }
 
-    private function redirectToLogin(string $error) : Response
+    private function redirectToLogin(string $error): Response
     {
         $url = RouteContext::fromRequest($this->request)->getRouteParser()
             ->urlFor("login", [], ["error" => $error]);

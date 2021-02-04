@@ -13,7 +13,7 @@ use Slim\Exception\HttpInternalServerErrorException;
 
 class ActionMiddleware
 {
-    public function __invoke(Request $request, RequestHandler $handler) : Response
+    public function __invoke(Request $request, RequestHandler $handler): Response
     {
         try
         {

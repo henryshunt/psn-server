@@ -52,10 +52,10 @@ $app->group("/auth", function ($auth)
     $auth->group("/login", function ($login)
     {
         $login->get("", Psn\Controllers\Pages\LoginPage::class)->setName("login");
-        $login->post("/internal", Psn\Controllers\Actions\InternalLoginAction::class);
+        $login->post("/internal", Psn\Controllers\Pages\LoginInternalPage::class);
     })->add(new AuthMiddleware("AUTH_INDEX_NAUTH_CONT"));
 
-    $auth->get("/logout", Psn\Controllers\Actions\LogoutAction::class)->setName("logout")
+    $auth->get("/logout", Psn\Controllers\Pages\LogoutPage::class)->setName("logout")
         ->add(new AuthMiddleware("AUTH_CONT_NAUTH_LOGIN"));
 });
 
