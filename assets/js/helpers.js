@@ -88,27 +88,53 @@ function getJson(url)
     });
 }
 
-function postJson(url, json)
+function postRequest(url, json)
 {
     return new Promise((resolve, reject) =>
     {
-        var request = new XMLHttpRequest();
-        request.open("POST", url, true);
-        request.setRequestHeader("Content-Type", "application/json");
+        fetch(url, { method: "POST", body: json })
+            .then(response =>
+            {
+                response.json()
+                    .then(json =>
+                    {
+                        if (response.ok)
+                            resolve({ status: response.status, json: json });
+                        else reject({ status: response.status, json: json });
+                    })
+                    .catch(() =>
+                    {
+                        if (response.ok)
+                            resolve({ status: response.status, json: null });
+                        else reject({ status: response.status, json: null });
+                    });
+            })
+            .catch(() => reject({ status: 0, json: null }));
+    });
+}
 
-        request.onload = () =>
-        {
-            if (request.getResponseHeader("Content-Type") === "application/json")
-                var data = JSON.parse(request.responseText);
-            else var data = null;
-
-            if (request.status >= 200 && request.status < 300)
-                resolve(data);
-            else reject(data);
-        };
-
-        request.onerror = () => reject(null, null);
-        request.send(json);
+function patchRequest(url, json)
+{
+    return new Promise((resolve, reject) =>
+    {
+        fetch(url, { method: "PATCH", body: json })
+            .then(response =>
+            {
+                response.json()
+                    .then(json =>
+                    {
+                        if (response.ok)
+                            resolve({ status: response.status, json: json });
+                        else reject({ status: response.status, json: json });
+                    })
+                    .catch(() =>
+                    {
+                        if (response.ok)
+                            resolve({ status: response.status, json: null });
+                        else reject({ status: response.status, json: null });
+                    });
+            })
+            .catch(() => reject({ status: 0, json: null }));
     });
 }
 
@@ -128,24 +154,5 @@ function deleteReq(url)
 
         request.onerror = () => reject(null);
         request.send();
-    });
-}
-
-function patchReq(url, data)
-{
-    return new Promise((resolve, reject) =>
-    {
-        var request = new XMLHttpRequest();
-        request.open("PATCH", url, true);
-
-        request.onload = () =>
-        {
-            if (request.status >= 200 && request.status < 400)
-                resolve(JSON.parse(request.responseText), request.status);
-            else reject(JSON.parse(request.responseText), request.status);
-        };
-
-        request.onerror = () => reject(null, null);
-        request.send(data);
     });
 }

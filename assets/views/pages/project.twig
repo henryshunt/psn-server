@@ -19,14 +19,14 @@
         <link href="{{ assets }}/css/header.css" rel="stylesheet">
         <script src="{{ assets }}/js/header.js"></script>
         <link href="{{ assets }}/css/grouping.css" rel="stylesheet">
+        <link href="{{ assets }}/css/modal.css" rel="stylesheet">
         <link href="{{ assets }}/css/pages/project.css" rel="stylesheet">
         <script src="{{ assets }}/js/pages/project.js"></script>
 
-        <link href="{{ assets }}/css/modal.css" rel="stylesheet">
-        <link href="{{ assets }}/css/modals/edit-project.css" rel="stylesheet">
-        <script src="{{ assets }}/js/modals/edit-project.js"></script>
-        <link href="{{ assets }}/css/modals/add-node.css" rel="stylesheet">
-        <script src="{{ assets }}/js/modals/add-node.js"></script>
+        <script>
+            const projectName = "{{ project.name }}";
+            const projectDescription = "{{ project.description }}";
+        </script>
     </head>
 
     <body>
@@ -40,7 +40,13 @@
                         <span class="info-group__sub-title" id="project-name">{{ project.name }}</span>
                     </p>
 
-                    <p class="info-group__body" id="project-desc">{{ project.description }}</p>
+                    <p class="info-group__body" id="project-desc">
+                        {% if project.description is null %}
+                            {{ "<i>No Description Available</i>" }}
+                        {% else %}
+                            {{ project.description }}
+                        {% endif %}
+                    </p>
                 </div>
             
                 <div class="info-group__right">
@@ -103,8 +109,78 @@
             </div>
         </main>
 
+
         <div class="modal__shade modal__shade--hidden" id="modal-shade"></div>
-        {% include "partials/modals/editProject.twig" %}
-        {% include "partials/modals/addNode.twig" %}
+
+        <!-- Edit project modal -->
+        <div class="modal modal--hidden" id="editprj-modal">
+            <div class="modal__header">
+                <p class="modal__title">Edit Project Information</p>
+            </div>
+
+            <div class="modal__content">
+                <form id="m-editprj-form">
+                    <p class="modal__field-title">Name</p>
+                    <input class="m-editprj-name" id="m-editprj-name" type="text" maxlength="128"/>
+
+                    <p class="modal__field-title">Description</p>
+                    <textarea class="m-editprj-desc" id="m-editprj-desc" maxlength="255"></textarea>
+                </form>
+            </div>
+
+            <div class="modal__footer">
+                <p class="modal__status" id="m-editprj-status"></p>
+
+                <div class="modal__buttons">
+                    <button class="modal__submit" id="m-editprj-submit" form="m-editprj-form">Save</button>
+                    <button class="modal__cancel" id="m-editprj-cancel">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add node modal -->
+        <div class="modal modal--hidden" id="addnode-modal">
+            <div class="modal__header">
+                <p class="modal__title">Add a Sensor Node to the Project</p>
+            </div>
+
+            <div class="modal__content">
+                <form id="m-addnode-form">
+                    <p class="modal__field-title">Sensor Node</p>
+                    <select class="m-addnode-node" id="m-addnode-node">
+                        <option>Select</option>
+                    </select>
+
+                    <p class="modal__field-title">Description of Location</p>
+                    <input class="m-addnode-location" id="m-addnode-location" type="text" maxlength="128"/>
+
+                    <p class="modal__field-title">Reporting Interval</p>
+                    <select class="m-addnode-interval" id="m-addnode-interval">
+                        <option value="1">1 Minute</option>
+                        <option value="2">2 Minutes</option>
+                        <option value="5">5 Minutes</option>
+                        <option value="10">10 Minutes</option>
+                        <option value="15">15 Minutes</option>
+                        <option value="20">20 Minutes</option>
+                        <option value="30">30 Minutes</option>
+                    </select>
+
+                    <p class="modal__field-title">End Reporting At (Leave Empty for No End)</p>
+                    <input class="m-addnode-end" id="m-addnode-end" type="text"/>
+
+                    <p class="modal__field-title">Transmit Reports in Batches Of</p>
+                    <input class="m-addnode-batch" id="m-addnode-batch" type="number" min="1" max="127" value="1"/>
+                </form>
+            </div>
+
+            <div class="modal__footer">
+                <p class="modal__status" id="m-addnode-status"></p>
+
+                <div class="modal__buttons">
+                    <button class="modal__submit" id="m-addnode-submit" form="m-addnode-form" disabled>Add</button>
+                    <button class="modal__cancel" id="m-addnode-cancel" disabled>Cancel</button>
+                </div>
+            </div>
+        </div>
     </body>
 </html>

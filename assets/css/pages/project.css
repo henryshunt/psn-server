@@ -8,3 +8,17 @@
     font-size: 12px;
     line-height: 18px;
 }
+
+/* Edit project modal */
+.m-editprj-name {
+    margin-bottom: 12px;
+}
+
+/* Add node modal */
+.m-addnode-node,
+.m-addnode-location,
+.m-addnode-interval,
+.m-addnode-end,
+.m-addnode-batch {
+    margin-bottom: 12px;
+}

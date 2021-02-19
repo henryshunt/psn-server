@@ -34,15 +34,24 @@ $app->group("/projects", function ($projects)
 
 
 // These routes resolve to actions (API-like, JSON response)
-$app->group("/projects", function ($projects)
+$app->group("", function ($actions)
 {
-    $projects->group("/{projectId}", function ($project)
+    $actions->group("/projects", function ($projects)
     {
-        $project->patch("", Psn\Controllers\Actions\ProjectPatchAction::class);
-        $project->delete("", Psn\Controllers\Actions\ProjectDeleteAction::class);
+        $projects->group("/{projectId}", function ($project)
+        {
+            $project->patch("", Psn\Controllers\Actions\ProjectPatchAction::class);
+            $project->delete("", Psn\Controllers\Actions\ProjectDeleteAction::class);
+        });
+
+        $projects->post("", Psn\Controllers\Actions\ProjectsPostAction::class);
+
     });
 
-    $projects->post("", Psn\Controllers\Actions\ProjectsPostAction::class);
+    $actions->group("/nodes/inactive", function ($nodes)
+    {
+        $nodes->get("", Psn\Controllers\Actions\NodesInactiveGetAction::class);
+    });
 
 })->add(new AuthMiddleware("AUTH_CONT_NAUTH_RETURN"))->add(new ActionMiddleware());
 

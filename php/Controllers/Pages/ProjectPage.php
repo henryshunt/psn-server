@@ -53,11 +53,7 @@ class ProjectPage
 
             $this->project["projectId"] = $this->resArgs["projectId"];
             $this->project["name"] = $query[0]["name"];
-
-            if ($query[0]["description"] === null)
-                $this->project["description"] = "No Description Available";
-            else $this->project["description"] = $query[0]["description"];
-
+            $this->project["description"] = $query[0]["description"];
             $this->project["isActive"] = (bool)$query[0]["isActive"];
         }
         catch (\PDOException $ex)
